@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>test</title>
+</head>
+<body>
+
+<script src="js/underscore.js"></script>
+<script src="js/jquery.js"></script>
+<script src="js/abc.js"></script>
+
+<script>
+
+    /*
+    * B는 this를 제외한 bind라고 생각하면 쉽습니다.
+    * 혹은 underscore의 _.partial과 유사합니다.
+    * */
+
+    function minus(a, b) {
+        return a - b;
+    }
+
+    var f1 = B(10, minus);
+    var r1 = f1(20);
+    console.log(r1);
+
+    /*
+    * X와 함께 사용해보세요.
+    * */
+
+    var f2 = B(X, 10, minus);
+    var r2 = f2(20);
+    console.log(r2);
+
+
+    function minus2(a, b, c, d) {
+        return a - b - c - d;
+    }
+
+    var f3 = B(4, X, X, 1, minus2);
+    var r3 = f3(3, 2);
+    console.log(r3);
+
+</script>
+
+</body>
+</html>
