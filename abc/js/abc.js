@@ -19,7 +19,6 @@
     window.V = V;
     window.X = new Object();
 
-
     B.P = B(I, base_bp);
     window.P0 = I;
     window.P1 = B.P(1);
@@ -27,9 +26,7 @@
     window.P3 = B.P(3);
     window.P4 = B.P(4);
 
-
     function A(args, func) { return C.apply(null, _.toArray(args).concat([func])); }
-
 
     function B() {
         var args = _.toArray(arguments);
@@ -57,9 +54,7 @@
 
     B.V = function(key) { return B(X, key, V); };
 
-    B.M = function() {
-        return B.apply(void 0, [X].concat(_.toArray(arguments)).concat(M));
-    };
+    B.M = function() { return B.apply(void 0, [X].concat(_.toArray(arguments)).concat(M)); };
 
     B.each = function(iter) {
         return B(
@@ -226,8 +221,6 @@
         return B(X, func, A);
     };
 
-
-
     function base_loop_fn_base_args(list, keys, i) {
         var key = keys ? keys[i] : i
         return [list[key], key, list];
@@ -316,29 +309,17 @@
         })(TO_R(args));
     }
 
-
     C.each = B.each(null);
-
     C.map = B.map(null);
-
     C.reduce = B.reduce(null);
-
     C.filter = B.filter(null);
-
     C.reject = B.reject(null);
-
     C.find = B.find(null);
-
     C.some = B.some(null);
-
     C.every = B.every(null);
-
     C.uniq = B.uniq(null);
-
     C.all = F("TODO");
-
     C.div = F("TODO");
-
 
     function F(nodes) {
         var f = V(G, nodes);
@@ -349,7 +330,6 @@
             console.log('-------------------------------------------');
         }) && function() { return A(arguments, f || (f = V(G, nodes))); }
     }
-
 
     /* H start */
     var TAB_SIZE = 4;
@@ -508,26 +488,19 @@
     function return_check(val) {
         return (_.isNull(val) || _.isUndefined(val)) ? '' : val;
     }
-
     /* H end */
-
 
     function I(v) { return v; }
 
-
     function J(v) { return function() { return v; } }
-
 
     function M(obj, method) {
         return obj[method].apply(obj, _.rest(arguments, 2));
     }
 
-
     window.N = J(null);
 
-
     function P() { return arguments; }
-
 
     function R(arg) {
         if (arguments.length <= 1) return arg;
@@ -541,7 +514,6 @@
     }
     window.TO_R = TO_R;
 
-
     function S(var_names/*, source...*/) {
         return s.apply(null, [S, 'S', function(s, d) { return R(s, d); }].concat(_.toArray(arguments)));
     }
@@ -552,17 +524,13 @@
 
     S._A_func_storage = {};
 
-
     window.TODO = J("TODO");
 
-
     function U() {}
-
 
     function V(obj, key) {
         return (function v(obj, idx, keys) {
             return (obj = obj[keys[idx]]) ? keys.length-1 == idx ? obj : v(obj, idx+1, keys) : void 0;
         })(obj, 0, key.split('.'));
     }
-
 }(typeof global == 'object' && global.global == global && (G.window = G = global) || (G = window));
