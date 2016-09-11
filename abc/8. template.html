@@ -16,7 +16,7 @@
     function delay(func, s) {
         setTimeout(function() {
             func();
-        }, 1000);
+        }, 250);
     }
 
     function hr() {
@@ -154,9 +154,9 @@
         H('songs', '\
             h3 Sing Street OST\
             ul\
-            {{{C(songs, ', H.each('song, i', '\
-                li {{i+1}}. {{song}}\
-            '),')}}}'),
+                {{{C(songs, ', H.each('song, i', '\
+                    li {{i+1}}. {{song}}'),
+                ')}}}'),
         $,
         B.M('appendTo', 'body')]);
 
@@ -184,11 +184,11 @@
         H('songs', '\
             h3 Sing Street OST\
             ul\
-            {{{C(songs, ', H.each('song, i', '\
-                li {{C(i, 1, sum)}}. {{song}}\
-            '),')}}}'),
+                {{{C(songs, ', H.each('song, i', '\
+                    li {{C(i, 1, sum)}}. {{song}}'),
+                ')}}}'),
         $,
-        B.M('appendTo', 'body'), // 8초 뒤 렌더링
+        B.M('appendTo', 'body'), // 2초 뒤 렌더링
         function() {
             $("html, body").animate({ scrollTop: $(window).scrollTop() + $(window).height() });
         }]);
