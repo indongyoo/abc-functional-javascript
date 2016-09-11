@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>test</title>
+</head>
+<body>
+<script src="https://cdn.jsdelivr.net/bluebird/latest/bluebird.js"></script>
+
+<script src="js/underscore.js"></script>
+<script src="js/jquery.js"></script>
+<script src="js/abc.js"></script>
+
+<script>
+
+    /*
+    * underscorejs의 each, map, find 등의 함수보다 편의성을 높였습니다.
+    * 1. this는 사용하지 않으며 대신 iteratee 함수에게 인자를 여러개를 넘길 수 있습니다.
+    *  ex) [1, 2, 3], arg1, arg2, arg3 => value, key, list, arg1, arg2, arg3 ...
+    * 2. 비동기 제어가 됩니다.
+    * 3. iteratee나 predicate 함수를 파이프라인으로 만들 수 있습니다.
+    * 4. 즉시 실행인 C.map과 부분 실행 컨셉의 B.map이 있어 파이프라인에서 편하게 사용할 수 있습니다.
+    * */
+
+    function delay(func, s) {
+        setTimeout(function() {
+            func();
+        }, 1000);
+    }
+
+    function sum(a, b) {
+        return a + b;
+    }
+
+    function square(a) {
+        return a * a;
+    }
+
+    C.each([1, 2, 3], function(v) {
+        console.log(v);
+    });
+
+    var r1 = C.map([1, 2, 3], square);
+    console.log(r1);
+
+    /* iteratee 함수를 파이프라인으로 만들 수 있습니다. */
+    var r2 = C.map({ a: 1, b: 2, c: 3 }, [I, square]);
+    console.log(r2);
+
+    var r3 = C.map([1, 2, 3], 5, function(v, i, l, a) { //val, idx, list, 5
+        return sum(v, a);
+    });
+    console.log(r3);
+
+    /* B.P는 들어온 인자중 원하는 번째의 인자를 모아 array로 바꿔주는 기능입니다. */
+    var r4 = C.map([1, 2, 3], 5, [B.P(0, 3), TO_R, sum]);
+    console.log(r4);
+
+    /* B.PR은 R(B.P()) 입니다. */
+    var r5 = C.map([1, 2, 3], 5, [B.PR(0, 3), sum]);
+    console.log(r5);
+
+    // function I(v) { return v; }
+    var r6 =
+        C({ a: 1, b: 2, c: 3 }, [
+            B.map(I), // [1, 2, 3]
+            B.map(square), // [1, 4, 9]
+            function(v) { return R(v, 0); },
+            B.reduce(function(memo, v) {
+                return memo + v;
+            })]);
+    console.log(r6);
+
+    var minus = function(a, b) {
+        return a - b;
+    };
+
+    C({ a: 1, b: 2, c: 3 }, [
+        B.map(I), // [1, 2, 3]
+        B.map(square), // [1, 4, 9]
+        function(v) { return R(v, 0); },
+        B.reduce([B.PR(0, 1), minus]), // 동기
+        function(r7) {
+            console.log(r7);
+        }]);
+
+    var minus2 = CB(function(a, b, cb) {
+        delay(function() {
+            cb(a - b);
+        });
+    });
+
+    /*
+    * 비동기 함수가 있어도 코딩 패턴을 바꾸지 않고 편하게 코딩할 수 있습니다.
+    * */
+    C({ a: 1, b: 2, c: 3 }, [
+        B.map(I), // [1, 2, 3]
+        B.map(square), // [1, 4, 9]
+        function(v) { return R(v, 0); },
+        B.reduce([B.PR(0, 1), minus2]), // 비동기
+        function(r7) {
+            console.log(r7);
+        }]);
+
+    var users = [
+        { id: 1, age: 20, activated: true  },
+        { id: 2, age: 20, activated: false },
+        { id: 3, age: 31, activated: false },
+        { id: 4, age: 32, activated: true },
+        { id: 5, age: 17, activated: true },
+        { id: 6, age: 32, activated: true }
+    ];
+
+    C(users, [
+        B.filter(B.V('activated')),
+        B.reject(function(user) {
+            return user.age > 30;
+        }),
+        B.map(B.V('age')),
+        function(r8) {
+            console.log(r8); // [20, 17]
+        }]);
+
+    C(users, [
+        B.uniq(B.V('age')),
+        B.map(B.V('id')),
+        function(r9) {
+            console.log(r9); // [1, 3, 4, 5]
+        }]);
+
+    C(users, [
+        G[":reject :age > 30"] = B.reject(function(user) {
+            return user.age > 30;
+        }),
+        B.every(B.V('activated')),
+        function(r10) {
+            console.log(r10); // false
+        }]);
+
+    C(users, [
+        G[":reject :age > 30"],
+        B.some(B.V('activated')),
+        function(r11) {
+            console.log(r11); // true
+        }]);
+
+    /*
+    * array, object, [obj, obj, obj] 등을 편리하게 다룰 수 있는 유용한 함수들입니다.
+    * C.each, C.map, C.reduce, C.filter, C.reject, C.find, C.some, C.every, C.uniq,
+    * B.each, map, B.reduce, B.filter, B.reject, B.find, B.some, B.every, B.uniq
+    * */
+
+</script>
+
+</body>
+</html>

@@ -107,18 +107,17 @@
 
     C(3, 2, [
         function(a, b) {
-            return [a + b, a - b, a * b];
+            return R(a + b, a - b, a * b); // multiple results
         },
-        R, // array to returns
         function(a, b, c) {
             console.log(a, b, c);
-            return R(a, c); // arguments to returns
+            return R(a, c); // multiple results
         },
         function(a, c) {
             console.log(a, c);
             return arguments;
         },
-        R, // arguments to returns
+        TO_R, // arguments to multiple results
         function(a, c) {
             console.log(a, c);
         }
@@ -126,6 +125,7 @@
 
     /* B를 통해 함수를 정의하면 ABC를 이용하지 않고도 R(returns)을 동작 시킬 수 있습니다. */
     var sum = B(function(a, b) {
+        console.log(a, b)
         return a + b;
     });
 
@@ -157,7 +157,7 @@
         _.toArray,
         B.M('sort'), // function(a) { return a.sort(); },
         B.M('reverse'),  // function(a) { return a.reverse(); },
-        R,
+        TO_R, // array to multiple results
         minus
     ]);
 

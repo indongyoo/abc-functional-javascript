@@ -8,27 +8,24 @@
     window.H = H;
     window.G = G;
     window.I = I; // I
-    window.J = B(I, B);// always
+    window.J = J; // always
     window.M = M;
     window.N;
     window.P = P;
     window.R = R;
     window.S = S;
     window.TODO;
-    window.U = U; // U
+    window.U = U; // return undefined
     window.V = V;
     window.X = new Object();
 
 
-    window.CB = B(X, { _A_is_cb: true }, E);
     B.P = B(I, base_bp);
-    P[0] = I;
-    P[1] = B.P(1);
-    P[2] = B.P(2);
-    P[3] = B.P(3);
-    P[4] = B.P(4);
-
-    var JCB = B(X, { _A_just_cb: true }, E);
+    window.P0 = I;
+    window.P1 = B.P(1);
+    window.P2 = B.P(2);
+    window.P3 = B.P(3);
+    window.P4 = B.P(4);
 
 
     function A(args, func) { return C.apply(null, _.toArray(args).concat([func])); }
@@ -51,25 +48,25 @@
     function base_bp(next, idx) {
         if (arguments.length == 2) return function () { return arguments[idx] };
         var idxs = _.rest(arguments);
-        return next(function() {
-            return C.map(idxs, arguments, function(v, i, l, args) { return args[i]; });
+        return (function() {
+            return next(C.map(idxs, arguments, function(v, i, l, args) { return args[v]; }));
         });
     }
 
-    B.PR = B(R, base_bp);
+    B.PR = B(TO_R, base_bp);
 
     B.V = function(key) { return B(X, key, V); };
 
     B.M = function() {
-        return B.apply(undefined, [X].concat(_.toArray(arguments)).concat(M));
+        return B.apply(void 0, [X].concat(_.toArray(arguments)).concat(M));
     };
 
     B.each = function(iter) {
         return B(
-            P[4], // body
+            P4, // body
             U, // naganya
-            undefined, // naga
-            P[1],
+            void 0, // naga
+            P1,
             iter, // iter_or_predi
             base_loop_fn_base_args,
                 base_loop_fn);
@@ -82,7 +79,7 @@
                 return res;
             },
             U, // naganya
-            undefined, // naga
+            void 0, // naga
             I, // footer
             iter,       // iter_or_predi
             base_loop_fn_base_args,
@@ -95,8 +92,8 @@
                 return i == 0 ? args[0] : res;
             },
             U, // naganya
-            undefined, // naga
-            P[2], // footer
+            void 0, // naga
+            P2, // footer
             iter,   // iter_or_predi
             function(list, keys, i, res) { // params
                 var key = keys ? keys[i] : i;
@@ -113,7 +110,7 @@
                 return res;
             },
             U, // naganya
-            undefined, // naga
+            void 0, // naga
             I, // footer
             iter,   // iter_or_predi
             base_loop_fn_base_args,
@@ -128,7 +125,7 @@
                 return res;
             },
             U, // naganya
-            undefined, // naga
+            void 0, // naga
             I, // footer
             iter,
             base_loop_fn_base_args,
@@ -137,7 +134,7 @@
 
     B.find = function(iter) {
         return B(
-            P[4],
+            P4,
             I, // naganya
             function(list, keys, i) {
                 return list[keys ? keys[i-1] : i-1];
@@ -150,7 +147,7 @@
 
     B.some = function(iter) {
         return B(
-            P[4],
+            P4,
             I, // naganya
             J(true), // naga
             J(false), // footer
@@ -182,7 +179,7 @@
                 }
             },
             U,   // naganya
-            undefined,   // naga
+            void 0,   // naga
             I, // footer
             iter,
             base_loop_fn_base_args,
@@ -211,8 +208,8 @@
 
         return function() {
             var args = _.toArray(arguments);
-            //args.length = Math.max(funcs.length, args.length); // 왜 undefined로 안채워지지!?? - 밖에서 테스트할때만 undefined 채워짐. 왜 다르지?
-            if (args.length < funcs.length) while(args.length < funcs.length) args.push(undefined);
+            //args.length = Math.max(funcs.length, args.length); // 왜 void 0로 안채워지지!?? - 밖에서 테스트할때만 void 0 채워짐. 왜 다르지?
+            if (args.length < funcs.length) while(args.length < funcs.length) args.push(void 0);
             return A([args, funcs], _div_map);
         };
     };
@@ -270,11 +267,16 @@
         })();
     }
 
+    window.CB = B([P, B.map([I, B(X, { _A_is_cb: true }, E)])]);
+    window.JCB = B(X, { _A_just_cb: true }, E);
+
+    function IS_R(arg) { return _.isArray(arg) && arg._A_is_returns; }
 
     function C() {
         var args = _.toArray(arguments);
         if (!_.isArray(_.last(args))) args[args.length-1] = [args[args.length-1]];
         var fns = _.flatten(args.pop());
+        if (args.length == 1 && IS_R(args[0])) args = args[0];
 
         var then_cb = null;
         var then_obj_returned = false;
@@ -283,35 +285,35 @@
         } };
 
         var i = 0;
-
         return (function c(res) {
             if (maybe_promise(res)) {
                 then_obj_returned = true;
-                res.then(c);
-                // then_obj_returned = true;
+                res.then(function(r) { c(r) });
                 return then_obj;
             }
 
             if (i == fns.length) {
                 i = fns = null;
+                if (!then_obj_returned) return res;
+
                 // 혹시 모두 동기로 끝나버려 then_cb가 아직 안들어온 경우 안전하게 한번 기다려주고
-                return !then_obj_returned ? res : (then_cb ? then_cb(res) : setTimeout(function() { if (then_cb) then_cb(res); }));
+                if (!IS_R(res)) res = [res];
+                return then_cb ? then_cb.apply(void 0, res) : setTimeout(function() { then_cb && then_cb.apply(void 0, res); });
             }
 
-            // returns가 아닌 경우
-            if (!_.isArray(res) || !res._A_is_returns) res = [res];
+            if (!IS_R(res)) res = [res];
 
             // 동기 경우
-            if (!fns[i]._A_is_cb && !fns[i]._A_just_cb) return c(fns[i++].apply(undefined, res));
+            if (!fns[i]._A_is_cb && !fns[i]._A_just_cb) return c(fns[i++].apply(void 0, res));
 
             // 동기이고 그냥 callback, 혹시 생길 수 있는 비동기를 미리 잡기 위해서도 사용
-            if (!fns[i]._A_is_cb) return fns[i++].apply(undefined, res.concat(c));
+            if (!fns[i]._A_is_cb) return fns[i++].apply(void 0, res.concat(function() { return c(TO_R(arguments)); }));
 
             // 비동기일 경우
             then_obj_returned = true;
-            fns[i++].apply(undefined, res.concat(c));
+            fns[i++].apply(void 0, res.concat(function() { return c(TO_R(arguments)); }));
             return then_obj;
-        })(R.apply(undefined, args));
+        })(TO_R(args));
     }
 
 
@@ -333,22 +335,19 @@
 
     C.uniq = B.uniq(null);
 
-    C.all = J("TODO");
+    C.all = F("TODO");
 
-    C.div = J("TODO");
+    C.div = F("TODO");
 
 
     function F(nodes) {
         var f = V(G, nodes);
-        setTimeout(function() {
-            f = V(G, nodes);
+        return f || setTimeout(function() {
+            if (f = f || V(G, nodes)) return;
             console.log('-------------------------------------------');
             console.log('warning: ' + nodes + ' is not defined');
             console.log('-------------------------------------------');
-        });
-        return f || function() {
-            return A(arguments, f || (f = V(G, nodes)));
-        }
+        }) && function() { return A(arguments, f || (f = V(G, nodes))); }
     }
 
 
@@ -379,7 +378,7 @@
 
         return function() {
             var args = _.toArray(arguments);
-            var data = var_names ? _.object(var_names.match(/\w+/g), args) : undefined;
+            var data = var_names ? _.object(var_names.match(/\w+/g), args) : void 0;
 
             return C(source, data, [
                 remove_comment,
@@ -400,8 +399,8 @@
     }
 
     function remove_comment(source, data) {
-        return R([source.replace(/\/\*(.*?)\*\//g, "").replace(
-            new RegExp("\/\/"+TABS+".*?(?=((\/\/)?"+TABS+"))|\/\/"+TABS+".*", "g"), ""), data]);
+        return R(source.replace(/\/\*(.*?)\*\//g, "").replace(
+            new RegExp("\/\/"+TABS+".*?(?=((\/\/)?"+TABS+"))|\/\/"+TABS+".*", "g"), ""), data);
     }
 
     var unescaped_exec = B(/!\{(.*?)\}!/, I, s_exec); //!{}!
@@ -409,7 +408,7 @@
     var insert_datas2 = B(/\{\{(.*?)\}\}/, _.escape, s_exec); // {{}}
 
     function s_exec(re, wrap, source, data) {
-        if (!source.match(re)) return R([source, data]);
+        if (!source.match(re)) return R(source, data);
 
         return C(data,
             [new Function("data", "with(data||{}) { return " + RegExp.$1 + "; }"),
@@ -464,7 +463,7 @@
 
         while(tag_stack.length) ary[ary.length-1] += end_tag(tag_stack.pop()); // 마지막 태그
 
-        return R([ary.join(""), data]);
+        return R(ary.join(""), data);
     }
 
     function line(source, tag_stack) {
@@ -516,6 +515,9 @@
     function I(v) { return v; }
 
 
+    function J(v) { return function() { return v; } }
+
+
     function M(obj, method) {
         return obj[method].apply(obj, _.rest(arguments, 2));
     }
@@ -527,15 +529,21 @@
     function P() { return arguments; }
 
 
-    function R(args) {
-        if (_.isArray(args) && args._A_is_returns) return args;
-        if (arguments.length != 1) args = _.toArray(arguments);
-        return _.extend(_.clone(_.toArray(args)), { _A_is_returns: true });
+    function R(arg) {
+        if (arguments.length <= 1) return arg;
+        if (_.isArray(arg) && arg._A_is_returns) return arg;
+        return _.extend(_.toArray(arguments), { _A_is_returns: true });
     }
+
+    function TO_R(arg) {
+        if (_.isArray(arg) && arg._A_is_returns) return arg;
+        return _.extend(_.values(arg), { _A_is_returns: true });
+    }
+    window.TO_R = TO_R;
 
 
     function S(var_names/*, source...*/) {
-        return s.apply(null, [S, 'S', function(s, d) { return R([s, d]); }].concat(_.toArray(arguments)));
+        return s.apply(null, [S, 'S', function(s, d) { return R(s, d); }].concat(_.toArray(arguments)));
     }
 
     S.each = function(var_names/*, source...*/) {
@@ -553,7 +561,7 @@
 
     function V(obj, key) {
         return (function v(obj, idx, keys) {
-            return (obj = obj[keys[idx]]) ? keys.length-1 == idx ? obj : v(obj, idx+1, keys) : undefined;
+            return (obj = obj[keys[idx]]) ? keys.length-1 == idx ? obj : v(obj, idx+1, keys) : void 0;
         })(obj, 0, key.split('.'));
     }
 
