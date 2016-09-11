@@ -10,13 +10,13 @@
 
 <script src="js/underscore.js"></script>
 <script src="js/jquery.js"></script>
-<script src="abc.js"></script>
+<script src="js/abc.js"></script>
 
 <script>
     function delay(func, s) {
         setTimeout(function() {
             func();
-        }, 1000);
+        }, 250);
     }
 
     function hr() {
@@ -148,15 +148,15 @@
     hr();
 
     /*
-     * H.each
+     * H.each, S.each
      * */
     C(songs, [
         H('songs', '\
             h3 Sing Street OST\
             ul\
-            {{{C(songs, ', H.each('song, i', '\
-                li {{i+1}}. {{song}}\
-            '),')}}}'),
+                !{C(songs, ', S.each('song, i', '\
+                    li {{i+1}}. {{song}}'),
+                ')}!'),
         $,
         B.M('appendTo', 'body')]);
 
@@ -165,12 +165,12 @@
 
     /*
     * 템플릿 동작 순서
-    * 1. #{}# 실행 및 데이터 치환, 리턴 값이 H 문법이어야 함
+    * 1. !{}! 실행 및 데이터 치환, 리턴 값을 H 문법으로 하고 싶을때
     * 2. H to HTML
-    * 3. {{}} 실행 및 데이터 치환, 리턴 값이 일반 문자열이어야 함
-    * 4. {{}} 실행 및 데이터 치환, 리턴 값이 HTML이어야 함
+    * 3. {{{}}} 실행 및 데이터 치환, 리턴 값을 HTML로 만들고 싶을때
+    * 4. {{}} 실행 및 데이터 치환, 리턴 값이 일반 문자열이어야 함
     *
-    * #{}#, {{}} {{}} 의 실행결과가 .then 인 경우 비동기를 기다렸다가 완성함
+    * !{}!, {{}} {{{}}} 의 실행결과가 .then 인 경우 비동기를 기다렸다가 완성함
     * */
 
     var sum = CB(function (a, b, cb) {
@@ -184,16 +184,20 @@
         H('songs', '\
             h3 Sing Street OST\
             ul\
-            {{{C(songs, ', H.each('song, i', '\
-                li {{C(i, 1, sum)}}. {{song}}\
-            '),')}}}'),
+                {{{C(songs, ', H.each('song, i', '\
+                    li {{C(i, 1, sum)}}. {{song}}'), // delay
+                ')}}}'),
         $,
-        B.M('appendTo', 'body'), // 8초 뒤 렌더링
+        B.M('appendTo', 'body'), // 2초 뒤 렌더링
         function() {
             $("html, body").animate({ scrollTop: $(window).scrollTop() + $(window).height() });
         }]);
 
-    /* S는 일반 문자열을 만들때 사용합니다. S와 S.each가 있습니다. */
+    /*
+     * S는 일반 문자열을 만들때 사용합니다. S와 S.each가 있습니다.
+     * H, H.each는 HTML로 변환하여 리턴하고 S, S.each는 데이터 치환만한 문자열을 리턴합니다.
+     * */
+
     C({ id: 5, body: "foo bar" }, [
         _.values,
         TO_R,
