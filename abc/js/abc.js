@@ -1,3 +1,8 @@
+// abc.js
+// https://github.com/marpple/abc-functional-javascript
+// (c) 2016 Marpple
+// abcjs may be freely distributed under the MIT license.
+
 !function(G) {
     var _ = respect_underscore();
 
