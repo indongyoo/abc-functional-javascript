@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>test</title>
+</head>
+<body>
+
+<script src="js/underscore.js"></script>
+<script src="js/jquery.js"></script>
+<script src="js/abc.js"></script>
+
+<script>
+
+    /*
+    * abcjs에서는 비동기 제어와 관련된 많은 기능을 제공합니다.
+    * 파이프라인에서 사용할 콜백 패턴의 함수를 CB 함수로 한번 넘겨 두기만 하면 됩니다.
+    * CB가 감싸졌던 f1이라는 함수를 파이프라인에 넣어두면 C함수 안에서 f1에게 필요한 callback 함수를 생성하여 마지막 인자로 넣어줍니다.
+    * 생성된 callback 함수로 값을 꺼낸 후 파이프라인의 다음 함수에게 결과를 전달합니다.
+    * CB로 감싼 후 callback 함수 인자의 자리만 제외하고 실행하거나 CB(익명함수)를 통해 C에게 받은 callback 함수를 사용하여 결과를 다음 함수로 넘기면 됩니다.
+    * Promise와 달리 여러개의 인자를 다음 함수로 주고 있던 함수이더라도 여러개의 인자로 받을 수 있습니다.
+    * */
+
+    function delay(func, s) {
+        setTimeout(function() {
+            func();
+        }, 1000);
+    }
+
+    function sum(a, b, cb) {
+        delay(function() {
+            cb(a + b);
+        });
+    }
+
+    function minus(a, b, cb) {
+        delay(function() {
+            cb(a - b);
+        });
+    }
+
+    function square(a, cb) {
+        delay(function() {
+            cb(a * a);
+        });
+    }
+
+    sum(10, 20, function (r) {
+        console.log(r);
+    });
+
+    minus(10, 7, function(r) {
+        console.log(r);
+    });
+
+    sum(5, 7, function(r) {
+        minus(r, 5, function(r) {
+            square(r, function(r) {
+                console.log(r);
+            });
+        });
+    });
+
+    /*
+    * callback 형태로 결과를 기다리는 함수를 사용할때는 CB를 감싸두기만 하면 됩니다.
+    * CB로 감싸진 function을 만나면 C안에서 callback 함수를 생성하여 마지막 인자로 넘긴 후 값을 받으면 다음 함수로 전달합니다.
+    * */
+
+    CB(sum, minus, square);
+
+    C(5, 10, [
+        sum,
+        CB(function(r, cb) {
+            minus(r, 5, cb);
+        }),
+        square,
+        function(r) {
+            console.log(r);
+        }
+    ]);
+
+
+    /* 연속으로 callback 패턴의 함수들이 나온다면 CB를 함께 싸도 됩니다. */
+    C(5, 9, [
+        sum,
+        B(X, 5, minus), // B를 활용하여 좀더 간략하게 만들 수 있습니다.
+        square,
+        function(r) {
+            console.log(r);
+        }
+    ]);
+
+
+    /*
+     * .then(function() {
+     *   return new Promise(function(rs) {
+     *       sum(5, 10, rs)
+     *   });
+     * }).then(function() {
+     *   return new Promise(function(rs) {
+     *       minus(5, 10, rs)
+     *   });
+     * });
+     *
+     * 일반 콜백함수를 Promise로 제어하는 것보다 간단하고 새로운 함수를 만들지 않으며 CB를 감싼뒤라도 콜백함수를 콜백함수 그대로 사용할 수 있습니다.
+     * Promise.promisify 보다도 단순하고 새로운 개념을 알 필요가 없습니다.
+     * .then()과 달리 multiple results도 가능합니다.
+    * */
+
+    C(5, 9, [
+        sum,
+        CB(function(a, cb) {
+            delay(function() {
+                cb(a, 10); // auto multiple results
+            });
+        }),
+        minus,
+        function(r) {
+            console.log(r);
+        }
+    ]);
+
+    var $ = {};
+
+    $.get = function(url, cb) {
+        delay(function() {
+            cb({
+                a: 5,
+                b: 3
+            });
+        });
+    };
+
+    $.post = function(url, data, cb) {
+        delay(function() {
+            cb(_.extend(data, { created_at: new Date() }));
+        });
+    };
+
+    $.put = function(url, data, cb) {
+        delay(function() {
+            cb(_.extend(data, { updated_at: new Date() }));
+        });
+    };
+
+    /*
+     * $.get, $.post 등과 유사한 위와 같은 함수가 있다고 가정할때 아래와 같이 활용할 수 있습니다.
+     * */
+
+    C([
+        CB(function(cb) {
+            $.get("/get_data", cb);
+        },
+        function(data, cb) {
+            console.log(_.clone(data));
+            $.post("/post_data", E(data, { c: 10 }), cb);
+        },
+        function(data, cb) {
+            console.log(_.clone(data));
+            $.put("/put_data", E(data, { c: 5 }), cb);
+        }),
+        function(r) {
+            console.log(r);
+        }
+    ]);
+
+    /*
+    * B를 활용하면 더욱 깔끔하게 만들 수 있습니다.
+    * */
+
+    CB($.get, $.post, $.put);
+
+    C([
+        B("/get_data", $.get),
+        B({ c: 20 }, E),
+        B("/post_data", $.post),
+        B({ c: 30 }, E),
+        B("/put_data", $.put),
+        function(r) {
+            console.log(r);
+        }
+    ]);
+
+    /*
+    * J와 R을 활용하면 다음과 같이 사용할 수 있습니다.
+    * function J(v) {
+    *   return function() {
+    *       return v;
+    *   }
+    * }
+    * */
+
+    C([
+        J(R("/post_data", { aka: 'Cojamm' })),
+        $.post,
+        function(r) {
+            console.log(r);
+        }
+    ]);
+
+</script>
+
+
+</body>
+</html>
