@@ -1,4 +1,6 @@
 !function(G) {
+    //var _ = respect_underscore();
+
     window.A = A; // thisless apply
     window.B = B; // thisless bind, like underscore partial
     window.C = C; // thisless call
@@ -30,14 +32,15 @@
 
     function B() {
         var args = _.toArray(arguments);
-        if (!_.isArray(_.last(args))) args[args.length-1] = [args[args.length-1]];
+        if (!_.isArray(args[args.length-1])) args[args.length-1] = [args[args.length-1]];
         var fns = args.pop();
         return function() {
             var args3 = _.clone(args);
-            _.each(arguments, function(arg2) {
-                var idx = _.findIndex(args3, function(arg3) { return arg3 === X; });
+            for (var i = 0, length = arguments.length; i < length; i++) {
+                var arg2 = arguments[i];
+                var idx = args3.indexOf(X);
                 args3[idx == -1 ? args3.length : idx] = arg2;
-            });
+            }
             return A(args3, fns);
         };
     }
@@ -64,7 +67,7 @@
             P1,
             iter, // iter_or_predi
             base_loop_fn_base_args,
-                base_loop_fn);
+            base_loop_fn);
     };
 
     B.map = function(iter) {
@@ -78,7 +81,7 @@
             I, // footer
             iter,       // iter_or_predi
             base_loop_fn_base_args,
-                base_loop_fn);
+            base_loop_fn);
     };
 
     B.reduce = function(iter) {
@@ -94,7 +97,7 @@
                 var key = keys ? keys[i] : i;
                 return [res, list[key], key, list];
             },
-                base_loop_fn);
+            base_loop_fn);
     };
 
     B.filter = function(iter) {
@@ -109,7 +112,7 @@
             I, // footer
             iter,   // iter_or_predi
             base_loop_fn_base_args,
-                base_loop_fn);
+            base_loop_fn);
     };
 
     B.reject = function(iter) {
@@ -124,7 +127,7 @@
             I, // footer
             iter,
             base_loop_fn_base_args,
-                base_loop_fn);
+            base_loop_fn);
     };
 
     B.find = function(iter) {
@@ -137,7 +140,7 @@
             U, // footer
             iter,   // iter_or_predi
             base_loop_fn_base_args,
-                base_loop_fn);
+            base_loop_fn);
     };
 
     B.some = function(iter) {
@@ -148,27 +151,29 @@
             J(false), // footer
             iter,
             base_loop_fn_base_args,
-                base_loop_fn);
+            base_loop_fn);
     };
 
     B.every = function(iter) {
         return B(
             function(result, list, keys, i, res) { return i == 0 ? true : res; },   // body
-            _.negate(I), // naganya
+            function(v) { return !v }, // naganya
             J(false), // naga
             J(true), // footer
             iter,
             base_loop_fn_base_args,
-                base_loop_fn);
+            base_loop_fn);
     };
+
 
     B.uniq = function(iter) {
         iter = iter || I;
-        if (_.isString(iter)) iter = _.partial(function(key, list) { return list[key]; }, iter);
+
+        if (_.isString(iter)) iter = (function(key) { return function(val) { return val[key]; } })(iter);
         return B(
             function(result, list, keys, i, res, tmp) { // body
                 if (i == 0) return;
-                if (!_.contains(tmp, res)) {
+                if (tmp.indexOf(res) == -1) {
                     tmp.push(res);
                     result.push(list[i-1]);
                 }
@@ -178,7 +183,7 @@
             I, // footer
             iter,
             base_loop_fn_base_args,
-                base_loop_fn);
+            base_loop_fn);
     };
 
     var _all_map = B.map(function(val_fn, key, list, args) {
@@ -267,7 +272,7 @@
 
     function C() {
         var args = _.toArray(arguments);
-        if (!_.isArray(_.last(args))) args[args.length-1] = [args[args.length-1]];
+        if (!_.isArray(args[args.length-1])) args[args.length-1] = [args[args.length-1]];
         var fns = _.flatten(args.pop());
         if (args.length == 1 && IS_R(args[0])) args = args[0];
 
@@ -324,11 +329,11 @@
     function F(nodes) {
         var f = V(G, nodes);
         return f || setTimeout(function() {
-            if (f = f || V(G, nodes)) return;
-            console.log('-------------------------------------------');
-            console.log('warning: ' + nodes + ' is not defined');
-            console.log('-------------------------------------------');
-        }) && function() { return A(arguments, f || (f = V(G, nodes))); }
+                if (f = f || V(G, nodes)) return;
+                console.log('-------------------------------------------');
+                console.log('warning: ' + nodes + ' is not defined');
+                console.log('-------------------------------------------');
+            }) && function() { return A(arguments, f || (f = V(G, nodes))); }
     }
 
     /* H start */
@@ -366,8 +371,7 @@
                 option,
                 insert_datas1,
                 insert_datas2,
-                j_exec
-            ]);
+                I]);
         };
     }
 
@@ -392,26 +396,11 @@
 
         return C(data,
             [new Function("data", "with(data||{}) { return " + RegExp.$1 + "; }"),
-            wrap,
-            return_check,
-            function(res) {
-                return s_exec(re, wrap, source.replace(re, res), data);
-            }]);
-    }
-
-    function j_exec(source, data) { // ${}$
-        var re = /\$\{(.+?\(.*?\))(, *(.+?))?\}\$/; //${}$ 매칭시키고 매치된 내용 안전하게 다시 매치 시킬 지.
-        if (!source.match(re)) return source;
-        var func = RegExp.$1;
-        var ready_func = RegExp.$3;
-        var res = (new Function("data", "with(data||{}) { return " + func + "; }"))(data);
-
-        if (res && res.then) {
-            var id = _.uniqueId('replaced');
-            res.then(function(res) { return $('#'+id).replaceWith(res); });
-            res = '<span id =' + id + ' lhtml=placeholder>' + ((new Function('data', 'with(data||{}) { return ' + ready_func + '}'))(data) || "") + '</span>';
-        }
-        return j_exec(source.replace(re, res), data);
+                wrap,
+                return_check,
+                function(res) {
+                    return s_exec(re, wrap, source.replace(re, res), data);
+                }]);
     }
 
     function convert_to_html(source, data) {
@@ -448,8 +437,9 @@
 
     function line(source, tag_stack) {
         source = source.replace(new RegExp("^"+TABS+"\\|"), "\n").replace(/^ */, "");
-        if (source.match(/^[\[.#\w\-]/)) source = source.replace(/^(\[.*\]|\{.*?\}|\S)+ ?/, _.partial(start_tag, _, tag_stack));
-        return source;
+        return source.match(/^[\[.#\w\-]/) ? source.replace(/^(\[.*\]|\{.*?\}|\S)+ ?/, function(str) {
+            return start_tag(str, tag_stack);
+        }) : source;
     }
 
     function push_in(ary, index, data) {
@@ -470,10 +460,10 @@
         str = str.replace(/\[(.*)\]/, function(match, inner) { return (attrs += ' ' + inner) && ''; });
 
         // attrs += id
-        attrs += [''].concat(_.map(str.match(/#($\{.*?\}$|\{\{\{.*?\}\}\}|\{\{.*?\}\}|[\w\-]+)/g), function(v) { return v.slice(1); })).join(' id=');
+        attrs += [''].concat(_.map(str.match(/#(\{\{\{.*?\}\}\}|\{\{.*?\}\}|[\w\-]+)/g), function(v) { return v.slice(1); })).join(' id=');
 
         // attrs += class
-        (cls = _.map(str.match(/\.($\{.*?\}$|\{\{\{.*?\}\}\}|\{\{.*?\}\}|[\w\-]+)/g), function(v) { return v.slice(1); }).join(' '))
+        (cls = _.map(str.match(/\.(\{\{\{.*?\}\}\}|\{\{.*?\}\}|[\w\-]+)/g), function(v) { return v.slice(1); }).join(' '))
         && attrs == (attrs = attrs.replace(/class\s*=\s*((\").*?\"|(\{.*?\}|\S)+)/,
             function(match, tmp, q) { return ' class=' + '"' + cls + ' ' + (q ? tmp.slice(1,-1) : tmp)  + '"'; }))
         && (attrs += ' class="' + cls + '"');
@@ -486,9 +476,9 @@
     }
 
     function return_check(val) {
-        return (_.isNull(val) || _.isUndefined(val)) ? '' : val;
+        return (val == null || val == void 0) ? '' : val;
     }
-    /* H end */
+    /* H, S end */
 
     function I(v) { return v; }
 
@@ -534,3 +524,250 @@
         })(obj, 0, key.split('.'));
     }
 }(typeof global == 'object' && global.global == global && (G.window = G = global) || (G = window));
+
+
+function respect_underscore() {
+    // Underscore.js 1.8.
+    // http://underscorejs.org
+    // (c) 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+    // Underscore may be freely distributed under the MIT license.
+
+    var _ = {};
+    var ArrayProto = Array.prototype, ObjProto = Object.prototype;
+    var slice = ArrayProto.slice, toString = ObjProto.toString, hasOwnProperty = ObjProto.hasOwnProperty;
+    var nativeIsArray = Array.isArray, nativeKeys = Object.keys;
+
+    var optimizeCb = function(func, context, argCount) {
+        if (context === void 0) return func;
+        switch (argCount == null ? 3 : argCount) {
+            case 1: return function(value) {
+                return func.call(context, value);
+            };
+            case 2: return function(value, other) {
+                return func.call(context, value, other);
+            };
+            case 3: return function(value, index, collection) {
+                return func.call(context, value, index, collection);
+            };
+            case 4: return function(accumulator, value, index, collection) {
+                return func.call(context, accumulator, value, index, collection);
+            };
+        }
+        return function() {
+            return func.apply(context, arguments);
+        };
+    };
+
+    var cb = function(value, context, argCount) {
+        if (value == null) return I;
+        if (_.isFunction(value)) return optimizeCb(value, context, argCount);
+        if (_.isObject(value)) return _.matcher(value);
+        return B.V(value);
+    };
+
+    // An internal function for creating assigner functions.
+    var createAssigner = function(keysFunc, undefinedOnly) {
+        return function(obj) {
+            var length = arguments.length;
+            if (length < 2 || obj == null) return obj;
+            for (var index = 1; index < length; index++) {
+                var source = arguments[index],
+                    keys = keysFunc(source),
+                    l = keys.length;
+                for (var i = 0; i < l; i++) {
+                    var key = keys[i];
+                    if (!undefinedOnly || obj[key] === void 0) obj[key] = source[key];
+                }
+            }
+            return obj;
+        };
+    };
+
+    _.property = function(key) { return function(obj) { return obj == null ? void 0 : obj[key]; }; };
+
+    var MAX_ARRAY_INDEX = Math.pow(2, 53) - 1;
+    var getLength = function(obj) { return obj.length };
+    var isArrayLike = function(collection) {
+        var length = getLength(collection);
+        return typeof length == 'number' && length >= 0 && length <= MAX_ARRAY_INDEX;
+    };
+
+    _.contains = function(obj, item, fromIndex, guard) {
+        if (!isArrayLike(obj)) obj = _.values(obj);
+        if (typeof fromIndex != 'number' || guard) fromIndex = 0;
+        return _.indexOf(obj, item, fromIndex) >= 0;
+    };
+
+    _.toArray = function(obj) {
+        if (!obj) return [];
+        if (_.isArray(obj)) return slice.call(obj);
+        return _.values(obj);
+    };
+
+    _.rest = function(array, n, guard) {
+        return slice.call(array, n == null || guard ? 1 : n);
+    };
+
+    var flatten = function(input, shallow, strict, startIndex) {
+        var output = [], idx = 0;
+        for (var i = startIndex || 0, length = getLength(input); i < length; i++) {
+            var value = input[i];
+            if (isArrayLike(value) && (_.isArray(value) || _.isArguments(value))) {
+                //flatten current level of array or arguments object
+                if (!shallow) value = flatten(value, shallow, strict);
+                var j = 0, len = value.length;
+                output.length += len;
+                while (j < len) {
+                    output[idx++] = value[j++];
+                }
+            } else if (!strict) {
+                output[idx++] = value;
+            }
+        }
+        return output;
+    };
+
+    _.flatten = function(array, shallow) { return flatten(array, shallow, false); };
+
+    _.object = function(list, values) {
+        var result = {};
+        for (var i = 0, length = getLength(list); i < length; i++) {
+            if (values) result[list[i]] = values[i];
+            else result[list[i][0]] = list[i][1];
+        }
+        return result;
+    };
+
+    _.findIndex = function(array, predicate, context) {
+        for (var i = 0, predicate = cb(predicate, context), length = getLength(array); i >= 0 && i < length; i += 1)
+            if (predicate(array[i], i, array)) return i;
+        return -1;
+    };
+
+    _.indexOf = (function (dir, predicateFind, sortedIndex) {
+        return function(array, item, idx) {
+            var i = 0, length = getLength(array);
+            if (typeof idx == 'number') {
+                if (dir > 0) i = idx >= 0 ? idx : Math.max(idx + length, i);
+                else length = idx >= 0 ? Math.min(idx + 1, length) : idx + length + 1;
+            } else if (sortedIndex && idx && length) {
+                idx = sortedIndex(array, item);
+                return array[idx] === item ? idx : -1;
+            }
+            if (item !== item) {
+                idx = predicateFind(slice.call(array, i, length), _.isNaN);
+                return idx >= 0 ? idx + i : -1;
+            }
+            for (idx = dir > 0 ? i : length - 1; idx >= 0 && idx < length; idx += dir) if (array[idx] === item) return idx;
+            return -1;
+        };
+    })(1, _.findIndex, _.sortedIndex);
+
+    var hasEnumBug = !{toString: null}.propertyIsEnumerable('toString');
+    var nonEnumerableProps = ['valueOf', 'isPrototypeOf', 'toString',
+        'propertyIsEnumerable', 'hasOwnProperty', 'toLocaleString'];
+
+    function collectNonEnumProps(obj, keys) {
+        var nonEnumIdx = nonEnumerableProps.length;
+        var constructor = obj.constructor;
+        var proto = (_.isFunction(constructor) && constructor.prototype) || ObjProto;
+
+        // Constructor is a special case.
+        var prop = 'constructor';
+        if (_.has(obj, prop) && !_.contains(keys, prop)) keys.push(prop);
+
+        while (nonEnumIdx--) {
+            prop = nonEnumerableProps[nonEnumIdx];
+            if (prop in obj && obj[prop] !== proto[prop] && !_.contains(keys, prop)) {
+                keys.push(prop);
+            }
+        }
+    }
+
+    _.keys = function(obj) {
+        if (!_.isObject(obj)) return [];
+        if (nativeKeys) return nativeKeys(obj);
+        var keys = [];
+        for (var key in obj) if (_.has(obj, key)) keys.push(key);
+        // Ahem, IE < 9.
+        if (hasEnumBug) collectNonEnumProps(obj, keys);
+        return keys;
+    };
+
+    _.values = function(obj) {
+        var keys = _.keys(obj);
+        var length = keys.length;
+        var values = Array(length);
+        for (var i = 0; i < length; i++) {
+            values[i] = obj[keys[i]];
+        }
+        return values;
+    };
+
+    _.extend = createAssigner(function(obj) {
+        if (!_.isObject(obj)) return [];
+        var keys = [];
+        for (var key in obj) keys.push(key);
+        // Ahem, IE < 9.
+        if (hasEnumBug) collectNonEnumProps(obj, keys);
+        return keys;
+    });
+
+    _.clone = function(obj) {
+        if (!_.isObject(obj)) return obj;
+        return _.isArray(obj) ? obj.slice() : _.extend({}, obj);
+    };
+
+    _.isArray = nativeIsArray || function(obj) { return toString.call(obj) === '[object Array]'; };
+
+    _.isObject = function(obj) {
+        var type = typeof obj;
+        return type === 'function' || type === 'object' && !!obj;
+    };
+
+    var fn_names = ['Arguments', 'Function', 'String', 'Number', 'Date', 'RegExp', 'Error'];
+    for (var i = 0; i < fn_names.length; i++)
+        (function(name) {
+            _['is' + name] = function(obj) { return toString.call(obj) === '[object ' + name + ']'; };
+        })(fn_names[i]);
+
+    if (!_.isArguments(arguments)) {
+        _.isArguments = function(obj) {
+            return _.has(obj, 'callee');
+        };
+    }
+
+    if (typeof /./ != 'function' && typeof Int8Array != 'object') {
+        _.isFunction = function(obj) {
+            return typeof obj == 'function' || false;
+        };
+    }
+
+    _.has = function(obj, key) { return obj != null && hasOwnProperty.call(obj, key); };
+
+    _.escape = (function(map) {
+        var escaper = function(match) { return map[match]; };
+        var source = '(?:' + _.keys(map).join('|') + ')';
+        var testRegexp = RegExp(source);
+        var replaceRegexp = RegExp(source, 'g');
+        return function(string) {
+            string = string == null ? '' : '' + string;
+            return testRegexp.test(string) ? string.replace(replaceRegexp, escaper) : string;
+        };
+    })({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#x27;',
+        '`': '&#x60;'
+    });
+
+    var idCounter = 0;
+    _.uniqueId = function(prefix) {
+        var id = ++idCounter + '';
+        return prefix ? prefix + id : id;
+    };
+
+    return _;
+}
