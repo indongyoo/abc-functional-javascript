@@ -22,6 +22,7 @@
     window.X = new Object();
 
     B.P = B(I, base_bp);
+
     window.P0 = I;
     window.P1 = B.P(1);
     window.P2 = B.P(2);
