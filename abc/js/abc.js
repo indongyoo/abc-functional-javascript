@@ -455,6 +455,32 @@
 
     function I(v) { return v; }
 
+    function IF(predicate, fn, store) {
+        return _.extend(if_f, {
+            ELSEIF: B(if_f, store = [fn ? [predicate, fn] : [I, predicate]], ELSEIF),
+            ELSE: B(if_f, store, ELSE) });
+
+        function if_f() {
+            var args = arguments;
+            return C(store, args, [
+                B.find(function(fnset, i, l, args) {
+                    return A(args, fnset[0]);
+                }),
+                function(fnset) { return fnset ? A(args, fnset[1]) : void 0; }
+            ]);
+        }
+    }
+
+    function ELSEIF(if_f, store, predicate, fn) {
+        return store.push(fn ? [predicate, fn] : [I, predicate]) && if_f;
+    }
+
+    function ELSE(if_f, store, fn) {
+        return store.push([J(true), fn]) && if_f;
+    }
+
+    F.IF = window.IF = IF;
+
     function J(v) { return function() { return v; } }
 
     function M(obj, method) {

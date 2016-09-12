@@ -13,62 +13,83 @@
 <script src="js/abc.js"></script>
 
 <script>
-    function delay(func, s) {
-        setTimeout(function() {
-            func();
-        }, 250);
+
+    function f1() {
+        console.log('f1')
     }
 
-    C(true, IF(
-        function() {
-            console.log('hi')
-        }
-    ));
+    function f2() {
+        console.log('f2')
+    }
 
-    C(false, IF(
-            function() {
-                console.log('hi')
-            }
-    ));
+    C(true, IF(f1).ELSE(f2));
+    // f1
 
-    var IF = function() {
-        return _.extend(function() {
+    C(false, IF(f1).ELSE(f2));
+    // f2
 
-        }, {
-            ELSE: function() {}
-        })
-    };
-
-    var a = IF(function() {});
-    a();
-
-    C(false,
-        IF(function(a) {
-            console.log('hi', a);
-            return !a;
-        }, function(a) {
-            console.log('hi', a);
-        }).ELSE(
-            function() {
-
-            },
-            function() {
-
-            }).ELSE(
-            function() {
-
-            },
-            function() {
-
-            }).ELSE(
-            function() {
-
-            },
-            function() {
-
+    C(0,
+        IF(f1)
+        .ELSEIF(function(v) { return v === 0 },
+            function(v) {
+                console.log(v);
             })
-    );
+        .ELSE(f2));
+    // 0
 
+    C(5, 0,
+        IF(I, f1 // function I(v) { return v };
+        ).ELSEIF(function(a, b) { return a < b },
+            function(a, b) { console.log(a); }
+        ).ELSE(f2));
+    // f1
+
+    C(0, 5,
+        IF(I, f1
+        ).ELSEIF(function(a, b) { return a > b },
+            function(a, b) { console.log(a); }
+        ).ELSE(f2));
+    // f2
+
+    C(0, 5,
+        IF(I, f1
+        ).ELSEIF(_.negate(function(a, b) { return a > b }),
+            function(a, b) { console.log(a+b); }
+        ).ELSE(f2));
+    // 5
+
+
+    // async
+    G["a < b"] = CB(function(a, b, cb) {
+        setTimeout(function() {
+            console.log('1 sec');
+            setTimeout(function() {
+                console.log('2 sec');
+                cb(a < b);
+            }, 1000)
+        }, 1000);
+    });
+
+    C(0, 5,
+        IF(I, f1
+        ).ELSEIF(G["a < b"],
+            function(a, b) { console.log(a+b); }
+        ).ELSE(f2));
+    // 5
+
+    C(0, 5, [
+        IF(I, f1
+        ).ELSEIF(G["a < b"],
+            function(a, b) { return a + b; }
+        ).ELSE(f2),
+        function(a) {
+            return a * a;
+        },
+        function(r) {
+            console.log(r);
+            // 25
+        }
+    ]);
 
 </script>
 

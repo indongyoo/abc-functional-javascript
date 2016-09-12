@@ -16,7 +16,7 @@
 
     /* abcjs는 Promise가 필요 없지만 .then을 리턴하는 함수도 비동기 제어를 지원합니다. */
 
-    function delay(func, s) {
+    function delay() {
         return new Promise(function(rs) {
             setTimeout(function() {
                 rs();
