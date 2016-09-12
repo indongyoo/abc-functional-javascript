@@ -11,7 +11,7 @@
     F.A = window.A = A; // thisless apply
     F.B = window.B = B; // thisless bind, like underscore partial
     F.C = window.C = C; // thisless call
-
+    F.D = window.D = D;
     F.E = window.E = _.extend;
     F.F = window.F = F; // function
     F.H = window.H = H;
@@ -194,21 +194,24 @@
             base_loop_fn);
     };
 
-    var _all_map = B.map(function(val_fn, key, list, args) { return A(args, val_fn); });
+    var spread_args = B.reduce(function(memo, arg) { return memo.concat(IS_R(arg) ? arg : [arg]); });
+    var arg_add_arr = function(list) { return R(list, []); };
+
+    var all_map = B.map(function(val_fn, key, list, args) { return A(args, val_fn); });
     B.all = function() {
         var fns = _.toArray(arguments);
         return function() {
-            return A([fns, _.toArray(arguments)], _all_map);
+            return A([fns, _.toArray(arguments)], [all_map, arg_add_arr, spread_args, TO_R]);
         };
     };
 
-    var _div_map = B.map(function(val, key, list, funcs) { return C(val, funcs[key] || I); });
+    var div_map = B.map(function(val, key, list, funcs) { return C(val, funcs[key] || I); });
     B.div = function() {
         var fns = _.toArray(arguments);
         return function() {
             var args = _.toArray(arguments);
-            if (args.length < fns.length) while(args.length < fns.length) args.push(void 0);
-            return A([args, fns], _div_map);
+            while(args.length < fns.length) args.push(void 0);
+            return A([args, fns], [div_map, arg_add_arr, spread_args, TO_R]);
         };
     };
 
@@ -252,7 +255,9 @@
                 return r;
             }
 
-            return A(params(list, keys, i++, res).concat(args), [iter_or_predi, f]);
+            return A(params(list, keys, i++, res).concat(args), [iter_or_predi, function() {
+                return f(arguments.length == 1 ? arguments[0] : TO_R(arguments));
+            }]);
         })();
     }
 
@@ -313,6 +318,9 @@
     C.uniq = B.uniq(null);
     C.all = F("TODO");
     C.div = F("TODO");
+
+    function D() {}
+    D.to_array = function(obj) { return _.toArray(arguments.length > 1 ? arguments : obj); };
 
     function F(nodes) {
         var f = V(G, nodes);
@@ -504,6 +512,8 @@
     };
 
     S._A_func_storage = {};
+
+    F.TO = window.TO = {};
 
     F.TODO = window.TODO = J("TODO");
 
