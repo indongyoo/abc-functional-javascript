@@ -1,5 +1,5 @@
 !function(G) {
-    //var _ = respect_underscore();
+    var _ = respect_underscore();
 
     window.A = A; // thisless apply
     window.B = B; // thisless bind, like underscore partial
