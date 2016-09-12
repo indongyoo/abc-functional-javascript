@@ -353,7 +353,7 @@
     H._A_func_storage = {};
 
     function s(func, obj_name, option, var_names/*, source...*/) {      // used by H and S
-        var source = _.map(_.rest(arguments, 4), function(str_or_func) {
+        var source = C.map(_.rest(arguments, 4), function(str_or_func) {
             if (_.isString(str_or_func)) return str_or_func;
 
             var key = _.uniqueId("_A_func_storage");
@@ -460,10 +460,10 @@
         str = str.replace(/\[(.*)\]/, function(match, inner) { return (attrs += ' ' + inner) && ''; });
 
         // attrs += id
-        attrs += [''].concat(_.map(str.match(/#(\{\{\{.*?\}\}\}|\{\{.*?\}\}|[\w\-]+)/g), function(v) { return v.slice(1); })).join(' id=');
+        attrs += [''].concat(C.map(str.match(/#(\{\{\{.*?\}\}\}|\{\{.*?\}\}|[\w\-]+)/g), function(v) { return v.slice(1); })).join(' id=');
 
         // attrs += class
-        (cls = _.map(str.match(/\.(\{\{\{.*?\}\}\}|\{\{.*?\}\}|[\w\-]+)/g), function(v) { return v.slice(1); }).join(' '))
+        (cls = C.map(str.match(/\.(\{\{\{.*?\}\}\}|\{\{.*?\}\}|[\w\-]+)/g), function(v) { return v.slice(1); }).join(' '))
         && attrs == (attrs = attrs.replace(/class\s*=\s*((\").*?\"|(\{.*?\}|\S)+)/,
             function(match, tmp, q) { return ' class=' + '"' + cls + ' ' + (q ? tmp.slice(1,-1) : tmp)  + '"'; }))
         && (attrs += ' class="' + cls + '"');
