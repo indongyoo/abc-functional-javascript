@@ -49,16 +49,18 @@
         }).then(function(r) {
             return square(r);
         }).then(function(r) {
-            console.log(r);
+            console.log(r); // 4
         });
 
     // ABC
     C(3, 6, [
         sum,
-        function(r) { return minus(r, 5); },
+        function(r) {
+            return minus(r, 5);
+        },
         square,
         function(r) {
-            console.log(r);
+            console.log(r); // 16
         }]);
 
     /*
@@ -69,7 +71,7 @@
         sum,
         square
     ]).then(function(r) {
-        console.log(r);
+        console.log(r); // 100
     });
 
     sum(2, 4)
@@ -79,7 +81,7 @@
                 square
             ]);
         }).then(function(r) {
-            console.log(r);
+            console.log(r); // 64
         });
 
     // B를 사용하면 더욱 간단하게 만들 수 있습니다.
@@ -88,7 +90,7 @@
             sum,
             square
         ])).then(function(r) {
-            console.log(r);
+            console.log(r); // 64
         });
 
     /* CB와 함께 사용 가능합니다. */
@@ -99,7 +101,7 @@
             cb(r / 2)
         })
     ]).then(function(r) {
-        console.log(r);
+        console.log(r); // 50
     });
 
 

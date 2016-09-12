@@ -15,20 +15,17 @@
     /*
     * C는 this를 제외한 call이라고 생각하면 쉽습니다.
     * */
-
     function minus(a, b) {
         return a - b;
     }
 
     var r1 = C(10, 20, minus);
     console.log(r1);
-
-    /*
-    * X와 함께 사용해보세요.
-    * */
+    // -10
 
     var r2 = C(20, 10, minus);
     console.log(r2);
+    // 10
 
 </script>
 
