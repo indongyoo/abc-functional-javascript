@@ -491,13 +491,11 @@
     }
 }(typeof global == 'object' && global.global == global && (G.window = G = global) || (G = window));
 
-
+// Underscore.js 1.8.
+// http://underscorejs.org
+// (c) 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+// Underscore may be freely distributed under the MIT license.
 function respect_underscore() {
-    // Underscore.js 1.8.
-    // http://underscorejs.org
-    // (c) 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
-    // Underscore may be freely distributed under the MIT license.
-
     var _ = {};
     var ArrayProto = Array.prototype, ObjProto = Object.prototype;
     var slice = ArrayProto.slice, toString = ObjProto.toString, hasOwnProperty = ObjProto.hasOwnProperty;
