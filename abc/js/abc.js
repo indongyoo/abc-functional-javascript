@@ -612,16 +612,11 @@ function respect_underscore() {
         for (var i = startIndex || 0, length = getLength(input); i < length; i++) {
             var value = input[i];
             if (isArrayLike(value) && (_.isArray(value) || _.isArguments(value))) {
-                //flatten current level of array or arguments object
                 if (!shallow) value = flatten(value, shallow, strict);
                 var j = 0, len = value.length;
                 output.length += len;
-                while (j < len) {
-                    output[idx++] = value[j++];
-                }
-            } else if (!strict) {
-                output[idx++] = value;
-            }
+                while (j < len) output[idx++] = value[j++];
+            } else if (!strict) output[idx++] = value;
         }
         return output;
     };
@@ -694,12 +689,8 @@ function respect_underscore() {
     };
 
     _.values = function(obj) {
-        var keys = _.keys(obj);
-        var length = keys.length;
-        var values = Array(length);
-        for (var i = 0; i < length; i++) {
-            values[i] = obj[keys[i]];
-        }
+        var keys = _.keys(obj), length = keys.length, values = Array(length);
+        for (var i = 0; i < length; i++) values[i] = obj[keys[i]];
         return values;
     };
 
@@ -726,9 +717,7 @@ function respect_underscore() {
 
     var fn_names = ['Arguments', 'Function', 'String', 'Number', 'Date', 'RegExp', 'Error'];
     for (var i = 0; i < fn_names.length; i++)
-        (function(name) {
-            _['is' + name] = function(obj) { return toString.call(obj) === '[object ' + name + ']'; };
-        })(fn_names[i]);
+        (function(name) { _['is' + name] = function(obj) { return toString.call(obj) === '[object ' + name + ']'; }; })(fn_names[i]);
 
     if (!_.isArguments(arguments)) _.isArguments = function(obj) { return _.has(obj, 'callee'); };
 
