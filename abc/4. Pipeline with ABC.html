@@ -124,18 +124,27 @@
     ]);
 
     /* B를 통해 함수를 정의하면 ABC를 이용하지 않고도 R(returns)을 동작 시킬 수 있습니다. */
-    var sum = B(function(a, b) {
-        console.log(a, b)
+    var minus = B(function(a, b) {
+        console.log(a, b);
         return a + b;
     });
 
-    var r5 = sum(10, 20);
+    var r5 = minus(10, 20);
     console.log(r5);
 
-    /* 익명함수의 실행 결과를 바로 sum에게 넘김 */
-    var r6 = sum((function () { return R(10, 20, 2); })());
+    /* swap 함수의 multiple results를 바로 minus에게 넘김 */
+    var swap = function(a, b) {
+        return R(b, a);
+    };
+    var r6 = minus(swap(10, 20));
     console.log(r6);
 
+    /*
+    * R은 Go언어의 Multiple Results와 비슷합니다.
+    *
+    * GO Lang - Multiple Results
+    * https://tour.golang.org/basics/6
+    * */
 
     /* 함수 조립의 즐거움 */
     var difference = B([
