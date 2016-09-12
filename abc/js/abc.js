@@ -6,6 +6,8 @@
 !function(G) {
     var _ = respect_underscore();
 
+    if (typeof window != 'object') var window = G;
+
     F.A = window.A = A; // thisless apply
     F.B = window.B = B; // thisless bind, like underscore partial
     F.C = window.C = C; // thisless call
@@ -316,9 +318,9 @@
         var f = V(G, nodes);
         var err = Error('warning: ' + nodes + ' is not defined').stack;
         return f || setTimeout(function() {
-            if (f = f || V(G, nodes)) return;
-            console.error(err);
-        }) && function() { return A(arguments, f || (f = V(G, nodes))); }
+                if (f = f || V(G, nodes)) return;
+                console.error(err);
+            }) && function() { return A(arguments, f || (f = V(G, nodes))); }
     }
 
     /* H start */
@@ -494,7 +496,7 @@
             return (obj = obj[keys[idx]]) ? keys.length-1 == idx ? obj : v(obj, idx+1, keys) : void 0;
         })(obj, 0, key.split('.'));
     }
-}(typeof global == 'object' && global.global == global && (G.window = G = global) || (G = window));
+}(typeof global == 'object' && global.global == global && (global.G = global) || window);
 
 // Underscore.js 1.8.
 // http://underscorejs.org
