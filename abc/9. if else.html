@@ -14,6 +14,28 @@
 
 <script>
 
+    /*
+    * IF().ELSEIF().ELSE()
+    *
+    * 자바스크립트에서 조건문을 작성할때는 함수를 실행할 수 있는데 만일 그 함수가 비동기 함수라면 굉장히 로직이 복잡해지고 코딩하기 어려워집니다.
+    * 자바스크립트는 아래와 같이 코딩할 수 없어 이것을 자바스크립트의 단점으로 생각하기도 합니다.
+    * 하지만 이것에는 목적이 있습니다. 자바스크립트는 이벤트 루프를 이용하여 Non-Blocking IO을 지원하기 위해 아래 같은 상황에서 비동기가 일어납니다.
+    *
+    * if (long_time(1)) {
+    *   long_time(2);
+    * } else if (long_time(3)) {
+    *   long_time(4);
+    * } else {
+    *   long_time(5);
+    * }
+    *
+    * long_time() 함수의 return 값이 undefined 라면 위 코드는 long_time의 내부 구현과 관련 없이 무조건 long_time(1)과 long_time(5)만 실행될겁니다.
+    *
+    * abcjs는 비동기가 일어나는 상황에서도 위와 닮은 코딩을 할 수 있도록 IF().ELSEIF().ELSE() 를 지원합니다.
+    *
+    * */
+
+
     function f1() {
         console.log('f1')
     }
@@ -58,9 +80,8 @@
         ).ELSE(f2));
     // 5
 
-
     // async
-    G["a < b"] = CB(function(a, b, cb) {
+    G["a < b long time"] = CB(function(a, b, cb) {
         setTimeout(function() {
             console.log('1 sec');
             setTimeout(function() {
@@ -70,26 +91,67 @@
         }, 1000);
     });
 
+
     C(0, 5,
         IF(I, f1
-        ).ELSEIF(G["a < b"],
+        ).ELSEIF(G["a < b long time"],
             function(a, b) { console.log(a+b); }
         ).ELSE(f2));
     // 5
 
+    var square_long_time = CB(function(a, cb) {
+        setTimeout(function() {
+            cb(a * a);
+        }, 1000);
+    });
+
     C(0, 5, [
         IF(I, f1
-        ).ELSEIF(G["a < b"],
-            function(a, b) { return a + b; }
+        ).ELSEIF(G["a < b long time"],
+            [function(a, b) { return a + b; },
+            square_long_time]
         ).ELSE(f2),
         function(a) {
-            return a * a;
+            return a + 10;
         },
         function(r) {
             console.log(r);
-            // 25
+            // 35
         }
     ]);
+
+
+    /*
+     * abcjs를 이용하여 함수형 프로그래밍을 하면 비동기가 지원되는 IF().ELSEIF().ELSE() 를 아래와 같이 쉽게 만들 수 있습니다.
+     *
+     * 1. 최초 IF를 실행하면 store를 클로저를 생성하고
+     * 2. chain 방식으로 이후에 ELSEIF와 ELSE가 실행 될때 마다 function set를 store에 모아놓고
+     * 3. 리턴된 IF가 실행될때 B.find를 통해 실행해야하는 function set를 찾아 받아둔 args를 넘기며 실행합니다.
+     *
+     * 이미 C나 B.find 등이 비동기를 잘 제어해주기 때문에 아래와 같이 callback 패턴 없이 동기 함수를 만들때와 완전히 똑같은 코딩을 할 수 있습니다.
+     * 이제 재밌는 함수 조립을 즐겨보세요!
+     * */
+
+     (function() {
+
+         function IF(predicate, fn) {
+             var store = [fn ? [predicate, fn] : [I, predicate]];
+             return _.extend(IF, {
+                 ELSEIF: function (predicate, fn) {
+                     return store.push(fn ? [predicate, fn] : [I, predicate]) && IF;
+                 },
+                 ELSE: function (fn) { return store.push([J(true), fn]) && IF; } });
+
+             function IF() {
+                 var args = arguments;
+                 return C(store, args, [
+                     B.find(function(fnset, i, l, args) { return A(args, fnset[0]); }),
+                     function(fnset) { return fnset ? A(args, fnset[1]) : void 0; }
+                 ]);
+             }
+         }
+
+    })();
 
 </script>
 
