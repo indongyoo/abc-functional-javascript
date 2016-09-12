@@ -187,31 +187,22 @@
             base_loop_fn);
     };
 
-    var _all_map = B.map(function(val_fn, key, list, args) {
-        return A(args, val_fn);
-    });
-
+    var _all_map = B.map(function(val_fn, key, list, args) { return A(args, val_fn); });
     B.all = function() {
-        var funcs = _.toArray(arguments);
-
+        var fns = _.toArray(arguments);
         return function() {
             var args = _.toArray(arguments);
-            return A([funcs, args], _all_map);
+            return A([fns, args], _all_map);
         };
     };
 
-    var _div_map = B.map(function(val, key, list, funcs) {
-        return C(val, funcs[key] || I);
-    });
-
+    var _div_map = B.map(function(val, key, list, funcs) { return C(val, funcs[key] || I); });
     B.div = function() {
-        var funcs = _.toArray(arguments);
-
+        var fns = _.toArray(arguments);
         return function() {
             var args = _.toArray(arguments);
-            //args.length = Math.max(funcs.length, args.length); // 왜 void 0로 안채워지지!?? - 밖에서 테스트할때만 void 0 채워짐. 왜 다르지?
-            if (args.length < funcs.length) while(args.length < funcs.length) args.push(void 0);
-            return A([args, funcs], _div_map);
+            if (args.length < fns.length) while(args.length < fns.length) args.push(void 0);
+            return A([args, fns], _div_map);
         };
     };
 
@@ -221,10 +212,6 @@
             cb(res);
             C(res, fns);
         });
-    };
-
-    B.spread = function(func) {
-        return B(X, func, A);
     };
 
     function base_loop_fn_base_args(list, keys, i) {
