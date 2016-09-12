@@ -1,33 +1,33 @@
 !function(G) {
     var _ = respect_underscore();
 
-    window.A = A; // thisless apply
-    window.B = B; // thisless bind, like underscore partial
-    window.C = C; // thisless call
+    F.A = window.A = A; // thisless apply
+    F.B = window.B = B; // thisless bind, like underscore partial
+    F.C = window.C = C; // thisless call
 
-    window.E = _.extend;
-    window.F = F; // function
-    window.H = H;
-    window.G = G;
-    window.I = I; // I
-    window.J = J; // always
-    window.M = M;
-    window.N;
-    window.P = P;
-    window.R = R;
-    window.S = S;
-    window.TODO;
-    window.U = U; // return undefined
-    window.V = V;
-    window.X = new Object();
+    F.E = window.E = _.extend;
+    F.F = window.F = F; // function
+    F.H = window.H = H;
+    F.G = window.G = G;
+    F.I = window.I = I; // I
+    F.J = window.J = J; // always
+    F.M = window.M = M;
+    F.N = window.N;
+    F.P = window.P = P;
+    F.R = window.R = R;
+    F.S = window.S = S;
+    F.TODO = window.TODO;
+    F.U = window.U = U; // return undefined
+    F.V = window.V = V;
+    F.X = window.X = new Object();
 
     B.P = B(I, base_bp);
 
-    window.P0 = I;
-    window.P1 = B.P(1);
-    window.P2 = B.P(2);
-    window.P3 = B.P(3);
-    window.P4 = B.P(4);
+    F.P0 = window.P0 = I;
+    F.P1 = window.P1 = B.P(1);
+    F.P2 = window.P2 = B.P(2);
+    F.P3 = window.P3 = B.P(3);
+    F.P4 = window.P4 = B.P(4);
 
     function A(args, func) { return C.apply(null, _.toArray(args).concat([func])); }
 
@@ -49,9 +49,9 @@
     function base_bp(next, idx) {
         if (arguments.length == 2) return function () { return arguments[idx] };
         var idxs = _.rest(arguments);
-        return (function() {
+        return function() {
             return next(C.map(idxs, arguments, function(v, i, l, args) { return args[v]; }));
-        });
+        };
     }
 
     B.PR = B(TO_R, base_bp);
@@ -191,8 +191,7 @@
     B.all = function() {
         var fns = _.toArray(arguments);
         return function() {
-            var args = _.toArray(arguments);
-            return A([fns, args], _all_map);
+            return A([fns, _.toArray(arguments)], _all_map);
         };
     };
 
@@ -215,13 +214,11 @@
     };
 
     function base_loop_fn_base_args(list, keys, i) {
-        var key = keys ? keys[i] : i
+        var key = keys ? keys[i] : i;
         return [list[key], key, list];
     }
 
-    function maybe_promise(res) {
-        return _.isObject(res) && res.then && _.isFunction(res.then);
-    }
+    function maybe_promise(res) { return _.isObject(res) && res.then && _.isFunction(res.then); }
 
     function base_loop_fn(body, naganya, naga, footer, iter_or_predi, params) {
         var args = _.rest(arguments, 6);
@@ -230,7 +227,6 @@
         var keys = _.isArray(list) ? null : _.keys(list);
         var length = (keys || list).length;
         var i = 0;
-
         var result = [];
         var tmp = [];
 
@@ -253,8 +249,8 @@
         })();
     }
 
-    window.CB = B([P, B.map([I, B(X, { _A_is_cb: true }, E)])]);
-    window.JCB = B(X, { _A_just_cb: true }, E);
+    F.CB = window.CB = B([P, B.map([I, B(X, { _A_is_cb: true }, E)])]);
+    F.JCB = window.JCB = B(X, { _A_just_cb: true }, E);
 
     function IS_R(arg) { return _.isArray(arg) && arg._A_is_returns; }
 
@@ -264,11 +260,8 @@
         var fns = _.flatten(args.pop());
         if (args.length == 1 && IS_R(args[0])) args = args[0];
 
-        var then_cb = null;
-        var then_obj_returned = false;
-        var then_obj = { then: function(cb) {
-            then_cb = cb;
-        } };
+        var then_cb = null, then_obj_returned = false;
+        var then_obj = { then: function(cb) { then_cb = cb; } };
 
         var i = 0;
         return (function c(res) {
@@ -316,12 +309,11 @@
 
     function F(nodes) {
         var f = V(G, nodes);
+        var err = Error('warning: ' + nodes + ' is not defined').stack;
         return f || setTimeout(function() {
-                if (f = f || V(G, nodes)) return;
-                console.log('-------------------------------------------');
-                console.log('warning: ' + nodes + ' is not defined');
-                console.log('-------------------------------------------');
-            }) && function() { return A(arguments, f || (f = V(G, nodes))); }
+            if (f = f || V(G, nodes)) return;
+            console.error(err);
+        }) && function() { return A(arguments, f || (f = V(G, nodes))); }
     }
 
     /* H start */
@@ -350,16 +342,8 @@
         }).join("");
 
         return function() {
-            var args = _.toArray(arguments);
-            var data = var_names ? _.object(var_names.match(/\w+/g), args) : void 0;
-
-            return C(source, data, [
-                remove_comment,
-                unescaped_exec,
-                option,
-                insert_datas1,
-                insert_datas2,
-                I]);
+            var data = var_names ? _.object(var_names.match(/\w+/g), _.toArray(arguments)) : void 0;
+            return C(source, data, [remove_comment, unescaped_exec, option, insert_datas1, insert_datas2, I]);
         };
     }
 
@@ -380,12 +364,9 @@
     var insert_datas2 = B(/\{\{(.*?)\}\}/, _.escape, s_exec); // {{}}
 
     function s_exec(re, wrap, source, data) {
-        if (!source.match(re)) return R(source, data);
-
-        return C(data,
-            [new Function("data", "with(data||{}) { return " + RegExp.$1 + "; }"),
-                wrap,
-                return_check,
+        return !source.match(re) ? R(source, data) :
+            C(data, [new Function("data", "with(data||{}) { return " + RegExp.$1 + "; }"),
+                wrap, return_check,
                 function(res) {
                     return s_exec(re, wrap, source.replace(re, res), data);
                 }]);
@@ -394,7 +375,6 @@
     function convert_to_html(source, data) {
         var tag_stack = [];
         var ary = source.match(new RegExp(TABS+"\\S.*?(?="+TABS+"\\S)|"+TABS+"\\S.*", "g"));
-
         var base_tab =  number_of_tab(ary[0]);
         ary[ary.length-1] = ary[ary.length-1].replace(new RegExp(TAB+"{"+base_tab+"}$"), "");
 
@@ -459,14 +439,12 @@
         return '<' + name + attrs + ' >'; // 띄어쓰기 <a href=www.marpple.com/> 를 위해
     }
 
-    function end_tag(tag) {
-        return '</'+tag+'>';
-    }
+    function end_tag(tag) { return '</'+tag+'>'; }
 
     function return_check(val) {
         return (val == null || val == void 0) ? '' : val;
     }
-    /* H, S end */
+    /* H end */
 
     function I(v) { return v; }
 
@@ -476,7 +454,7 @@
         return obj[method].apply(obj, _.rest(arguments, 2));
     }
 
-    window.N = J(null);
+    F.N = window.N = J(null);
 
     function P() { return arguments; }
 
@@ -490,7 +468,7 @@
         if (_.isArray(arg) && arg._A_is_returns) return arg;
         return _.extend(_.values(arg), { _A_is_returns: true });
     }
-    window.TO_R = TO_R;
+    F.TO_R = window.TO_R = TO_R;
 
     function S(var_names/*, source...*/) {
         return s.apply(null, [S, 'S', function(s, d) { return R(s, d); }].concat(_.toArray(arguments)));
@@ -502,7 +480,7 @@
 
     S._A_func_storage = {};
 
-    window.TODO = J("TODO");
+    F.TODO = window.TODO = J("TODO");
 
     function U() {}
 
@@ -719,17 +697,10 @@ function respect_underscore() {
             _['is' + name] = function(obj) { return toString.call(obj) === '[object ' + name + ']'; };
         })(fn_names[i]);
 
-    if (!_.isArguments(arguments)) {
-        _.isArguments = function(obj) {
-            return _.has(obj, 'callee');
-        };
-    }
+    if (!_.isArguments(arguments)) _.isArguments = function(obj) { return _.has(obj, 'callee'); };
 
-    if (typeof /./ != 'function' && typeof Int8Array != 'object') {
-        _.isFunction = function(obj) {
-            return typeof obj == 'function' || false;
-        };
-    }
+    if (typeof /./ != 'function' && typeof Int8Array != 'object')
+        _.isFunction = function(obj) { return typeof obj == 'function' || false; };
 
     _.has = function(obj, key) { return obj != null && hasOwnProperty.call(obj, key); };
 
@@ -742,14 +713,7 @@ function respect_underscore() {
             string = string == null ? '' : '' + string;
             return testRegexp.test(string) ? string.replace(replaceRegexp, escaper) : string;
         };
-    })({
-        '&': '&amp;',
-        '<': '&lt;',
-        '>': '&gt;',
-        '"': '&quot;',
-        "'": '&#x27;',
-        '`': '&#x60;'
-    });
+    })({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#x27;', '`': '&#x60;' });
 
     var idCounter = 0;
     _.uniqueId = function(prefix) {
