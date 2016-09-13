@@ -10,13 +10,12 @@ _abcjs는 함수형 자바스크립트(functional javascript) 라이브러리입
   - Jade와 비슷한 HTML Template 함수가 있습니다.
   - sql 등을 작성하기 편한 함수가 있습니다.
   - 다른 자바스크립트 라이브러리에 대한 의존성이 없는 750줄의 작은 라이브러리입니다.
-  - Respect [Underscorejs](http://underscorejs.org/)!
-
-
- __abcjs와 함께 함수형 프로그래밍을 즐겨보세요.__
+  - _Respect [Underscorejs](http://underscorejs.org/)!_
 
 
 ## 시작하기
+__abcjs와 함께 함수형 프로그래밍을 즐겨보세요.__
+
 
 ### 01. [A](https://github.com/marpple/abc-functional-javascript/blob/master/example/01.%20A.html)
 `A`는 `this`를 제외한 `apply`라고 생각하면 쉽습니다.
@@ -39,7 +38,7 @@ console.log(r1);
 ```
 
 
-대부분 왼쪽에서 오른쪽, 위에서 아래로 읽는데 익숙합니다. 그래서 `A`는 인자와 함수사용에 대한 방향을 바꾸었습니다.
+대부분 왼쪽에서 오른쪽, 위에서 아래로 읽는데 익숙합니다. 그래서 `A`는 인자와 함수 사용에 대한 방향을 바꾸었습니다.
 ```javascript
 function minus(a, b) {
     return a - b;
@@ -195,7 +194,7 @@ chain 패턴이나 `_.compose`, `Promise` 등의 일종의 파이프라인 혹�
 
 `B(X, 11, minus)` 를 통해 두개의 인자가 사용되도록 했지만 여전히 사실은 위에서 부터 내려오는 인자는 하나입니다.
 인자를 하나만 받는 함수만 조립할 수 있다면 실용성이 떨어집니다.
-이를 위해 R이 있습니다. `R`을 이용하면 다음 함수가 여러개의 결과를 인자로 받을 수 있습니다.
+이를 위해 `R`이 있습니다. `R`을 이용하면 다음 함수가 여러개의 결과를 인자로 받을 수 있습니다.
 `R` 사용은 아래와 같은 두가지 사용법이 있습니다.
 ```javascript
 C(3, 2, [
@@ -239,7 +238,7 @@ console.log(r6);
 [GO Lang - Multiple Results](https://tour.golang.org/basics/6)
 
 
-함수 조립의 즐거움
+함수 조립의 즐거움을 맛보세요.
 ```javascript
 var difference = B([
     function(a, b) {
@@ -258,7 +257,7 @@ console.log(r8);
 ```
 
 
-abc의 다른 함수를 활용하면  `difference`를 아래와 같이 구현해볼수도 있겠습니다.
+abcjs의 다른 함수를 활용하면  `difference`를 아래와 같이 구현할 수도 있습니다.
 ```javascript
 var difference2 = B([
     P, // function() { return arguments },
@@ -340,8 +339,8 @@ sum(5, 7, function(r) {
 ```
 
 
-callback 형태로 결과를 기다리는 함수를 사용할때는 `CB`를 감싸두기만 하면 됩니다.
-`CB`로 감싸진 function을 만나면 C안에서 callback 함수를 생성하여 마지막 인자로 넘긴 후 값을 받으면 다음 함수로 전달합니다.
+callback 형태로 결과를 기다리는 함수를 사용할때는 그저 `CB`를 감싸두기만 하면 됩니다.
+`CB`로 감싸진 function을 만나면 `C`안에서 callback 함수를 생성하여 마지막 인자로 넘긴 후 값을 받으면 다음 함수로 전달합니다.
 ```javascript
 CB(sum, minus, square);
 
@@ -381,7 +380,7 @@ C(5, 9, [
   });
 });
 ```
-일반 콜백함수를 Promise로 제어하는 것보다 간단하고 새로운 함수를 만들지 않으며 CB를 감싼뒤라도 콜백함수를 콜백함수 그대로 사용할 수 있습니다.
+일반 콜백함수를 Promise로 제어하는 것보다 간단하고 새로운 함수를 만들지 않으며 `CB`를 감싼 뒤라도 콜백함수를 콜백함수 그대로 사용할 수 있습니다.
 `Promise.promisify` 보다도 단순하고 새로운 개념을 알 필요가 없습니다.
 `.then()`과 달리 multiple results도 가능합니다.
 ```javascript
@@ -480,7 +479,7 @@ C([
     }
 ]);
 ```
-_*참고 - 실제 jQuery의 `$.get` 함수등은 { then: func.. } 를 리턴하기 때문에 CB로 감싸는 방식으로 구현할 필요 없습니다._
+_*참고 - 실제 jQuery의 `$.get` 함수등은 `{ then: func.. }` 를 리턴하기 때문에 `CB`로 감싸는 방식으로 구현할 필요 없습니다._
 
 
 
@@ -765,7 +764,7 @@ H-S의 특징
   1. H-S는 js내에서 사용하기위해 만들어졌습니다. 짧게 작성할 수 있게 하기 위해 jade의 문법과 닮았습니다.
   2. jade보다 더욱 css 문법과 동일합니다.
   3. javascript 함수 사용이 편리합니다.
-  4. " 등을 생략할 수 있어 문자열을 다루는데 좀더 편리합니다.
+  4. `""`,`''` 등을 생략할 수 있어 문자열을 다루는데 좀더 편리합니다.
   5. handlebars 등의 helper 보다 더욱 편리하게 template을 위한 함수를 만들 수 있습니다.
 
 
@@ -813,7 +812,7 @@ hr();
 ```
 
 
-H의 인자를 여러개를 넘기면 template 문자열을 합치는데 그중 함수를 넣어 함수를 실행 시킬 수 있습니다.
+`H`의 인자를 여러개를 넘기면 template 문자열을 합치는데 그중 함수를 넣어 함수를 실행 시킬 수 있습니다.
 복잡한 로직은 함수로 빼서 구현 할 수 있습니다.
 ```javascript
 var songs = [
@@ -841,7 +840,7 @@ C(songs, [
 hr();
 ```
 
-H.each, S.each
+`H.each`, `S.each`
 ```javascript
 C(songs, [
     H('songs', '\
@@ -859,11 +858,11 @@ hr();
 
 
 템플릿 동작 순서
-  1. !{}! 실행 및 데이터 치환, 리턴 값을 H 문법으로 하고 싶을때
+  1. `!{}!` 실행 및 데이터 치환, 리턴 값을 H 문법으로 하고 싶을때
   2. H to HTML
-  3. {{{}}} 실행 및 데이터 치환, 리턴 값을 HTML로 만들고 싶을때
-  4. {{}} 실행 및 데이터 치환, 리턴 값이 일반 문자열이어야 함
-    !{}!, {{}} {{{}}} 의 실행결과가 .then 인 경우 비동기를 기다렸다가 완성함
+  3. `{{{}}}` 실행 및 데이터 치환, 리턴 값을 HTML로 만들고 싶을때
+  4. `{{}}` 실행 및 데이터 치환, 리턴 값이 일반 문자열이어야 함
+    `!{}!`, `{{}}`, `{{{}}}` 의 실행결과가 `.then` 인 경우 비동기를 기다렸다가 완성함
 ```javascript
 var sum = CB(function (a, b, cb) {
     delay(function() {
@@ -926,7 +925,7 @@ IF(
    실행부 함수
 )
 ```
-IF와 ELSEIF는 첫번째 인자로 조건부 함수를 넘기고, 두번째 인자로 실행부 함수를 넘깁니다.
+`IF`와 `ELSEIF`는 첫번째 인자로 조건부 함수를 넘기고, 두번째 인자로 실행부 함수를 넘깁니다.
 
 
 ```javascript
