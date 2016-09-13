@@ -243,17 +243,8 @@
         return (function f(res) {
             res = body(result, list, keys, i, res, tmp, args);
 
-            if (naganya(res)) {
-                var r = naga(list, keys, i);
-                result, list, keys, i, tmp, args = null;
-                return r;
-            }
-
-            if (i == length) {
-                var r = footer(result, list, res);
-                result, list, keys, i, tmp, args = null;
-                return r;
-            }
+            if (naganya(res)) return naga(list, keys, i);
+            if (i == length) return footer(result, list, res);
 
             return A(params(list, keys, i++, res).concat(args), [iter_or_predi, function() {
                 return f(arguments.length == 1 ? arguments[0] : TO_R(arguments));
@@ -284,11 +275,9 @@
             }
 
             if (i == fns.length) {
-                i = fns = null;
                 if (!then_obj_returned) return res;
-
-                // 혹시 모두 동기로 끝나버려 then_cb가 아직 안들어온 경우 안전하게 한번 기다려주고
                 if (!IS_R(res)) res = [res];
+                // 혹시 모두 동기로 끝나버려 then_cb가 아직 안들어온 경우 안전하게 한번 기다려주고
                 return then_cb ? then_cb.apply(void 0, res) : setTimeout(function() { then_cb && then_cb.apply(void 0, res); });
             }
 
