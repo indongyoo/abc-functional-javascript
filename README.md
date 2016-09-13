@@ -339,9 +339,7 @@ sum(5, 7, function(r) {
 });
 ```
 
-
-callback 형태로 결과를 기다리는 함수를 사용할때는 `CB`를 감싸두기만 하면 됩니다.
-`CB`로 감싸진 function을 만나면 C안에서 callback 함수를 생성하여 마지막 인자로 넘긴 후 값을 받으면 다음 함수로 전달합니다.
+`CB`를 감싸두기만 하면 됩니다. 파이프라인이 넘겨준 cb 함수를 이용하여 값을 넘기면 다음 함수로 전달됩니다.
 ```javascript
 CB(sum, minus, square);
 
@@ -357,11 +355,11 @@ C(5, 10, [
 ]);
 ```
 
-연속으로 callback 패턴의 함수들이 나온다면 `CB`를 함께 싸도 됩니다.
+B를 활용하여 좀더 간략하게 만들 수 있습니다.
 ```javascript
 C(5, 9, [
     sum,
-    B(X, 5, minus), // B를 활용하여 좀더 간략하게 만들 수 있습니다.
+    B(X, 5, minus),
     square,
     function(r) {
         console.log(r); // 81
