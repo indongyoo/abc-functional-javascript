@@ -6,26 +6,25 @@ _abcjs는 함수형 자바스크립트(functional javascript) 라이브러리입
   - Web browser와 NodeJS에서 사용할 수 있습니다.
   - Promise나 모나드보다 간결하고 더욱 편리한 비동기 제어를 지원합니다.
   - 비동기 함수일지라도 동기 함수를 작성하듯이 논리 구조를 만들 수 있습니다.
-  - 비동기 제어가 지원되는 each, map, reduce, filter, reject, find, some, every, uniq 함수가 있습니다.
+  - 비동기 제어가 지원되는 `each`, `map`, `reduce`, `filter`, `reject`, `find`, `some`, `every`, `uniq` 함수가 있습니다.
   - Jade와 비슷한 HTML Template 함수가 있습니다.
   - sql 등을 작성하기 편한 함수가 있습니다.
   - 다른 자바스크립트 라이브러리에 대한 의존성이 없는 750줄의 작은 라이브러리입니다.
-  - Respect Underscorejs!
+  - Respect [Underscorejs](http://underscorejs.org/)!
 
 
- __abcjs와 함께 함수형 프로그래밍을 즐겨보세요. :simple_smile:__
-
+ __abcjs와 함께 함수형 프로그래밍을 즐겨보세요.__
 
 
 ## 시작하기
 
-#### 01. [A](https://github.com/marpple/abc-functional-javascript/blob/master/example/01.%20A.html)
-A는 this를 제외한 apply라고 생각하면 쉽습니다.
+### 01. [A](https://github.com/marpple/abc-functional-javascript/blob/master/example/01.%20A.html)
+`A`는 `this`를 제외한 `apply`라고 생각하면 쉽습니다.
 
-객체지향에서 this 키워드는 매우 중요합니다. 자신이 가진 메소드를 실행하거나 자신이 가진 상태를 참조하거나 변경해야하기 때문입니다.
+객체지향에서 `this` 키워드는 매우 중요합니다. 자신이 가진 메소드를 실행하거나 자신이 가진 상태를 참조하거나 변경해야하기 때문입니다.
 
-하지만 this를 다루는 것은 어렵습니다. 추상적이기 때문입니다.
-this를 통해 다루는 상태는 결국 값입니다. 반드시 클래스를 통해서만 값을 다룰 필요는 없습니다.
+하지만 `this`를 다루는 것은 어렵습니다. 추상적이기 때문입니다.
+`this`를 통해 다루는 상태는 결국 값입니다. 반드시 클래스를 통해서만 값을 다룰 필요는 없습니다.
 
 메서드를 통해 클래스 내부에서만 값을 참조하는 것보다 훨씬 쉽고 유연하고 추상적이지 않은 방법이 있습니다.
 함수를 통해 값을 새로운 값으로 만드는 식으로 다루는 것입니다.
@@ -40,7 +39,7 @@ console.log(r1);
 ```
 
 
-대부분 왼쪽에서 오른쪽, 위에서 아래로 읽는데 익숙합니다. 그래서 A는 인자와 함수사용에 대한 방향을 바꾸었습니다.
+대부분 왼쪽에서 오른쪽, 위에서 아래로 읽는데 익숙합니다. 그래서 `A`는 인자와 함수사용에 대한 방향을 바꾸었습니다.
 ```javascript
 function minus(a, b) {
     return a - b;
@@ -56,9 +55,9 @@ Array나 arguments를 사용하면 됩니다.
 
 
 
-#### 02. [B](https://github.com/marpple/abc-functional-javascript/blob/master/example/02.%20B.html)
-B는 this를 제외한 bind라고 생각하면 쉽습니다.
-혹은 underscore의 \_.partial과 유사합니다.
+### 02. [B](https://github.com/marpple/abc-functional-javascript/blob/master/example/02.%20B.html)
+`B`는 `this`를 제외한 `bind`라고 생각하면 쉽습니다.
+혹은 underscore의 `_.partial`과 유사합니다.
 ```javascript
 function minus(a, b) {
     return a - b;
@@ -71,8 +70,8 @@ console.log(r1);
 ```
 
 
-B를 X와 함께 사용해보세요.
-X를 통해 이후 실행시에 인자를 받을 자리를 지정할 수 있습니다.
+`B`를 `X`와 함께 사용해보세요.
+`X`를 통해 이후 실행시에 인자를 받을 자리를 지정할 수 있습니다.
 ```javascript
 var f2 = B(X, 10, minus);
 var r2 = f2(20);
@@ -91,8 +90,8 @@ console.log(r3);
 
 
 
-#### 03. [C](https://github.com/marpple/abc-functional-javascript/blob/master/example/03.%20C.html)
-C는 this를 제외한 call이라고 생각하면 쉽습니다.
+### 03. [C](https://github.com/marpple/abc-functional-javascript/blob/master/example/03.%20C.html)
+`C`는 `this`를 제외한 `call`이라고 생각하면 쉽습니다.
 ```javascript
 function minus(a, b) {
     return a - b;
@@ -109,14 +108,14 @@ console.log(r2);
 
 
 
-#### 04. [Pipeline with ABC](https://github.com/marpple/abc-functional-javascript/blob/master/example/04.%20Pipeline%20with%20ABC.html)
-abcjs는 underscore의 \_.compose나 jQuery의 chain과 유사한 코드 패턴을 지원합니다.
+### 04. [Pipeline with ABC](https://github.com/marpple/abc-functional-javascript/blob/master/example/04.%20Pipeline%20with%20ABC.html)
+abcjs는 underscore의 `_.compose`나 jQuery의 chain과 유사한 코드 패턴을 지원합니다.
 객체지향적인 체인방식은 연속적으로 값을 변경해나갈 수 있지만 자신이 가진 값을 바꾸는 방법이기 때문에 사용은 쉽지만 구현이 어렵습니다.
 또한 자신이 가진 메서드만 사용 가능하며 자신의 값만을 변경 할수있기 때문에 제약이 있습니다.
 파이프라인과 같은 연속적인 함수 실행 방식은 객체지향적인 체인방식보다 유연하고 순수 함수들을 만들 수 있어 좋습니다.
 
 abcjs에서는 별도의 파이프라인 함수를 만들지 않고 기본 함수 실행 함수인 ABC에서 파이프라인 패턴을 바로 사용할수 있도록 했습니다.
-또한 \_.compose와 달리 읽기 쉬운 방향으로 순서를 바꿨습니다. 쉽습니다. 마지막 인자 자리에 함수 대신 배열로 함수들을 나열하기만 하면 됩니다.
+또한 `_.compose`와 달리 읽기 쉬운 방향으로 순서를 바꿨습니다. 쉽습니다. 마지막 인자 자리에 함수 대신 배열로 함수들을 나열하기만 하면 됩니다.
 ```javascript
 function sum(a, b) {
     return a + b;
@@ -140,9 +139,9 @@ console.log(r1);
 ```
 
 
-1, 2 인자는 sum에게 sum의 결과는 square에게 그리고 그 함수의 결과는 계속 다음 함수의 인자로 넘어갑니다. 그리고 마지막 함수의 return 값은 C의 실행 결과가 됩니다.
+1, 2 인자는 `sum`에게 `sum`의 결과는 `square`에게 그리고 그 함수의 결과는 계속 다음 함수의 인자로 넘어갑니다. 그리고 마지막 함수의 return 값은 `C`의 실행 결과가 됩니다.
 
-A를 이용하면 Array나 arguments로 파이프라인 패턴을 사용할 수 있습니다.
+`A`를 이용하면 Array나 arguments로 파이프라인 패턴을 사용할 수 있습니다.
 ```javascript
 A([1, 2], [
     sum,
@@ -158,7 +157,7 @@ A([1, 2], [
 ```
 
 
-B 함수를 이용하면 작은 함수를 모아 큰 함수를 만들 수 있습니다. 혹은 큰 함수를 작은 단위로 쪼갤 수 있습니다. 작은 함수가 많아지면 코드 재활용률을 높일 수 있습니다.
+`B` 함수를 이용하면 작은 함수를 모아 큰 함수를 만들 수 있습니다. 혹은 큰 함수를 작은 단위로 쪼갤 수 있습니다. 작은 함수가 많아지면 코드 재활용률을 높일 수 있습니다.
 ```javascript
 var f1 = B([
     sum,
@@ -175,7 +174,7 @@ console.log(r3);
 ```
 
 
-함수 조합에서도 X와 함께 인자를 미리 적용 해둘 수 있습니다.
+함수 조합에서도 `X`와 함께 인자를 미리 적용 해둘 수 있습니다.
 ```javascript
 function minus(a, b) {
     return a - b;
@@ -192,12 +191,12 @@ console.log(r4);
 ```
 
 
-chain 패턴이나 \_.compose, Promise 등의 일종의 파이프라인 혹은 모나드 등에서 아쉬운점은 함수 모음의 첫번째 함수를 제외하고는 인자를 하나만 받을 수 있다는 점 입니다.
+chain 패턴이나 `_.compose`, `Promise` 등의 일종의 파이프라인 혹은 모나드 등에서 아쉬운점은 함수 모음의 첫번째 함수를 제외하고는 인자를 하나만 받을 수 있다는 점 입니다.
 
-B(X, 11, minus) 를 통해 두개의 인자가 사용되도록 했지만 여전히 사실은 위에서 부터 내려오는 인자는 하나입니다.
+`B(X, 11, minus)` 를 통해 두개의 인자가 사용되도록 했지만 여전히 사실은 위에서 부터 내려오는 인자는 하나입니다.
 인자를 하나만 받는 함수만 조립할 수 있다면 실용성이 떨어집니다.
-이를 위해 R이 있습니다. R을 이용하면 다음 함수가 여러개의 결과를 인자로 받을 수 있습니다.
-R 사용은 아래와 같은 두가지 사용법이 있습니다.
+이를 위해 R이 있습니다. `R`을 이용하면 다음 함수가 여러개의 결과를 인자로 받을 수 있습니다.
+`R` 사용은 아래와 같은 두가지 사용법이 있습니다.
 ```javascript
 C(3, 2, [
     function(a, b) {
@@ -218,7 +217,7 @@ C(3, 2, [
 ```
 
 
-B를 통해 함수를 정의하면 ABC를 이용하지 않고도 R(returns)을 동작 시킬 수 있습니다.
+`B`를 통해 함수를 정의하면 ABC를 이용하지 않고도 `R(returns)`을 동작 시킬 수 있습니다.
 ```javascript
 var minus = B(function(a, b) {
     console.log(a, b); // 20, 10
@@ -236,7 +235,7 @@ var r6 = minus(swap(10, 20));
 console.log(r6);
 // 10
 ```
-R은 Go언어의 Multiple Results와 비슷합니다.
+`R`은 Go언어의 Multiple Results와 비슷합니다.
 [GO Lang - Multiple Results](https://tour.golang.org/basics/6)
 
 
@@ -259,7 +258,7 @@ console.log(r8);
 ```
 
 
-abc의 다른 함수를 활용하면  difference를 아래와 같이 구현해볼수도 있겠습니다.
+abc의 다른 함수를 활용하면  `difference`를 아래와 같이 구현해볼수도 있겠습니다.
 ```javascript
 var difference2 = B([
     P, // function() { return arguments },
@@ -290,12 +289,12 @@ console.log(r12);
 
 
 
-#### 05. [Async(callback)](https://github.com/marpple/abc-functional-javascript/blob/master/example/05.%20Async%20(callback).html)
+### 05. [Async(callback)](https://github.com/marpple/abc-functional-javascript/blob/master/example/05.%20Async%20(callback).html)
 abcjs에서는 비동기 제어와 관련된 많은 기능을 제공합니다.
-파이프라인에서 사용할 콜백 패턴의 함수를 CB 함수로 한번 넘겨 두기만 하면 됩니다.
-CB가 감싸졌던 f1이라는 함수를 파이프라인에 넣어두면 C함수 안에서 f1에게 필요한 callback 함수를 생성하여 마지막 인자로 넣어줍니다.
+파이프라인에서 사용할 콜백 패턴의 함수를 `CB` 함수로 한번 넘겨 두기만 하면 됩니다.
+`CB`가 감싸졌던 `f1`이라는 함수를 파이프라인에 넣어두면 `C`함수 안에서 `f1`에게 필요한 callback 함수를 생성하여 마지막 인자로 넣어줍니다.
 생성된 callback 함수로 값을 꺼낸 후 파이프라인의 다음 함수에게 결과를 전달합니다.
-CB로 감싼 후 callback 함수 인자의 자리만 제외하고 실행하거나 CB(익명함수)를 통해 C에게 받은 callback 함수를 사용하여 결과를 다음 함수로 넘기면 됩니다.
+`CB`로 감싼 후 callback 함수 인자의 자리만 제외하고 실행하거나 `CB(익명함수)`를 통해 `C`에게 받은 callback 함수를 사용하여 결과를 다음 함수로 넘기면 됩니다.
 Promise와 달리 여러개의 인자를 다음 함수로 주고 있던 함수이더라도 여러개의 인자로 받을 수 있습니다.
 
 ```javascript
@@ -341,8 +340,8 @@ sum(5, 7, function(r) {
 ```
 
 
-callback 형태로 결과를 기다리는 함수를 사용할때는 CB를 감싸두기만 하면 됩니다.
-CB로 감싸진 function을 만나면 C안에서 callback 함수를 생성하여 마지막 인자로 넘긴 후 값을 받으면 다음 함수로 전달합니다.
+callback 형태로 결과를 기다리는 함수를 사용할때는 `CB`를 감싸두기만 하면 됩니다.
+`CB`로 감싸진 function을 만나면 C안에서 callback 함수를 생성하여 마지막 인자로 넘긴 후 값을 받으면 다음 함수로 전달합니다.
 ```javascript
 CB(sum, minus, square);
 
@@ -358,7 +357,7 @@ C(5, 10, [
 ]);
 ```
 
-연속으로 callback 패턴의 함수들이 나온다면 CB를 함께 싸도 됩니다.
+연속으로 callback 패턴의 함수들이 나온다면 `CB`를 함께 싸도 됩니다.
 ```javascript
 C(5, 9, [
     sum,
@@ -383,8 +382,8 @@ C(5, 9, [
 });
 ```
 일반 콜백함수를 Promise로 제어하는 것보다 간단하고 새로운 함수를 만들지 않으며 CB를 감싼뒤라도 콜백함수를 콜백함수 그대로 사용할 수 있습니다.
-Promise.promisify 보다도 단순하고 새로운 개념을 알 필요가 없습니다.
-.then()과 달리 multiple results도 가능합니다.
+`Promise.promisify` 보다도 단순하고 새로운 개념을 알 필요가 없습니다.
+`.then()`과 달리 multiple results도 가능합니다.
 ```javascript
 C(5, 9, [
     sum,
@@ -446,7 +445,7 @@ C([
 ]);
 ```
 
-B를 활용하면 더욱 깔끔하게 만들 수 있습니다.
+`B`를 활용하면 더욱 깔끔하게 만들 수 있습니다.
 ```javascript
 CB($.get, $.post, $.put);
 
@@ -463,7 +462,7 @@ C([
 ]);
 ```
 
-J와 R을 활용하면 다음과 같이 사용할 수 있습니다.
+`J`와 `R`을 활용하면 다음과 같이 사용할 수 있습니다.
 ```javascript
 function J(v) {
  return function() {
@@ -485,8 +484,8 @@ _*참고 - 실제 jQuery의 `$.get` 함수등은 { then: func.. } 를 리턴하�
 
 
 
-#### 06. [Async-2(Promise)](https://github.com/marpple/abc-functional-javascript/blob/master/example/06.%20Async-2%20(Promise).html)
-abcjs는 Promise가 필요 없지만 .then을 리턴하는 함수의 비동기 제어를 지원합니다.
+### 06. [Async-2(Promise)](https://github.com/marpple/abc-functional-javascript/blob/master/example/06.%20Async-2%20(Promise).html)
+abcjs는 Promise가 필요 없지만 `.then`을 리턴하는 함수의 비동기 제어를 지원합니다.
 ```javascript
 function delay() {
     return new Promise(function(rs) {
@@ -537,7 +536,7 @@ C(3, 6, [
 ```
 
 
-아래와 같이 마지막 결과를 then으로 받을 수 있어 Promise와 함께 사용이 가능합니다.
+아래와 같이 마지막 결과를 `then`으로 받을 수 있어 Promise와 함께 사용이 가능합니다.
 ```javascript
 C(5, 5, [
     sum,
@@ -564,11 +563,8 @@ sum(2, 4)
     ])).then(function(r) {
         console.log(r); // 64
     });
-```
 
-
-CB와 함께 사용 가능합니다.
-```javascript
+// CB와 함께 사용 가능합니다.
 C(5, 5, [
     sum,
     square,
@@ -579,17 +575,17 @@ C(5, 5, [
     console.log(r); // 50
 });
 ```
-Promise를 지원하지만 C().then()이 Promise 객체는 아닙니다.
+Promise를 지원하지만 `C().then()`이 Promise 객체는 아닙니다.
 
 
 
-#### 07. [each...map...find...](https://github.com/marpple/abc-functional-javascript/blob/master/example/07.%20each...map...find....html)
-underscorejs의 each, map, find 등의 함수보다 편의성을 높였습니다.
+### 07. [each...map...find...](https://github.com/marpple/abc-functional-javascript/blob/master/example/07.%20each...map...find....html)
+underscorejs의 `each`, `map`, `find` 등의 함수보다 편의성을 높였습니다.
   1. this는 사용하지 않으며 대신 iteratee 함수에게 인자를 여러개를 넘길 수 있습니다.
     - ex) [1, 2, 3], arg1, arg2, arg3 => value, key, list, arg1, arg2, arg3 ...
   2. 비동기 제어가 됩니다.
   3. iteratee나 predicate 함수를 파이프라인으로 만들 수 있습니다.
-  4. 즉시 실행인 C.map과 부분 실행 컨셉의 B.map이 있어 파이프라인에서 편하게 사용할 수 있습니다.
+  4. 즉시 실행인 `C.map`과 부분 실행 컨셉의 `B.map`이 있어 파이프라인에서 편하게 사용할 수 있습니다.
 
 ```javascript
 function delay(func) {
@@ -725,9 +721,9 @@ array, object, [obj, obj, obj] 등을 편리하게 다룰 수 있는 유용한 �
 
 
 
-#### 08. [HTML Template](https://github.com/marpple/abc-functional-javascript/blob/master/example/08.%20HTML%20Template.html)
-abcjs에는 html을 효율적으로 만들 수 있는 template 함수인 H, H.each, 일반 문자열을 효율적으로 만들 수 있는 S, S.each가 있습니다.
-H, H.each, S, S.each는 모두 비동기 제어를 지원하고 abcjs의 다른 함수들과 함께 사용하기 좋습니다.
+### 08. [HTML Template](https://github.com/marpple/abc-functional-javascript/blob/master/example/08.%20HTML%20Template.html)
+abcjs에는 html을 효율적으로 만들 수 있는 template 함수인 `H`, `H.each`, 일반 문자열을 효율적으로 만들 수 있는 `S`, `S.each`가 있습니다.
+`H`, `H.each`, `S`, `S.each`는 모두 비동기 제어를 지원하고 abcjs의 다른 함수들과 함께 사용하기 좋습니다.
 ```javascript
 C([
     H('', '\
@@ -891,8 +887,8 @@ C(songs, [
 ```
 
 
-S는 일반 문자열을 만들때 사용합니다. S와 S.each가 있습니다.
-H, H.each는 HTML로 변환하여 리턴하고 S, S.each는 데이터 치환만한 문자열을 리턴합니다.
+`S`는 일반 문자열을 만들때 사용합니다. `S`와 `S.each`가 있습니다.
+`H`, `H.each`는 HTML로 변환하여 리턴하고 `S`, `S.each`는 데이터 치환만한 문자열을 리턴합니다.
 ```javascript
 C({ id: 5, body: "foo bar" }, [
     _.values,
@@ -905,7 +901,7 @@ C({ id: 5, body: "foo bar" }, [
 
 
 
-#### 09. [IF ELSEIF ELSE](https://github.com/marpple/abc-functional-javascript/blob/master/example/09.%20IF%20ELSEIF%20ELSE.html)
+### 09. [IF ELSEIF ELSE](https://github.com/marpple/abc-functional-javascript/blob/master/example/09.%20IF%20ELSEIF%20ELSE.html)
 자바스크립트에서 조건문을 작성할때는 함수를 실행할 수 있는데 만일 그 함수가 비동기 함수라면 굉장히 로직이 복잡해지고 코딩하기 어려워집니다.
 자바스크립트는 아래와 같이 코딩할 수 없어 이것을 자바스크립트의 단점으로 생각하기도 합니다.
 하지만 이것에는 목적이 있습니다. 자바스크립트는 이벤트 루프를 이용하여 Non-Blocking IO을 지원하기 위해 아래 같은 상황에서 비동기가 일어납니다.
@@ -940,7 +936,7 @@ IF(
 ```
 만약 위와 같이 실행부 함수만 넘길 경우 내부적으로 조건부 함수를 `function I(v) { return v; }` 로 채웁니다.
 
-ELSE는 실행부 함수만 넘깁니다.
+`ELSE`는 실행부 함수만 넘깁니다.
 
 조건부 함수와 실행부 함수 모두 []로 파이프라인을 만들 수 있습니다.
 ```javascript
@@ -1041,12 +1037,12 @@ C(0, 5, [
 ```
 
 
-abcjs를 이용하여 함수형 프로그래밍을 하면 비동기가 지원되는 IF().ELSEIF().ELSE() 같은 함수도 아래와 같이 쉽게 만들 수 있습니다.
-  1. 최초 IF를 실행하면 store를 클로저로 생성하고
-  2. chain 방식으로 이후에 ELSEIF와 ELSE가 실행 될때 마다 function set를 store에 모아놓고
-  3. 리턴된 IF가 실행될때 B.find를 통해 실행해야하는 function set를 찾아 받아둔 args를 넘기며 실행합니다.
+abcjs를 이용하여 함수형 프로그래밍을 하면 비동기가 지원되는 `IF().ELSEIF().ELSE()` 같은 함수도 아래와 같이 쉽게 만들 수 있습니다.
+  1. 최초 `IF`를 실행하면 `store`를 클로저로 생성하고
+  2. chain 방식으로 이후에 `ELSEIF`와 `ELSE`가 실행 될때 마다 function set를 `store`에 모아놓고
+  3. 리턴된 `IF`가 실행될때 `B.find`를 통해 실행해야하는 function set를 찾아 받아둔 `args`를 넘기며 실행합니다.
 
-  이미 C나 B.find 등이 이미 비동기를 잘 제어해주기 때문에 아래와 같이 callback 패턴 없이 동기 함수를 만들때와 완전히 똑같은 코딩을 할 수 있습니다.
+  이미 `C`나 `B.find` 등이 이미 비동기를 잘 제어해주기 때문에 아래와 같이 callback 패턴 없이 동기 함수를 만들때와 완전히 똑같은 코딩을 할 수 있습니다.
 ```javascript
  (function() {
 
@@ -1072,8 +1068,8 @@ abcjs를 이용하여 함수형 프로그래밍을 하면 비동기가 지원되
 
 
 
-#### 10. [B.all B.div](https://github.com/marpple/abc-functional-javascript/blob/master/example/09.%20IF%20ELSEIF%20ELSE.html)
-B.all 함수는 같은 인자를 모든 파이프라인 or 함수에게 넘겨서 multiple results로 결과를 만드는 함수를 리턴합니다.
+### 10. [B.all B.div](https://github.com/marpple/abc-functional-javascript/blob/master/example/09.%20IF%20ELSEIF%20ELSE.html)
+`B.all` 함수는 같은 인자를 모든 파이프라인 or 함수에게 넘겨서 multiple results로 결과를 만드는 함수를 리턴합니다.
 ```javascript
 C(1, 5, [
     B.all(
@@ -1090,7 +1086,7 @@ C(1, 5, [
 ```
 
 
-B.div 함수는 인자를 하나씩 모든 파이프라인 or 함수에게 나눠주고 array로 결과를 만드는 함수를 리턴합니다.
+`B.div` 함수는 인자를 하나씩 모든 파이프라인 or 함수에게 나눠주고 array로 결과를 만드는 함수를 리턴합니다.
 ```javascript
 C(1, 2, 3, 4, [
     B.div(
@@ -1148,13 +1144,13 @@ console.log(D.to_array({"0": 1, "1": 2})); // [1, 2]
     console.log(D.to_array(arguments)); // [1, 2, 3]
 }) (1, 2, 3)
 ```
-Pipeline 패턴으로 코딩을 하다보면 B.all과 B.div 같은 일을 하고 싶을때가 있습니다.
-B.all과 B.div에게 넘겨진 함수 or Pipeline들은 하나씩 차례대로 실행됩니다.
+Pipeline 패턴으로 코딩을 하다보면 `B.all`과 `B.div` 같은 일을 하고 싶을때가 있습니다.
+`B.all`과 `B.div`에게 넘겨진 함수 or Pipeline들은 하나씩 차례대로 실행됩니다.
 비동기가 일어나더라도 위에서 부터 하나씩 차례대로 실행됩니다.
 
 
 
-#### 11. ETC
+### 11. ETC
 이 외에도 abcjs에는 `B.P`, `B.M`, `B.V`, `F`, `G`, `M`, `U`, `V` 등의 유용한 함수들이 있습니다.
   - `B.P(n)` n번째 인자 받기
   - `B.M('method', 'args1', 'args2')` 객체의 메소드 실행하기
