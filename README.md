@@ -1048,26 +1048,22 @@ abcjs를 이용하여 함수형 프로그래밍을 하면 비동기가 지원되
 
   이미 `C`나 `B.find` 등이 이미 비동기를 잘 제어해주기 때문에 아래와 같이 callback 패턴 없이 동기 함수를 만들때와 완전히 똑같은 코딩을 할 수 있습니다.
 ```javascript
- (function() {
+ function IF(predicate, fn) {
+     var store = [fn ? [predicate, fn] : [I, predicate]];
+     return _.extend(IF, {
+         ELSEIF: function (predicate, fn) {
+             return store.push(fn ? [predicate, fn] : [I, predicate]) && IF;
+         },
+         ELSE: function (fn) { return store.push([J(true), fn]) && IF; } });
 
-     function IF(predicate, fn) {
-         var store = [fn ? [predicate, fn] : [I, predicate]];
-         return _.extend(IF, {
-             ELSEIF: function (predicate, fn) {
-                 return store.push(fn ? [predicate, fn] : [I, predicate]) && IF;
-             },
-             ELSE: function (fn) { return store.push([J(true), fn]) && IF; } });
-
-         function IF() {
-             var args = arguments;
-             return C(store, args, [
-                 B.find(function(fnset, i, l, args) { return A(args, fnset[0]); }),
-                 function(fnset) { return fnset ? A(args, fnset[1]) : void 0; }
-             ]);
-         }
+     function IF() {
+         var args = arguments;
+         return C(store, args, [
+             B.find(function(fnset, i, l, args) { return A(args, fnset[0]); }),
+             function(fnset) { return fnset ? A(args, fnset[1]) : void 0; }
+         ]);
      }
-
-})();
+ }
 ```
 
 
