@@ -70,8 +70,8 @@
     B.each = function(iter) {
         return B(
             P4, // body
-            U, // naganya
-            void 0, // naga
+            U, // end_q
+            void 0, // end
             P1,
             iter, // iter_or_predi
             base_loop_fn_base_args,
@@ -84,9 +84,9 @@
                 if (i) result.push(res);
                 return res;
             },
-            U, // naganya
-            void 0, // naga
-            I, // footer
+            U, // end_q
+            void 0, // end
+            I, // complete
             iter,       // iter_or_predi
             base_loop_fn_base_args,
             base_loop_fn);
@@ -97,9 +97,9 @@
             function(result, list, keys, i, res, tmp, args) {     // body
                 return i == 0 ? args[0] : res;
             },
-            U, // naganya
-            void 0, // naga
-            P2, // footer
+            U, // end_q
+            void 0, // end
+            P2, // complete
             iter,   // iter_or_predi
             function(list, keys, i, res) { // params
                 var key = keys ? keys[i] : i;
@@ -115,9 +115,9 @@
                 if (res) result.push(list[key]);
                 return res;
             },
-            U, // naganya
-            void 0, // naga
-            I, // footer
+            U, // end_q
+            void 0, // end
+            I, // complete
             iter,   // iter_or_predi
             base_loop_fn_base_args,
             base_loop_fn);
@@ -130,9 +130,9 @@
                 if (res == false) result.push(list[key]);
                 return res;
             },
-            U, // naganya
-            void 0, // naga
-            I, // footer
+            U, // end_q
+            void 0, // end
+            I, // complete
             iter,
             base_loop_fn_base_args,
             base_loop_fn);
@@ -141,11 +141,11 @@
     B.find = function(iter) {
         return B(
             P4,
-            I, // naganya
+            I, // end_q
             function(list, keys, i) {
                 return list[keys ? keys[i-1] : i-1];
-            }, // naga
-            U, // footer
+            }, // end
+            U, // complete
             iter,   // iter_or_predi
             base_loop_fn_base_args,
             base_loop_fn);
@@ -154,9 +154,9 @@
     B.some = function(iter) {
         return B(
             P4,
-            I, // naganya
-            J(true), // naga
-            J(false), // footer
+            I, // end_q
+            J(true), // end
+            J(false), // complete
             iter,
             base_loop_fn_base_args,
             base_loop_fn);
@@ -165,9 +165,9 @@
     B.every = function(iter) {
         return B(
             function(result, list, keys, i, res) { return i == 0 ? true : res; },   // body
-            function(v) { return !v }, // naganya
-            J(false), // naga
-            J(true), // footer
+            function(v) { return !v }, // end_q
+            J(false), // end
+            J(true), // complete
             iter,
             base_loop_fn_base_args,
             base_loop_fn);
@@ -186,9 +186,9 @@
                     result.push(list[i-1]);
                 }
             },
-            U,   // naganya
-            void 0,   // naga
-            I, // footer
+            U,   // end_q
+            void 0,   // end
+            I, // complete
             iter,
             base_loop_fn_base_args,
             base_loop_fn);
@@ -230,7 +230,7 @@
 
     function maybe_promise(res) { return _.isObject(res) && res.then && _.isFunction(res.then); }
 
-    function base_loop_fn(body, naganya, naga, footer, iter_or_predi, params) {
+    function base_loop_fn(body, end_q, end, complete, iter_or_predi, params) {
         var args = _.rest(arguments, 6);
         var list = args.shift();
         if (!iter_or_predi) iter_or_predi = args.pop();
@@ -243,8 +243,8 @@
         return (function f(res) {
             res = body(result, list, keys, i, res, tmp, args);
 
-            if (naganya(res)) return naga(list, keys, i);
-            if (i == length) return footer(result, list, res);
+            if (end_q(res)) return end(list, keys, i);
+            if (i == length) return complete(result, list, res);
 
             return A(params(list, keys, i++, res).concat(args), [iter_or_predi, function() {
                 return f(arguments.length == 1 ? arguments[0] : TO_R(arguments));
