@@ -1046,8 +1046,9 @@ abcjs를 이용하여 함수형 프로그래밍을 하면 비동기가 지원되
   2. chain 방식으로 이후에 `ELSEIF`와 `ELSE`가 실행 될때 마다 function set를 `store`에 모아놓고
   3. 리턴된 `IF`가 실행될때 `B.find`를 통해 실행해야하는 function set를 찾아 받아둔 `args`를 넘기며 실행합니다.
 
-  이미 `C`나 `B.find` 등이 이미 비동기를 잘 제어해주기 때문에 아래와 같이 callback 패턴 없이 동기 함수를 만들때와 완전히 똑같은 코딩을 할 수 있습니다.
+이미 `C`나 `B.find` 등이 이미 비동기를 잘 제어해주기 때문에 아래와 같이 callback 패턴 없이 동기 함수를 만들때와 완전히 똑같은 코딩을 할 수 있습니다.
 ```javascript
+ // abc.js 455 line
  function IF(predicate, fn) {
      var store = [fn ? [predicate, fn] : [I, predicate]];
      return _.extend(IF, {
