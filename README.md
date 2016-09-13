@@ -257,7 +257,7 @@ console.log(r8);
 ```
 
 
-abc의 다른 함수를 활용하면  `difference`를 아래와 같이 구현해볼 수 있겠습니다.
+abc의 다른 함수를 활용하면 `difference`를 아래와 같이 구현해볼 수도 있겠습니다.
 ```javascript
 var difference2 = B([
     P, // function() { return arguments },
@@ -293,8 +293,9 @@ abcjs에서는 비동기 제어와 관련된 다양한 기능을 제공합니다
 파이프라인에서 사용할 콜백 패턴의 함수를 `CB` 함수로 한번 넘겨 두기만 하면 됩니다.
 `CB`가 감싸졌던 `f1`이라는 함수를 파이프라인에 넣어두면 `C`함수 안에서 `f1`에게 필요한 callback 함수를 생성하여 마지막 인자로 넣어줍니다.
 생성된 callback 함수로 값을 꺼낸 후 파이프라인의 다음 함수에게 결과를 전달합니다.
-`CB`로 감싼 후 callback 함수 인자의 자리만 제외하고 실행하거나 `CB(익명함수)`를 통해 `C`에게 받은 callback 함수를 사용하여 결과를 다음 함수로 넘기면 됩니다.
+`CB`로 감싼 후 callback 함수 인자의 자리만 제외하고 실행하거나 `CB(익명함수)`를 통해 `C`에게 받은 callback 함수를 사용하여 결과를 다음 함수로 전달할 수 있습니다.
 Promise와 달리 여러개의 인자를 다음 함수로 주고 있던 함수이더라도 여러개의 인자로 받을 수 있습니다.
+이런 콜백 함수와 사용할때 유용합니다. `function(err, data) { ... }`
 
 ```javascript
 function delay(func) {
