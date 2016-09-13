@@ -51,7 +51,7 @@ var r2 = A([20, 5], function() {
 console.log(r2);
 // 15
 ```
-Array나 arguments를 사용하면 됩니다.
+배열이나 arguments객체를 사용하면 됩니다.
 
 
 
@@ -140,7 +140,7 @@ console.log(r1);
 
 1, 2 인자는 `sum`에게 `sum`의 결과는 `square`에게 그리고 그 함수의 결과는 계속 다음 함수의 인자로 넘어갑니다. 그리고 마지막 함수의 return 값은 `C`의 실행 결과가 됩니다.
 
-`A`를 이용하면 Array나 arguments로 파이프라인 패턴을 사용할 수 있습니다.
+`A`를 이용하면 배열과 arguments객체로 파이프라인 패턴을 사용할 수 있습니다.
 ```javascript
 A([1, 2], [
     sum,
@@ -173,7 +173,7 @@ console.log(r3);
 ```
 
 
-함수 조합에서도 `X`와 함께 인자를 미리 적용 해둘 수 있습니다.
+함수 조합에서도 `X`와 함께 사용하여 인자를 미리 적용 해둘 수 있습니다.
 ```javascript
 function minus(a, b) {
     return a - b;
@@ -193,7 +193,7 @@ console.log(r4);
 chain 패턴이나 `_.compose`, `Promise` 등의 일종의 파이프라인 혹은 모나드 등에서 아쉬운점은 함수 모음의 첫번째 함수를 제외하고는 인자를 하나만 받을 수 있다는 점 입니다.
 
 `B(X, 11, minus)` 를 통해 두개의 인자가 사용되도록 했지만 여전히 사실은 위에서 부터 내려오는 인자는 하나입니다.
-인자를 하나만 받는 함수만 조립할 수 있다면 실용성이 떨어집니다.
+인자를 하나만 받는 함수만 조립할 수 있다면 실용성이 떨어지고 인자가 두개 이상 필요한 함수를 사용하기 위해선 항상 wrapper 함수가 있어야합니다.
 이를 위해 R이 있습니다. `R`을 이용하면 다음 함수가 여러개의 결과를 인자로 받을 수 있습니다.
 `R` 사용은 아래와 같은 두가지 사용법이 있습니다.
 ```javascript
@@ -257,7 +257,7 @@ console.log(r8);
 ```
 
 
-abc의 다른 함수를 활용하면  `difference`를 아래와 같이 구현해볼수도 있겠습니다.
+abc의 다른 함수를 활용하면  `difference`를 아래와 같이 구현해볼 수 있겠습니다.
 ```javascript
 var difference2 = B([
     P, // function() { return arguments },
@@ -289,7 +289,7 @@ console.log(r12);
 
 
 ### 05. [Async(callback)](https://github.com/marpple/abc-functional-javascript/blob/master/example/05.%20Async%20(callback).html)
-abcjs에서는 비동기 제어와 관련된 많은 기능을 제공합니다.
+abcjs에서는 비동기 제어와 관련된 다양한 기능을 제공합니다.
 파이프라인에서 사용할 콜백 패턴의 함수를 `CB` 함수로 한번 넘겨 두기만 하면 됩니다.
 `CB`가 감싸졌던 `f1`이라는 함수를 파이프라인에 넣어두면 `C`함수 안에서 `f1`에게 필요한 callback 함수를 생성하여 마지막 인자로 넣어줍니다.
 생성된 callback 함수로 값을 꺼낸 후 파이프라인의 다음 함수에게 결과를 전달합니다.
@@ -1120,7 +1120,7 @@ C(1, 2, 3, 4, [
 ```
 
 
-결과를 Array로 받고 싶다면
+결과를 배열로 받고 싶다면
 ```javascript
 C(1, 5, [
     B.all(
