@@ -379,8 +379,8 @@ C(5, 9, [
   });
 });
 ```
-일반 콜백함수를 Promise로 제어하는 것보다 간단하고 새로운 함수를 만들지 않으며 CB를 감싼뒤라도 콜백함수를 콜백함수 그대로 사용할 수 있습니다.
-`Promise.promisify` 보다도 단순하고 새로운 개념을 알 필요가 없습니다.
+이 방법은 일반 콜백함수를 Promise로 제어하는 것보다 간단합니다. 또한 새로운 함수를 만들지 않으며 CB를 감싼뒤라도 콜백 패턴의 함수를 원래 사용하던대로 사용할 수도 있습니다.
+유사한 개념이지만 새로운 함수를 뱉는 `Promise.promisify` 보다 단순하고 새로운 개념을 알 필요가 없습니다.
 `.then()`과 달리 multiple results도 가능합니다.
 ```javascript
 C(5, 9, [
@@ -619,7 +619,7 @@ var r3 = C.map([1, 2, 3], 5, function(v, i, l, a) { //val, idx, list, 5
 });
 console.log(r3); // [6, 7, 8]
 
-/* B.P는 들어온 인자중 원하는 번째의 인자를 모아 array로 바꿔주는 기능입니다. */
+/* B.P는 들어온 인자중 원하는 번째의 인자를 모아 배열로 바꿔주는 기능입니다. */
 var r4 = C.map([1, 2, 3], 5, [B.P(0, 3), TO_R, sum]);
 console.log(r4); // [6, 7, 8]
 
@@ -713,7 +713,7 @@ C(users, [
     }]);
 ```
 
-array, object, [obj, obj, obj] 등을 편리하게 다룰 수 있는 유용한 함수들입니다.
+array, object, [object, object, object] 등을 편하게 다룰 수 있는 유용한 함수들입니다.
 `C.each`, `C.map`, `C.reduce`, `C.filter`, `C.reject`, `C.find`, `C.some`, `C.every`, `C.uniq`,
 `B.each`, `map`, `B.reduce`, `B.filter`, `B.reject`, `B.find`, `B.some`, `B.every`, `B.uniq`
 
@@ -758,6 +758,8 @@ C([
 
 hr();
 ```
+참고 - 주석은 반드시 맨 앞줄에서 시작되어야합니다.
+
 
 H-S의 특징
   1. H-S는 js내에서 사용하기위해 만들어졌습니다. 짧게 작성할 수 있게 하기 위해 jade의 문법과 닮았습니다.
@@ -838,6 +840,7 @@ C(songs, [
 
 hr();
 ```
+위와 같이 익명함수를 선언하여 사용할수도 있습니다. 쉼표가 중요합니다. `{{C(a, ', function() {},')}}`
 
 H.each, S.each
 ```javascript
@@ -861,7 +864,7 @@ hr();
   2. H to HTML
   3. {{{}}} 실행 및 데이터 치환, 리턴 값을 HTML로 만들고 싶을때
   4. {{}} 실행 및 데이터 치환, 리턴 값이 일반 문자열이어야 함
-    !{}!, {{}} {{{}}} 의 실행결과가 .then 인 경우 비동기를 기다렸다가 완성함
+    !{}!, {{}} {{{}}} 의 실행결과가 .then 인 경우 비동기를 기다렸다가 완성합니다.
 ```javascript
 var sum = CB(function (a, b, cb) {
     delay(function() {
@@ -900,7 +903,7 @@ C({ id: 5, body: "foo bar" }, [
 
 
 ### 09. [IF ELSEIF ELSE](https://github.com/marpple/abc-functional-javascript/blob/master/example/09.%20IF%20ELSEIF%20ELSE.html)
-자바스크립트에서 조건문을 작성할때는 함수를 실행할 수 있는데 만일 그 함수가 비동기 함수라면 굉장히 로직이 복잡해지고 코딩하기 어려워집니다.
+자바스크립트에서 조건문을 작성할때 함수를 실행할 수 있는데 만일 그 함수가 비동기 함수라면 그렇게 할 수 없고 굉장히 로직이 복잡해지고 코딩하기 어려워집니다.
 자바스크립트는 아래와 같이 코딩할 수 없어 이것을 자바스크립트의 단점으로 생각하기도 합니다.
 하지만 이것에는 목적이 있습니다. 자바스크립트는 이벤트 루프를 이용하여 Non-Blocking IO을 지원하기 위해 아래 같은 상황에서 비동기가 일어납니다.
 
