@@ -4,13 +4,13 @@ _abcjs는 함수형 자바스크립트(functional javascript) 라이브러리입
 
 ## 특징
   - Web browser와 NodeJS에서 사용할 수 있습니다.
-  - Promise나 모나드보다 간결하고 더욱 편리한 비동기 제어를 지원합니다.
+  - Promise, 모나드보다 간결하고 더욱 편리한 비동기 제어를 지원합니다.
   - 비동기 함수일지라도 동기 함수를 작성하듯이 논리 구조를 만들 수 있습니다.
-  - 비동기 제어가 지원되는 `each`, `map`, `reduce`, `filter`, `reject`, `find`, `some`, `every`, `uniq` 함수가 있습니다.
-  - Jade와 비슷한 HTML Template 함수가 있습니다.
+  - 비동기 제어 기능을 더한 `each`, `map`, `reduce`, `filter`, `reject`, `find`, `some`, `every`, `uniq` 함수가 있습니다.
+  - Jade와 비슷한 문법, Function을 쉽게 사용할 수 있는 HTML Template Engine.
   - sql 등을 작성하기 편한 함수가 있습니다.
   - 다른 자바스크립트 라이브러리에 대한 의존성이 없는 750줄의 작은 라이브러리입니다.
-  - _Respect [Underscorejs](http://underscorejs.org/)!_
+  - _Respect Underscorejs!_
 
 
 ## 시작하기
@@ -22,10 +22,10 @@ __abcjs와 함께 함수형 프로그래밍을 즐겨보세요.__
 
 객체지향에서 `this` 키워드는 매우 중요합니다. 자신이 가진 메소드를 실행하거나 자신이 가진 상태를 참조하거나 변경해야하기 때문입니다.
 
-하지만 `this`를 다루는 것은 어렵습니다. 추상적이기 때문입니다.
-`this`를 통해 다루는 상태는 결국 값입니다. 반드시 클래스를 통해서만 값을 다룰 필요는 없습니다.
+하지만 추상적인 `this`를 다루는 것은 어렵습니다.
+`this`를 통해 다루는 상태는 값입니다. 반드시 클래스를 통해서만 값을 다룰 필요는 없습니다.
 
-메서드를 통해 클래스 내부에서만 값을 참조하는 것보다 훨씬 쉽고 유연하고 추상적이지 않은 방법이 있습니다.
+메소드를 통해 클래스 내부에서만 값을 참조하는 것보다 쉽고 유연하고 추상적이지 않은 방법이 있습니다.
 함수를 통해 값을 새로운 값으로 만드는 식으로 다루는 것입니다.
 ```javascript
 function add(a, b) {
@@ -38,7 +38,8 @@ console.log(r1);
 ```
 
 
-대부분 왼쪽에서 오른쪽, 위에서 아래로 읽는데 익숙합니다. 그래서 `A`는 인자와 함수 사용에 대한 방향을 바꾸었습니다.
+
+왼쪽에서 오른쪽, 위에서 아래로 읽는게 편안합니다. 그래서 `A`는 인자와 함수사용에 대한 방향을 바꾸었습니다.
 ```javascript
 function minus(a, b) {
     return a - b;
@@ -50,7 +51,7 @@ var r2 = A([20, 5], function() {
 console.log(r2);
 // 15
 ```
-Array나 arguments를 사용하면 됩니다.
+배열이나 arguments객체를 사용하면 됩니다.
 
 
 
@@ -70,7 +71,7 @@ console.log(r1);
 
 
 `B`를 `X`와 함께 사용해보세요.
-`X`를 통해 이후 실행시에 인자를 받을 자리를 지정할 수 있습니다.
+`X`를 통해 이후 실행시에 받게될 인자의 자리를 지정해둘 수 있습니다.
 ```javascript
 var f2 = B(X, 10, minus);
 var r2 = f2(20);
@@ -110,8 +111,7 @@ console.log(r2);
 ### 04. [Pipeline with ABC](https://github.com/marpple/abc-functional-javascript/blob/master/example/04.%20Pipeline%20with%20ABC.html)
 abcjs는 underscore의 `_.compose`나 jQuery의 chain과 유사한 코드 패턴을 지원합니다.
 객체지향적인 체인방식은 연속적으로 값을 변경해나갈 수 있지만 자신이 가진 값을 바꾸는 방법이기 때문에 사용은 쉽지만 구현이 어렵습니다.
-또한 자신이 가진 메서드만 사용 가능하며 자신의 값만을 변경 할수있기 때문에 제약이 있습니다.
-파이프라인과 같은 연속적인 함수 실행 방식은 객체지향적인 체인방식보다 유연하고 순수 함수들을 만들 수 있어 좋습니다.
+또한 자신이 가진 메소드와 자신의 값만을 사용하기 때문에 제약이 있습니다. 파이프라인과 같은 연속적인 함수 실행 방식은 객체지향적인 체인방식보다 유연하고 순수 함수들을 만들 수 있어 좋습니다.
 
 abcjs에서는 별도의 파이프라인 함수를 만들지 않고 기본 함수 실행 함수인 ABC에서 파이프라인 패턴을 바로 사용할수 있도록 했습니다.
 또한 `_.compose`와 달리 읽기 쉬운 방향으로 순서를 바꿨습니다. 쉽습니다. 마지막 인자 자리에 함수 대신 배열로 함수들을 나열하기만 하면 됩니다.
@@ -140,7 +140,7 @@ console.log(r1);
 
 1, 2 인자는 `sum`에게 `sum`의 결과는 `square`에게 그리고 그 함수의 결과는 계속 다음 함수의 인자로 넘어갑니다. 그리고 마지막 함수의 return 값은 `C`의 실행 결과가 됩니다.
 
-`A`를 이용하면 Array나 arguments로 파이프라인 패턴을 사용할 수 있습니다.
+`A`를 이용하면 배열과 arguments객체로 파이프라인 패턴을 사용할 수 있습니다.
 ```javascript
 A([1, 2], [
     sum,
@@ -173,7 +173,7 @@ console.log(r3);
 ```
 
 
-함수 조합에서도 `X`와 함께 인자를 미리 적용 해둘 수 있습니다.
+함수 조합에서도 `X`와 함께 사용하여 인자를 미리 적용 해둘 수 있습니다.
 ```javascript
 function minus(a, b) {
     return a - b;
@@ -193,8 +193,9 @@ console.log(r4);
 chain 패턴이나 `_.compose`, `Promise` 등의 일종의 파이프라인 혹은 모나드 등에서 아쉬운점은 함수 모음의 첫번째 함수를 제외하고는 인자를 하나만 받을 수 있다는 점 입니다.
 
 `B(X, 11, minus)` 를 통해 두개의 인자가 사용되도록 했지만 여전히 사실은 위에서 부터 내려오는 인자는 하나입니다.
-인자를 하나만 받는 함수만 조립할 수 있다면 실용성이 떨어집니다.
-이를 위해 `R`이 있습니다. `R`을 이용하면 다음 함수가 여러개의 결과를 인자로 받을 수 있습니다.
+
+인자를 하나만 받는 함수만 조립할 수 있다면 실용성이 떨어지고 인자가 두개 이상 필요한 함수를 사용하기 위해선 항상 wrapper 함수가 있어야합니다.
+이를 위해 'R'이 있습니다. `R`을 이용하면 다음 함수가 여러개의 결과를 인자로 받을 수 있습니다.
 `R` 사용은 아래와 같은 두가지 사용법이 있습니다.
 ```javascript
 C(3, 2, [
@@ -257,6 +258,7 @@ console.log(r8);
 ```
 
 
+
 abcjs의 다른 함수를 활용하면  `difference`를 아래와 같이 구현할 수도 있습니다.
 ```javascript
 var difference2 = B([
@@ -289,12 +291,13 @@ console.log(r12);
 
 
 ### 05. [Async(callback)](https://github.com/marpple/abc-functional-javascript/blob/master/example/05.%20Async%20(callback).html)
-abcjs에서는 비동기 제어와 관련된 많은 기능을 제공합니다.
+abcjs에서는 비동기 제어와 관련된 다양한 기능을 제공합니다.
 파이프라인에서 사용할 콜백 패턴의 함수를 `CB` 함수로 한번 넘겨 두기만 하면 됩니다.
 `CB`가 감싸졌던 `f1`이라는 함수를 파이프라인에 넣어두면 `C`함수 안에서 `f1`에게 필요한 callback 함수를 생성하여 마지막 인자로 넣어줍니다.
 생성된 callback 함수로 값을 꺼낸 후 파이프라인의 다음 함수에게 결과를 전달합니다.
-`CB`로 감싼 후 callback 함수 인자의 자리만 제외하고 실행하거나 `CB(익명함수)`를 통해 `C`에게 받은 callback 함수를 사용하여 결과를 다음 함수로 넘기면 됩니다.
+`CB`로 감싼 후 callback 함수 인자의 자리만 제외하고 실행하거나 `CB(익명함수)`를 통해 `C`에게 받은 callback 함수를 사용하여 결과를 다음 함수로 전달할 수 있습니다.
 Promise와 달리 여러개의 인자를 다음 함수로 주고 있던 함수이더라도 여러개의 인자로 받을 수 있습니다.
+이런 콜백 함수와 사용할때 유용합니다. `function(err, data) { ... }`
 
 ```javascript
 function delay(func) {
@@ -338,9 +341,7 @@ sum(5, 7, function(r) {
 });
 ```
 
-
-callback 형태로 결과를 기다리는 함수를 사용할때는 그저 `CB`를 감싸두기만 하면 됩니다.
-`CB`로 감싸진 function을 만나면 `C`안에서 callback 함수를 생성하여 마지막 인자로 넘긴 후 값을 받으면 다음 함수로 전달합니다.
+`CB`를 감싸두기만 하면 됩니다. 파이프라인이 넘겨준 'CB' 함수를 이용하여 값을 넘기면 다음 함수로 전달됩니다.
 ```javascript
 CB(sum, minus, square);
 
@@ -356,11 +357,11 @@ C(5, 10, [
 ]);
 ```
 
-연속으로 callback 패턴의 함수들이 나온다면 `CB`를 함께 싸도 됩니다.
+`B`를 활용하여 좀더 간략하게 만들 수 있습니다.
 ```javascript
 C(5, 9, [
     sum,
-    B(X, 5, minus), // B를 활용하여 좀더 간략하게 만들 수 있습니다.
+    B(X, 5, minus),
     square,
     function(r) {
         console.log(r); // 81
@@ -380,8 +381,9 @@ C(5, 9, [
   });
 });
 ```
-일반 콜백함수를 Promise로 제어하는 것보다 간단하고 새로운 함수를 만들지 않으며 `CB`를 감싼 뒤라도 콜백함수를 콜백함수 그대로 사용할 수 있습니다.
-`Promise.promisify` 보다도 단순하고 새로운 개념을 알 필요가 없습니다.
+
+이 방법은 일반 콜백함수를 Promise로 제어하는 것보다 간단합니다. 또한 새로운 함수를 만들지 않으며 `CB`를 감싼 뒤라도 콜백 패턴의 함수를 원래 사용하던대로 사용할 수도 있습니다.
+유사한 개념이지만 새로운 함수를 뱉는 `Promise.promisify` 보다 단순하고 새로운 개념을 알 필요가 없습니다.
 `.then()`과 달리 multiple results도 가능합니다.
 ```javascript
 C(5, 9, [
@@ -620,7 +622,7 @@ var r3 = C.map([1, 2, 3], 5, function(v, i, l, a) { //val, idx, list, 5
 });
 console.log(r3); // [6, 7, 8]
 
-/* B.P는 들어온 인자중 원하는 번째의 인자를 모아 array로 바꿔주는 기능입니다. */
+/* B.P는 들어온 인자중 원하는 번째의 인자를 모아 배열로 바꿔주는 기능입니다. */
 var r4 = C.map([1, 2, 3], 5, [B.P(0, 3), TO_R, sum]);
 console.log(r4); // [6, 7, 8]
 
@@ -714,7 +716,7 @@ C(users, [
     }]);
 ```
 
-array, object, [obj, obj, obj] 등을 편리하게 다룰 수 있는 유용한 함수들입니다.
+array, object, [object, object, object] 등을 편하게 다룰 수 있는 유용한 함수들입니다.
 `C.each`, `C.map`, `C.reduce`, `C.filter`, `C.reject`, `C.find`, `C.some`, `C.every`, `C.uniq`,
 `B.each`, `map`, `B.reduce`, `B.filter`, `B.reject`, `B.find`, `B.some`, `B.every`, `B.uniq`
 
@@ -759,6 +761,8 @@ C([
 
 hr();
 ```
+참고 - 주석은 반드시 맨 앞줄에서 시작되어야합니다.
+
 
 H-S의 특징
   1. H-S는 js내에서 사용하기위해 만들어졌습니다. 짧게 작성할 수 있게 하기 위해 jade의 문법과 닮았습니다.
@@ -839,6 +843,7 @@ C(songs, [
 
 hr();
 ```
+위와 같이 익명함수를 선언하여 사용할수도 있습니다. 쉼표가 중요합니다. `{{C(a, ', function() {},')}}`
 
 `H.each`, `S.each`
 ```javascript
@@ -862,7 +867,7 @@ hr();
   2. H to HTML
   3. `{{{}}}` 실행 및 데이터 치환, 리턴 값을 HTML로 만들고 싶을때
   4. `{{}}` 실행 및 데이터 치환, 리턴 값이 일반 문자열이어야 함
-    `!{}!`, `{{}}`, `{{{}}}` 의 실행결과가 `.then` 인 경우 비동기를 기다렸다가 완성함
+    `!{}!`, `{{}}`, `{{{}}}` 의 실행결과가 `.then` 인 경우 비동기를 기다렸다가 완성합니다.
 ```javascript
 var sum = CB(function (a, b, cb) {
     delay(function() {
@@ -901,7 +906,7 @@ C({ id: 5, body: "foo bar" }, [
 
 
 ### 09. [IF ELSEIF ELSE](https://github.com/marpple/abc-functional-javascript/blob/master/example/09.%20IF%20ELSEIF%20ELSE.html)
-자바스크립트에서 조건문을 작성할때는 함수를 실행할 수 있는데 만일 그 함수가 비동기 함수라면 굉장히 로직이 복잡해지고 코딩하기 어려워집니다.
+자바스크립트에서 조건문을 작성할때 함수를 실행할 수 있는데 만일 그 함수가 비동기 함수라면 그렇게 할 수 없고 굉장히 로직이 복잡해지고 코딩하기 어려워집니다.
 자바스크립트는 아래와 같이 코딩할 수 없어 이것을 자바스크립트의 단점으로 생각하기도 합니다.
 하지만 이것에는 목적이 있습니다. 자바스크립트는 이벤트 루프를 이용하여 Non-Blocking IO을 지원하기 위해 아래 같은 상황에서 비동기가 일어납니다.
 
@@ -1012,7 +1017,7 @@ C(0, 5,
 // 5
 ```
 
-실행부 역시 비동기제어가 가능하고 [] 를 통해 파이프라인으로 만들 수 있습니다.
+실행부 역시 비동기제어가 가능하고 배열을 통해 파이프라인으로 만들 수 있습니다.
 ```javascript
 var square_long_time = CB(function(a, cb) {
     setTimeout(function() {
@@ -1068,7 +1073,7 @@ abcjs를 이용하여 함수형 프로그래밍을 하면 비동기가 지원되
 
 
 ### 10. [B.all B.div](https://github.com/marpple/abc-functional-javascript/blob/master/example/09.%20IF%20ELSEIF%20ELSE.html)
-`B.all` 함수는 같은 인자를 모든 파이프라인 or 함수에게 넘겨서 multiple results로 결과를 만드는 함수를 리턴합니다.
+`B.all` 함수는 같은 인자를 모든 파이프라인 혹은 함수에게 넘겨서 multiple results로 결과를 만드는 함수를 리턴합니다.
 ```javascript
 C(1, 5, [
     B.all(
@@ -1085,7 +1090,7 @@ C(1, 5, [
 ```
 
 
-`B.div` 함수는 인자를 하나씩 모든 파이프라인 or 함수에게 나눠주고 array로 결과를 만드는 함수를 리턴합니다.
+`B.div` 함수는 인자를 하나씩 모든 파이프라인 혹은 함수에게 나눠주고 multiple results로 결과를 만드는 함수를 리턴합니다.
 ```javascript
 C(1, 2, 3, 4, [
     B.div(
@@ -1120,7 +1125,7 @@ C(1, 2, 3, 4, [
 ```
 
 
-결과를 Array로 받고 싶다면
+결과를 배열로 받고 싶다면
 ```javascript
 C(1, 5, [
     B.all(
@@ -1143,8 +1148,8 @@ console.log(D.to_array({"0": 1, "1": 2})); // [1, 2]
     console.log(D.to_array(arguments)); // [1, 2, 3]
 }) (1, 2, 3)
 ```
-Pipeline 패턴으로 코딩을 하다보면 `B.all`과 `B.div` 같은 일을 하고 싶을때가 있습니다.
-`B.all`과 `B.div`에게 넘겨진 함수 or Pipeline들은 하나씩 차례대로 실행됩니다.
+Pipeline 패턴으로 코딩을 하다보면 `B.all`과 `B.div` 같은 일을 하고 싶을때가 많습니다.
+`B.all`과 `B.div`에게 넘겨진 함수 혹은 Pipeline들은 하나씩 차례대로 실행됩니다.
 비동기가 일어나더라도 위에서 부터 하나씩 차례대로 실행됩니다.
 
 
