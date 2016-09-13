@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>test</title>
+    <title>abcjs - B</title>
 </head>
 <body>
 
@@ -24,16 +24,17 @@
     var f1 = B(10, minus);
     var r1 = f1(20);
     console.log(r1);
+    // -10
+
 
     /*
-    * X와 함께 사용해보세요.
-    *
+    * B를 X와 함께 사용해보세요.
+    * X를 통해 이후 실행시에 인자를 받을 자리를 지정할 수 있습니다.
     * */
-
     var f2 = B(X, 10, minus);
     var r2 = f2(20);
     console.log(r2);
-
+    // 10
 
     function minus2(a, b, c, d) {
         return a - b - c - d;
@@ -42,6 +43,7 @@
     var f3 = B(4, X, X, 1, minus2);
     var r3 = f3(3, 2);
     console.log(r3);
+    // -2
 
 </script>
 

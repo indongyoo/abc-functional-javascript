@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>test</title>
+    <title>abcjs - Async (callback)</title>
 </head>
 <body>
 
@@ -21,7 +21,7 @@
     * Promise와 달리 여러개의 인자를 다음 함수로 주고 있던 함수이더라도 여러개의 인자로 받을 수 있습니다.
     * */
 
-    function delay(func, s) {
+    function delay(func) {
         setTimeout(function() {
             func();
         }, 1000);
@@ -46,17 +46,17 @@
     }
 
     sum(10, 20, function (r) {
-        console.log(r);
+        console.log(r); // 30
     });
 
     minus(10, 7, function(r) {
-        console.log(r);
+        console.log(r); // 3
     });
 
     sum(5, 7, function(r) {
         minus(r, 5, function(r) {
             square(r, function(r) {
-                console.log(r);
+                console.log(r); // 49
             });
         });
     });
@@ -75,7 +75,7 @@
         }),
         square,
         function(r) {
-            console.log(r);
+            console.log(r); // 100
         }
     ]);
 
@@ -86,7 +86,7 @@
         B(X, 5, minus), // B를 활용하여 좀더 간략하게 만들 수 있습니다.
         square,
         function(r) {
-            console.log(r);
+            console.log(r); // 81
         }
     ]);
 
@@ -116,7 +116,7 @@
         }),
         minus,
         function(r) {
-            console.log(r);
+            console.log(r); // 4
         }
     ]);
 
@@ -152,15 +152,16 @@
             $.get("/get_data", cb);
         },
         function(data, cb) {
-            console.log(_.clone(data));
+            console.log(_.clone(data)); // {a: 5, b: 3}
             $.post("/post_data", E(data, { c: 10 }), cb);
         },
         function(data, cb) {
-            console.log(_.clone(data));
+            console.log(_.clone(data)); // {a: 5, b: 3, c: 10, created_at: Tue Sep 13 2016 04:01:19 GMT+0900 (KST)}
             $.put("/put_data", E(data, { c: 5 }), cb);
         }),
         function(r) {
             console.log(r);
+            // {a: 5, b: 3, c: 5, created_at: Tue Sep 13 2016 04:03:58 GMT+0900 (KST), updated_at: Tue Sep 13 2016 04:03:59 GMT+0900 (KST)}
         }
     ]);
 
@@ -178,6 +179,7 @@
         B("/put_data", $.put),
         function(r) {
             console.log(r);
+            // {c: 20, a: 5, b: 3, created_at: Tue Sep 13 2016 04:01:19 GMT+0900 (KST), updated_at: Tue Sep 13 2016 04:01:20 GMT+0900 (KST)}
         }
     ]);
 
@@ -194,9 +196,13 @@
         J(R("/post_data", { aka: 'Cojamm' })),
         $.post,
         function(r) {
-            console.log(r);
+            console.log(r); // {aka: "Cojamm", created_at: Tue Sep 13 2016 04:01:18 GMT+0900 (KST)}
         }
     ]);
+
+    /*
+    * 참고 - 실제 jQuery의 $.get 함수등은 { then: func.. } 를 리턴하기 때문에 CB로 감싸는 방식으로 구현할 필요 없습니다.
+    * */
 
 </script>
 

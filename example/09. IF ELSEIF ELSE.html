@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>abcjs - if else</title>
+</head>
+<body>
+<script src="https://cdn.jsdelivr.net/bluebird/latest/bluebird.js"></script>
+<script src="http://momentjs.com/downloads/moment.js"></script>
+
+<script src="js/underscore.js"></script>
+<script src="js/jquery.js"></script>
+<script src="js/abc.js"></script>
+
+<script>
+
+    /*
+    * IF().ELSEIF().ELSE()
+    *
+    * 자바스크립트에서 조건문을 작성할때는 함수를 실행할 수 있는데 만일 그 함수가 비동기 함수라면 굉장히 로직이 복잡해지고 코딩하기 어려워집니다.
+    * 자바스크립트는 아래와 같이 코딩할 수 없어 이것을 자바스크립트의 단점으로 생각하기도 합니다.
+    * 하지만 이것에는 목적이 있습니다. 자바스크립트는 이벤트 루프를 이용하여 Non-Blocking IO을 지원하기 위해 아래 같은 상황에서 비동기가 일어납니다.
+    *
+    * if (long_time(1)) {
+    *   long_time(2);
+    * } else if (long_time(3)) {
+    *   long_time(4);
+    * } else {
+    *   long_time(5);
+    * }
+    *
+    * long_time() 함수의 return 값이 undefined 라면 위 코드는 long_time의 내부 구현과 관련 없이
+    * 무조건 long_time(1)과 long_time(5)만 실행될겁니다.
+    *
+    * abcjs는 비동기가 일어나는 상황에서도 위와 닮은 코딩을 할 수 있도록 IF().ELSEIF().ELSE() 를 지원합니다.
+    *
+    * IF(
+    *   조건부 함수,
+    *   실행부 함수
+    * )
+    *
+    * IF와 ELSEIF는 첫번째 인자로 조건부 함수를 넘기고, 두번째 인자로 실행부 함수를 넘깁니다.
+    *
+    * IF(
+    *   실행부 함수
+    * )
+    *
+    * 만약 위와 같이 실행부 함수만 넘길 경우 내부적으로 조건부 함수를 function I(v) { return v; } 로 채웁니다.
+    *
+    * ELSE는 실행부 함수만 넘깁니다.
+    *
+    * 조건부 함수와 실행부 함수 모두 []로 파이프라인을 만들 수 있습니다.
+    *
+    * IF([p1, p2, p3], [f1, f2, f3])
+    *
+    * IF().ELSEIF().ELSE()는 chain 방식으로 function 하나를 리턴합니다. 조건부와 실행부 함수에게 최초 받은 인자들을 넘겨줍니다.
+    *
+    * */
+
+
+    function f1() {
+        console.log('f1')
+    }
+
+    function f2() {
+        console.log('f2')
+    }
+
+    C(true, IF(f1).ELSE(f2));
+    // f1
+
+    C(false, IF(f1).ELSE(f2));
+    // f2
+
+    C(0,
+        IF(f1)
+        .ELSEIF(function(v) { return v === 0 },
+            function(v) {
+                console.log(v);
+            })
+        .ELSE(f2));
+    // 0
+
+    C(5, 0,
+        IF(I, f1 // function I(v) { return v };
+        ).ELSEIF(function(a, b) { return a < b },
+            function(a, b) { console.log(a); }
+        ).ELSE(f2));
+    // f1
+
+    C(0, 5,
+        IF(I, f1
+        ).ELSEIF(function(a, b) { return a > b },
+            function(a, b) { console.log(a); }
+        ).ELSE(f2));
+    // f2
+
+    C(0, 5,
+        IF(I, f1
+        ).ELSEIF(_.negate(function(a, b) { return a > b }),
+            function(a, b) { console.log(a+b); }
+        ).ELSE(f2));
+    // 5
+
+
+    /*
+    * 비동기 조건문
+    * */
+
+    G["a < b long time"] = CB(function(a, b, cb) {
+        setTimeout(function() {
+            console.log('1 sec');
+            setTimeout(function() {
+                console.log('2 sec');
+                cb(a < b);
+            }, 1000)
+        }, 1000);
+    });
+
+    C(0, 5,
+        IF(I, f1
+        ).ELSEIF(G["a < b long time"],
+            function(a, b) { console.log(a+b); }
+        ).ELSE(f2));
+    // 5
+
+
+    /*
+    * 실행부 역시 비동기제어가 가능하고 [] 를 통해 파이프라인으로 만들 수 있습니다.
+    * */
+
+    var square_long_time = CB(function(a, cb) {
+        setTimeout(function() {
+            cb(a * a);
+        }, 1000);
+    });
+
+    C(0, 5, [
+        IF(I, f1
+        ).ELSEIF(G["a < b long time"],
+            [function(a, b) { return a + b; },
+            square_long_time]
+        ).ELSE(f2),
+        function(a) {
+            return a + 10;
+        },
+        function(r) {
+            console.log(r);
+            // 35
+        }]);
+
+
+    /*
+     * abcjs를 이용하여 함수형 프로그래밍을 하면 비동기가 지원되는 IF().ELSEIF().ELSE() 같은 함수도 아래와 같이 쉽게 만들 수 있습니다.
+     *
+     * 1. 최초 IF를 실행하면 store를 클로저를 생성하고
+     * 2. chain 방식으로 이후에 ELSEIF와 ELSE가 실행 될때 마다 function set를 store에 모아놓고
+     * 3. 리턴된 IF가 실행될때 B.find를 통해 실행해야하는 function set를 찾아 받아둔 args를 넘기며 실행합니다.
+     *
+     * 이미 C나 B.find 등이 이미 비동기를 잘 제어해주기 때문에 아래와 같이 callback 패턴 없이 동기 함수를 만들때와 완전히 똑같은 코딩을 할 수 있습니다.
+     * 이제 재밌는 함수 조립을 즐겨보세요!
+     * */
+
+     (function() {
+
+         function IF(predicate, fn) {
+             var store = [fn ? [predicate, fn] : [I, predicate]];
+             return _.extend(IF, {
+                 ELSEIF: function (predicate, fn) {
+                     return store.push(fn ? [predicate, fn] : [I, predicate]) && IF;
+                 },
+                 ELSE: function (fn) { return store.push([J(true), fn]) && IF; } });
+
+             function IF() {
+                 var args = arguments;
+                 return C(store, args, [
+                     B.find(function(fnset, i, l, args) { return A(args, fnset[0]); }),
+                     function(fnset) { return fnset ? A(args, fnset[1]) : void 0; }
+                 ]);
+             }
+         }
+
+    })();
+
+</script>
+
+</body>
+</html>

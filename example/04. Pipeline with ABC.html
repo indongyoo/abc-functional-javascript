@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>test</title>
+    <title>abcjs - Pipeline with ABC</title>
 </head>
 <body>
 
@@ -13,7 +13,7 @@
 <script>
 
     /*
-    * abcjs는 underscore의 _.compose나 jquery의 chain과 유사한 코드 패턴을 지원합니다.
+    * abcjs는 underscore의 _.compose나 jQuery의 chain과 유사한 코드 패턴을 지원합니다.
     *
     * 객체지향적인 체인방식은 연속적으로 값을 변경해나갈 수 있지만 자신이 가진 값을 바꾸는 방법이기 때문에 사용은 쉽지만 구현이 어렵습니다.
     * 또한 자신이 가진 메서드만 사용 가능하며 자신의 값만을 변경 할수있기 때문에 제약이 있습니다.
@@ -21,7 +21,7 @@
     *
     * abcjs에서는 별도의 파이프라인 함수를 만들지 않고 기본 함수 실행 함수인 ABC에서 파이프라인 패턴을 바로 사용할수 있도록 했습니다.
     * 또한 _.compose와 달리 읽기 쉬운 방향으로 순서를 바꿨습니다.
-    * 쉽습니다. 함수를 넣었던 마지막 인자 자리에 함수 대신 배열로 함수들을 나열하기만 하면 됩니다.
+    * 쉽습니다. 마지막 인자 자리에 함수 대신 배열로 함수들을 나열하기만 하면 됩니다.
     * */
 
     function sum(a, b) {
@@ -37,12 +37,12 @@
         square,
         square,
         function(a) {
-            console.log(a);
+            console.log(a); // 81
             return a - 20;
-        }
-    ]);
+        }]);
 
     console.log(r1);
+    // 61
 
     /*
     * 1, 2 인자는 sum에게 sum의 결과는 square에게 그리고 그 함수의 결과는 계속 다음 함수의 인자로 넘어갑니다.
@@ -60,8 +60,8 @@
         },
         function(r1) {
             console.log(r1);
-        }
-    ]);
+            // 61
+        }]);
 
     /*
      * B 함수를 이용하면 작은 함수를 모아 큰 함수를 만들 수 있습니다. 혹은 큰 함수를 작은 단위로 쪼갤 수 있습니다. 작은 함수가 많아지면 코드 재활용률을 높일 수 있습니다.
@@ -72,13 +72,13 @@
         square,
         square,
         function(a) {
-            console.log(a);
+            console.log(a); // 81
             return a - 20;
-        }
-    ]);
+        }]);
 
     var r3 = f1(1, 2);
     console.log(r3);
+    // 61
 
     /*
      * 함수 조합에서도 X와 함께 인자를 미리 적용 해둘 수 있습니다.
@@ -95,6 +95,7 @@
 
     var r4 = f2(-7);
     console.log(r4);
+    // 50
 
 
     /*
@@ -119,23 +120,32 @@
         },
         TO_R, // arguments to multiple results
         function(a, c) {
-            console.log(a, c);
-        }
-    ]);
+            console.log(a, c); // 5, 6
+        }]);
 
     /* B를 통해 함수를 정의하면 ABC를 이용하지 않고도 R(returns)을 동작 시킬 수 있습니다. */
-    var sum = B(function(a, b) {
-        console.log(a, b)
-        return a + b;
+    var minus = B(function(a, b) {
+        console.log(a, b); // 20, 10
+        return a - b;
     });
 
-    var r5 = sum(10, 20);
-    console.log(r5);
+    var r5 = minus(10, 20);
+    console.log(r5); // -10
 
-    /* 익명함수의 실행 결과를 바로 sum에게 넘김 */
-    var r6 = sum((function () { return R(10, 20, 2); })());
+    /* swap 함수의 multiple results를 바로 minus에게 넘김 */
+    var swap = function(a, b) {
+        return R(b, a);
+    };
+    var r6 = minus(swap(10, 20));
     console.log(r6);
+    // 10
 
+    /*
+    * R은 Go언어의 Multiple Results와 비슷합니다.
+    *
+    * GO Lang - Multiple Results
+    * https://tour.golang.org/basics/6
+    * */
 
     /* 함수 조립의 즐거움 */
     var difference = B([
@@ -147,9 +157,11 @@
 
     var r7 = difference(10, 20);
     console.log(r7);
+    // 10
 
     var r8 = difference(30, 10);
     console.log(r8);
+    // 20
 
     /* abc의 다른 함수를 활용하면  difference를 아래와 같이 구현해볼수도 있겠습니다. */
     var difference2 = B([
@@ -158,25 +170,25 @@
         B.M('sort'), // function(a) { return a.sort(); },
         B.M('reverse'),  // function(a) { return a.reverse(); },
         TO_R, // array to multiple results
-        minus
-    ]);
+        minus]);
 
     var r9 = difference2(10, 20);
     console.log(r9);
+    // 10
 
     var r10 = difference2(30, 10);
     console.log(r10);
+    // 20
 
-    var difference3 = B([
-        minus,
-        Math.abs
-    ]);
+    var difference3 = B([minus, Math.abs]);
 
     var r11 = difference3(10, 20);
     console.log(r11);
+    // 10
 
     var r12 = difference3(30, 10);
     console.log(r12);
+    // 20
 
 </script>
 

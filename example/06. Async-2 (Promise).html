@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>test</title>
+    <title>abcjs - Async-2 (Promise)</title>
 </head>
 <body>
 
@@ -14,9 +14,9 @@
 
 <script>
 
-    /* abcjs는 Promise가 필요 없지만 .then을 리턴하는 함수도 비동기 제어를 지원합니다. */
+    /* abcjs는 Promise가 필요 없지만 .then을 리턴하는 함수의 비동기 제어를 지원합니다. */
 
-    function delay(func, s) {
+    function delay() {
         return new Promise(function(rs) {
             setTimeout(function() {
                 rs();
@@ -49,16 +49,18 @@
         }).then(function(r) {
             return square(r);
         }).then(function(r) {
-            console.log(r);
+            console.log(r); // 4
         });
 
     // ABC
     C(3, 6, [
         sum,
-        function(r) { return minus(r, 5); },
+        function(r) {
+            return minus(r, 5);
+        },
         square,
         function(r) {
-            console.log(r);
+            console.log(r); // 16
         }]);
 
     /*
@@ -69,7 +71,7 @@
         sum,
         square
     ]).then(function(r) {
-        console.log(r);
+        console.log(r); // 100
     });
 
     sum(2, 4)
@@ -79,7 +81,7 @@
                 square
             ]);
         }).then(function(r) {
-            console.log(r);
+            console.log(r); // 64
         });
 
     // B를 사용하면 더욱 간단하게 만들 수 있습니다.
@@ -88,7 +90,7 @@
             sum,
             square
         ])).then(function(r) {
-            console.log(r);
+            console.log(r); // 64
         });
 
     /* CB와 함께 사용 가능합니다. */
@@ -99,9 +101,10 @@
             cb(r / 2)
         })
     ]).then(function(r) {
-        console.log(r);
+        console.log(r); // 50
     });
 
+    /* Promise를 지원하지만 C().then()이 Promise 객체는 아닙니다 */
 
 </script>
 
