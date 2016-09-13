@@ -1014,7 +1014,7 @@ C(0, 5,
 // 5
 ```
 
-실행부 역시 비동기제어가 가능하고 [] 를 통해 파이프라인으로 만들 수 있습니다.
+실행부 역시 비동기제어가 가능하고 배열을 통해 파이프라인으로 만들 수 있습니다.
 ```javascript
 var square_long_time = CB(function(a, cb) {
     setTimeout(function() {
@@ -1070,7 +1070,7 @@ abcjs를 이용하여 함수형 프로그래밍을 하면 비동기가 지원되
 
 
 ### 10. [B.all B.div](https://github.com/marpple/abc-functional-javascript/blob/master/example/09.%20IF%20ELSEIF%20ELSE.html)
-`B.all` 함수는 같은 인자를 모든 파이프라인 or 함수에게 넘겨서 multiple results로 결과를 만드는 함수를 리턴합니다.
+`B.all` 함수는 같은 인자를 모든 파이프라인 혹은 함수에게 넘겨서 multiple results로 결과를 만드는 함수를 리턴합니다.
 ```javascript
 C(1, 5, [
     B.all(
@@ -1087,7 +1087,7 @@ C(1, 5, [
 ```
 
 
-`B.div` 함수는 인자를 하나씩 모든 파이프라인 or 함수에게 나눠주고 array로 결과를 만드는 함수를 리턴합니다.
+`B.div` 함수는 인자를 하나씩 모든 파이프라인 혹은 함수에게 나눠주고 multiple results로 결과를 만드는 함수를 리턴합니다.
 ```javascript
 C(1, 2, 3, 4, [
     B.div(
@@ -1145,8 +1145,8 @@ console.log(D.to_array({"0": 1, "1": 2})); // [1, 2]
     console.log(D.to_array(arguments)); // [1, 2, 3]
 }) (1, 2, 3)
 ```
-Pipeline 패턴으로 코딩을 하다보면 `B.all`과 `B.div` 같은 일을 하고 싶을때가 있습니다.
-`B.all`과 `B.div`에게 넘겨진 함수 or Pipeline들은 하나씩 차례대로 실행됩니다.
+Pipeline 패턴으로 코딩을 하다보면 `B.all`과 `B.div` 같은 일을 하고 싶을때가 많습니다.
+`B.all`과 `B.div`에게 넘겨진 함수 혹은 Pipeline들은 하나씩 차례대로 실행됩니다.
 비동기가 일어나더라도 위에서 부터 하나씩 차례대로 실행됩니다.
 
 
