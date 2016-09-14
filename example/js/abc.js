@@ -11,21 +11,21 @@
     F.A = window.A = A; // thisless apply
     F.B = window.B = B; // thisless bind, like underscore partial
     F.C = window.C = C; // thisless call
-    F.D = window.D = D;
+    F.D = window.D = D; // Data
     F.E = window.E = _.extend;
-    F.F = window.F = F; // function
-    F.H = window.H = H;
-    F.G = window.G = G;
-    F.I = window.I = I; // I
-    F.J = window.J = J; // always
-    F.M = window.M = M;
-    F.N = window.N;
-    F.P = window.P = P;
-    F.R = window.R = R;
-    F.S = window.S = S;
+    F.F = window.F = F; // find function
+    F.H = window.H = H; // HTML Template Engine
+    F.G = window.G = G; // window or global
+    F.I = window.I = I; // _.identity
+    F.J = window.J = J; // _.always
+    F.M = window.M = M; // for method
+    F.N = window.N; // _.always(null),
+    F.P = window.P = P; // parameters, arguments
+    F.R = window.R = R; // like multiple returns in Go Lang. return x, y; => return R(x, y)
+    F.S = window.S = S; // String Template Engine
     F.TODO = window.TODO;
-    F.U = window.U = U; // return undefined
-    F.V = window.V = V;
+    F.U = window.U = U; // _.noop, return undefined
+    F.V = window.V = V; // get value by string
     F.X = window.X = new Object();
 
     B.P = B(I, base_bp);
