@@ -311,6 +311,10 @@
     function D() {}
     D.to_array = function(obj) { return _.toArray(arguments.length > 1 ? arguments : obj); };
 
+    D.not = function() {
+      return D.to_array(arguments).find(function(val) { return Boolean(val) === false; }) === void 0 ? false : true;
+    };
+
     function F(nodes) {
         var f = V(G, nodes);
         var err = Error('warning: ' + nodes + ' is not defined').stack;
