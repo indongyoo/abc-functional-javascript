@@ -21,7 +21,7 @@
     F.M = window.M = M; // for method
     F.N = window.N; // _.always(null),
     F.P = window.P = P; // parameters, arguments
-    F.R = window.R = R; // like multiple returns in Go Lang. return x, y; => return R(x, y)
+    F.R = window.R = R; // like multiple return in Go Lang. return x, y; => return R(x, y)
     F.S = window.S = S; // String Template Engine
     F.TODO = window.TODO;
     F.U = window.U = U; // _.noop, return undefined
