@@ -1153,7 +1153,7 @@ Pipeline 패턴으로 코딩을 하다보면 `B.all`과 `B.div` 같은 일을 �
 A, B, C는 this를 인자로 받지 않지만 this가 주어진다면 이어집니다.
 또한 파이프라인안에 있는 모든 this를 유지해줍니다.
 
-##### A 함수로 this 전달하기
+#### A 함수로 this 전달하기
 사실 A 함수에서는 마지막 인자로 this를 받고 있습니다.
 ```javascript
 var r1 = A([1, 2], [
@@ -1167,7 +1167,7 @@ var r1 = A([1, 2], [
 console.log(r1); // 40
 ````
 
-##### B 함수로 this 전달하기
+#### B 함수로 this 전달하기
 B 함수는 함수를 리턴하는 함수기 때문에 리턴된 함수에 컨텍스트를 넘겨주셔야합니다.
 코어 자바스크립트에서의 this를 잘 이해하고 있다면 전혀 어렵지 않습니다.
 아래와 같은 케이스가 가능하겠습니다. 특히 메소드 정의를 할때 유용합니다.
@@ -1213,7 +1213,7 @@ var r2 = same_age_friends.call({
 console.log(JSON.stringify(r2)); // [{"id":2,"name":"b","age":12},{"id":3,"name":"c","age":12}]
 ```
 
-##### C 함수로 this 전달하기
+#### C 함수로 this 전달하기
 ```javascript
 var r3 = C.call({ c: 5 }, 1, 2, [
     function(a, b) {
@@ -1226,7 +1226,7 @@ var r3 = C.call({ c: 5 }, 1, 2, [
 console.log(r3); // 40
 ```
 
-##### with jQuery
+#### with jQuery
 ```html
 <button type="button">go</button>
 ```
