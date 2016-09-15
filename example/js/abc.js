@@ -196,8 +196,8 @@
 
     var spread_args = B.reduce(function(memo, arg) { return memo.concat(IS_R(arg) ? arg : [arg]); });
     var arg_add_arr = function(list) { return R(list, []); };
-    var all_map = B.map(function(val_fn, key, list, args) { return A(args, val_fn); });
-    var div_map = B.map(function(val, key, list, funcs) { return C(val, funcs[key] || I); });
+    var all_map = B.map(function(val_fn, key, list, args) { return A(args, val_fn, this); });
+    var div_map = B.map(function(val, key, list, funcs) { return A([val], funcs[key] || I, this); });
 
     B.all = function() {
         var fns = _.toArray(arguments);

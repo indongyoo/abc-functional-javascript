@@ -1149,9 +1149,106 @@ Pipeline 패턴으로 코딩을 하다보면 `B.all`과 `B.div` 같은 일을 �
 `B.all`과 `B.div`에게 넘겨진 함수 혹은 Pipeline들은 하나씩 차례대로 실행됩니다.
 비동기가 일어나더라도 위에서 부터 하나씩 차례대로 실행됩니다.
 
+### 11. this
+A, B, C는 this를 인자로 받지 않지만 this가 주어진다면 이어집니다.
+또한 파이프라인안에 있는 모든 this를 유지해줍니다.
+
+1. A 함수로 this 전달하기
+사실 A 함수에서는 마지막 인자로 this를 받고 있습니다.
+```javascript
+var r1 = A([1, 2], [
+        function(a, b) {
+            return a + b + this.c;
+        },
+        function(a) {
+            return a * this.c;
+        }
+    ], { c: 5 });
+    console.log(r1); // 40
+```
+
+2. B 함수로 this 전달하기
+B 함수는 함수를 리턴하는 함수기 때문에 리턴된 함수에 컨텍스트를 넘겨주셔야합니다.
+코어 자바스크립트에서의 this를 잘 이해하고 있다면 전혀 어렵지 않습니다.
+아래와 같은 케이스가 가능하겠습니다. 특히 메소드 정의를 할때 유용합니다.
+```javascript
+var user1 = {
+    firstName: "jamm",
+    lastName: "Co",
+    getName1: B(function() {
+        return this.lastName + ' ' + this.firstName;
+    }),
+    getName2: B([
+        B.all(function() {
+            return this.firstName;
+        }, function() {
+            return this.lastName;
+        }),
+        function(a, b) {
+            return a + ' ' + b;
+        }
+    ])
+};
+
+console.log(user1.getName1()); // Co jamm
+console.log(user1.getName2()); // jamm Co
+
+var same_age_friends = B([
+    function() {
+        return this.friends;
+    },
+    B.filter(function(friend) { return friend.age == this.me.age })
+]);
+
+var r2 = same_age_friends.call({
+    friends: [
+        { id: 1, name: "a", age: 10 },
+        { id: 2, name: "b", age: 12 },
+        { id: 3, name: "c", age: 12 },
+        { id: 4, name: "d", age: 13 }
+    ],
+    me: { id: 5, name: "e", age: 12 }
+});
+
+console.log(JSON.stringify(r2)); // [{"id":2,"name":"b","age":12},{"id":3,"name":"c","age":12}]
+```
+
+3. C 함수로 this 전달하기
+```javascript
+var r3 = C.call({ c: 5 }, 1, 2, [
+    function(a, b) {
+        return a + b + this.c;
+    },
+    function(a) {
+        return a * this.c;
+    }
+]);
+console.log(r3); // 40
+```
+
+4. with jQuery
+```html
+<button type="button">go</button>
+```
+```javascript
+$(function() {
+    $('button').click(B([
+        CB(function(e, next) {
+            return $(this).animate({
+                'margin-left': 300
+            }, 1000, next);
+        }),
+        function() {
+            $(this).text('finish');
+        }
+    ]));
+});
+// go --------------> finish
+```
 
 
-### 11. ETC
+
+### 12. ETC
 이 외에도 abcjs에는 `B.P`, `B.M`, `B.V`, `F`, `G`, `M`, `U`, `V` 등의 유용한 함수들이 있습니다.
   - `B.P(n[,n,n...])` n번째 인자들 받기
   - `B.M('method', 'args1', 'args2')` 객체의 메소드 실행하기
