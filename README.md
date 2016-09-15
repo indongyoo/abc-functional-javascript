@@ -1276,4 +1276,8 @@ $(function() {
   - `V(user, 'friend.friends.0.name')` 안전하게 value 꺼내기
 
 
+### 13. CATCH
+ - 준비 중입니다.
+
+
 __이제 재밌는 함수 조립을 즐겨보세요! :smile:__

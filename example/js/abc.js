@@ -311,13 +311,14 @@
     C.div = F("TODO");
 
     function D() {}
+
     D.to_array = function(obj) { return _.toArray(arguments.length > 1 ? arguments : obj); };
 
     function F(nodes) {
         var f = V(G, nodes);
         var err = Error('warning: ' + nodes + ' is not defined').stack;
         return f || setTimeout(function() { (f = f || V(G, nodes)) || console.error(err) })
-            && function() { return A(arguments, f || (f = V(G, nodes))); }
+            && function() { return A(arguments, f || (f = V(G, nodes)), this); }
     }
 
     /* H start */
