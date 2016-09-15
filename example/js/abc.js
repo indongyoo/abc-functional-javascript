@@ -311,9 +311,22 @@
     function D() {}
     D.to_array = function(obj) { return _.toArray(arguments.length > 1 ? arguments : obj); };
 
-    D.not = function() {
-      return D.to_array(arguments).find(function(val) { return Boolean(val) === false; }) === void 0 ? false : true;
+    D.not = function(arr) {
+      var args = _.toArray(arguments.length > 1 ? arguments : arr);
+      return C.find(args, function(val) { return Boolean(val) === false; }) === void 0 ? false : true;
     };
+
+    D.eq = function(arr) {
+      var args = _.toArray(arguments.length > 1 ? arguments : arr), flag = false;
+      C.find(args, function(val) { flag = args[0] == val ? true : false; return !flag; });
+      return flag;
+    };
+
+    D.seq = function(arr) {
+      var args = _.toArray(arguments.length > 1 ? arguments : arr), flag = false;
+      C.find(args, function(val) { flag = args[0] === val ? true : false; return !flag; });
+      return flag;
+    };    
 
     function F(nodes) {
         var f = V(G, nodes);
