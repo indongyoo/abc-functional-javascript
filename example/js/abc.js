@@ -36,7 +36,7 @@
     F.P3 = window.P3 = B.P(3);
     F.P4 = window.P4 = B.P(4);
 
-    function A(args, func) { return C.apply(null, _.toArray(args).concat([func])); }
+    function A(args, func) { return C.apply(arguments[2] || this, _.toArray(args).concat([func])); }
 
     function B() {
         var args = _.toArray(arguments);
@@ -49,7 +49,7 @@
                 var idx = args3.indexOf(X);
                 args3[idx == -1 ? args3.length : idx] = arg2;
             }
-            return A(args3, fns);
+            return A(args3, fns, this);
         };
     }
 
@@ -196,22 +196,22 @@
 
     var spread_args = B.reduce(function(memo, arg) { return memo.concat(IS_R(arg) ? arg : [arg]); });
     var arg_add_arr = function(list) { return R(list, []); };
-
     var all_map = B.map(function(val_fn, key, list, args) { return A(args, val_fn); });
+    var div_map = B.map(function(val, key, list, funcs) { return C(val, funcs[key] || I); });
+
     B.all = function() {
         var fns = _.toArray(arguments);
         return function() {
-            return A([fns, _.toArray(arguments)], [all_map, arg_add_arr, spread_args, TO_R]);
+            return A([fns, _.toArray(arguments)], [all_map, arg_add_arr, spread_args, TO_R], this);
         };
     };
 
-    var div_map = B.map(function(val, key, list, funcs) { return C(val, funcs[key] || I); });
     B.div = function() {
         var fns = _.toArray(arguments);
         return function() {
             var args = _.toArray(arguments);
             while(args.length < fns.length) args.push(void 0);
-            return A([args, fns], [div_map, arg_add_arr, spread_args, TO_R]);
+            return A([args, fns], [div_map, arg_add_arr, spread_args, TO_R], this);
         };
     };
 
@@ -219,7 +219,7 @@
         var fns = arguments;
         return JCB(function(res, cb) {
             cb(res);
-            C(res, fns);
+            A([res], fns, this);
         });
     };
 
@@ -231,6 +231,7 @@
     function maybe_promise(res) { return _.isObject(res) && res.then && _.isFunction(res.then); }
 
     function base_loop_fn(body, end_q, end, complete, iter_or_predi, params) {
+        var context = this;
         var args = _.rest(arguments, 6);
         var list = args.shift();
         if (!iter_or_predi) iter_or_predi = args.pop();
@@ -248,7 +249,7 @@
 
             return A(params(list, keys, i++, res).concat(args), [iter_or_predi, function() {
                 return f(arguments.length == 1 ? arguments[0] : TO_R(arguments));
-            }]);
+            }], context);
         })();
     }
 
@@ -258,6 +259,7 @@
     function IS_R(arg) { return _.isArray(arg) && arg._A_is_returns; }
 
     function C() {
+        var context = this;
         var args = _.toArray(arguments);
         if (!_.isArray(args[args.length-1])) args[args.length-1] = [args[args.length-1]];
         var fns = _.flatten(args.pop());
@@ -284,14 +286,14 @@
             if (!IS_R(res)) res = [res];
 
             // 동기 경우
-            if (!fns[i]._A_is_cb && !fns[i]._A_just_cb) return c(fns[i++].apply(void 0, res));
+            if (!fns[i]._A_is_cb && !fns[i]._A_just_cb) return c(fns[i++].apply(context, res));
 
             // 동기이고 그냥 callback, 혹시 생길 수 있는 비동기를 미리 잡기 위해서도 사용
-            if (!fns[i]._A_is_cb) return fns[i++].apply(void 0, res.concat(function() { return c(TO_R(arguments)); }));
+            if (!fns[i]._A_is_cb) return fns[i++].apply(context, res.concat(function() { return c(TO_R(arguments)); }));
 
             // 비동기일 경우
             then_obj_returned = true;
-            fns[i++].apply(void 0, res.concat(function() { return c(TO_R(arguments)); }));
+            fns[i++].apply(context, res.concat(function() { return c(TO_R(arguments)); }));
             return then_obj;
         })(TO_R(args));
     }
@@ -314,10 +316,8 @@
     function F(nodes) {
         var f = V(G, nodes);
         var err = Error('warning: ' + nodes + ' is not defined').stack;
-        return f || setTimeout(function() {
-                if (f = f || V(G, nodes)) return;
-                console.error(err);
-            }) && function() { return A(arguments, f || (f = V(G, nodes))); }
+        return f || setTimeout(function() { (f = f || V(G, nodes)) || console.error(err) })
+            && function() { return A(arguments, f || (f = V(G, nodes))); }
     }
 
     /* H start */
@@ -455,16 +455,15 @@
     function IF(predicate, fn) {
         var store = [fn ? [predicate, fn] : [I, predicate]];
         return _.extend(IF, {
-            ELSEIF: function (predicate, fn) {
-                return store.push(fn ? [predicate, fn] : [I, predicate]) && IF;
-            },
+            ELSEIF: function (predicate, fn) { return store.push(fn ? [predicate, fn] : [I, predicate]) && IF; },
             ELSE: function (fn) { return store.push([J(true), fn]) && IF; } });
 
         function IF() {
+            var context = this;
             var args = arguments;
             return C(store, args, [
-                B.find(function(fnset, i, l, args) { return A(args, fnset[0]); }),
-                function(fnset) { return fnset ? A(args, fnset[1]) : void 0; }
+                B.find(function(fnset, i, l, args) { return A(args, fnset[0], context); }),
+                function(fnset) { return fnset ? A(args, fnset[1], context) : void 0; }
             ]);
         }
     }
@@ -513,6 +512,8 @@
             return (obj = obj[keys[idx]]) ? keys.length-1 == idx ? obj : v(obj, idx+1, keys) : void 0;
         })(obj, 0, key.split('.'));
     }
+
+    X.context = function() { return this; };
 }(typeof global == 'object' && global.global == global && (global.G = global) || window);
 
 // Underscore.js 1.8.
