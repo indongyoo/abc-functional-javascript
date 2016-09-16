@@ -17,21 +17,21 @@ _abcjs는 함수형 자바스크립트(functional javascript) 라이브러리입
 __abcjs와 함께 함수형 프로그래밍을 즐겨보세요.__
 
 ## 목차
- - [A (apply)](https://github.com/marpple/abc-functional-javascript#01-a)
- - [B (bind)](https://github.com/marpple/abc-functional-javascript#02-b)
- - [C (call)](https://github.com/marpple/abc-functional-javascript#03-c)
- - [Pipeline with ABC](https://github.com/marpple/abc-functional-javascript#04-pipeline-with-abc)
- - [Async (callback)](https://github.com/marpple/abc-functional-javascript#05-asynccallback)
- - [Async-2 (Promise)](https://github.com/marpple/abc-functional-javascript#06-async-2promise)
- - [each, map, find, ...](https://github.com/marpple/abc-functional-javascript#07-eachmapfind)
- - [HTML Template](https://github.com/marpple/abc-functional-javascript#08-html-template)
- - [IF ELSEIF ELSE](https://github.com/marpple/abc-functional-javascript#09-if-elseif-else)
- - [B.all B.div](https://github.com/marpple/abc-functional-javascript#10-ball-bdiv)
- - [this](https://github.com/marpple/abc-functional-javascript#11-this)
- - [ETC](https://github.com/marpple/abc-functional-javascript#12-etc)
- - [throw, ERR, CATCH](https://github.com/marpple/abc-functional-javascript#13-throw-err-catch)
+ - [A (apply)](https://github.com/marpple/abc-functional-javascript/blob/master/README.md#01-a)
+ - [B (bind)](https://github.com/marpple/abc-functional-javascript/blob/master/README.md#02-b)
+ - [C (call)](https://github.com/marpple/abc-functional-javascript/blob/master/README.md#03-c)
+ - [Pipeline with ABC](https://github.com/marpple/abc-functional-javascript/blob/master/README.md#04-pipeline-with-abc)
+ - [Async (callback)](https://github.com/marpple/abc-functional-javascript/blob/master/README.md#05-asynccallback)
+ - [Async-2 (Promise)](https://github.com/marpple/abc-functional-javascript/blob/master/README.md#06-async-2promise)
+ - [each, map, find, ...](https://github.com/marpple/abc-functional-javascript/blob/master/README.md#07-eachmapfind)
+ - [HTML Template](https://github.com/marpple/abc-functional-javascript/blob/master/README.md#08-html-template)
+ - [IF ELSEIF ELSE](https://github.com/marpple/abc-functional-javascript/blob/master/README.md#09-if-elseif-else)
+ - [B.all B.div](https://github.com/marpple/abc-functional-javascript/blob/master/README.md#10-ball-bdiv)
+ - [this](https://github.com/marpple/abc-functional-javascript/blob/master/README.md#11-this)
+ - [ETC](https://github.com/marpple/abc-functional-javascript/blob/master/README.md#12-etc)
+ - [throw, ERR, CATCH](https://github.com/marpple/abc-functional-javascript/blob/master/README.md#13-throw-err-catch)
 
-### 01. [A](https://github.com/marpple/abc-functional-javascript/blob/master/example/01.%20A.html)
+### 01. [A](https://github.com/marpple/abc-functional-javascript/blob/master/README.md/blob/master/example/01.%20A.html)
 `A`는 `this`를 제외한 `apply`라고 생각하면 쉽습니다.
 
 객체지향에서 `this` 키워드는 매우 중요합니다. 자신이 가진 메소드를 실행하거나 자신이 가진 상태를 참조하거나 변경해야하기 때문입니다.
