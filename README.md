@@ -1327,6 +1327,25 @@ console.log('-------------------------');
 C([
     function() {
         console.log(1);
+        return ERR('custom data', {
+            type: 1,
+            msg: 'hi'
+        });
+    },
+    CATCH(function(e) {
+        if (e.type == 1) {
+            console.log(e.msg, e);
+        } else {
+            console.log('else');
+        }
+    })]);
+// 1
+// hi Error: custom data(…)
+console.log('-------------------------');
+
+C([
+    function() {
+        console.log(1);
     },
     function() {
         console.log(2);
