@@ -29,6 +29,7 @@ __abcjs와 함께 함수형 프로그래밍을 즐겨보세요.__
  - [B.all B.div](https://github.com/marpple/abc-functional-javascript#10-ball-bdiv)
  - [this](https://github.com/marpple/abc-functional-javascript#11-this)
  - [ETC](https://github.com/marpple/abc-functional-javascript#12-etc)
+ - [throw, ERR, CATCH](https://github.com/marpple/abc-functional-javascript#13-throw-err-catch)
 
 ### 01. [A](https://github.com/marpple/abc-functional-javascript/blob/master/example/01.%20A.html)
 `A`는 `this`를 제외한 `apply`라고 생각하면 쉽습니다.
@@ -1279,7 +1280,7 @@ $(function() {
   - `V(user, 'friend.friends.0.name')` 안전하게 value 꺼내기
 
 
-### 13. throw, ERR, CATCH
+### 13. [throw, ERR, CATCH](https://github.com/marpple/abc-functional-javascript/blob/master/example/13.%20CATCH.html)
 ```javascript
 C([
     function() {
