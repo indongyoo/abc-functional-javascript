@@ -125,7 +125,7 @@
         }]);
 
     C(users, [
-        B.uniq(B.V('age')),
+        B.uniq('age'),
         B.map(B.V('id')),
         function(r9) {
             console.log(r9); // [1, 3, 4, 5]

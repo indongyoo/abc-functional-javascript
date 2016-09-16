@@ -4,9 +4,7 @@
 // abcjs may be freely distributed under the MIT license.
 
 !function(G) {
-    var _ = respect_underscore();
-
-    if (typeof window != 'object') var window = G;
+    var _ = respect_underscore({}), window = typeof window != 'object' ? G : window;
 
     F.A = window.A = A; // thisless apply
     F.B = window.B = B; // thisless bind, like underscore partial
@@ -28,13 +26,11 @@
     F.V = window.V = V; // get value by string
     F.X = window.X = new Object();
 
-    B.P = B(I, base_bp);
+    function has_promise() { return has_promise.__cache || (has_promise.__cache = !!V(window, 'Promise.prototype.then')); }
 
-    F.P0 = window.P0 = I;
-    F.P1 = window.P1 = B.P(1);
-    F.P2 = window.P2 = B.P(2);
-    F.P3 = window.P3 = B.P(3);
-    F.P4 = window.P4 = B.P(4);
+    P.trim = function(args) { return args.length == 1 && args[0] === undefined ? [] : args; };
+    B.P = B(I, base_bp), F.P0 = window.P0 = I, F.P1 = window.P1 = B.P(1),
+    F.P2 = window.P2 = B.P(2), F.P3 = window.P3 = B.P(3), F.P4 = window.P4 = B.P(4);
 
     function A(args, func) { return C.apply(arguments[2] || this, _.toArray(args).concat([func])); }
 
@@ -175,9 +171,7 @@
 
 
     B.uniq = function(iter) {
-        iter = iter || I;
-
-        if (_.isString(iter)) iter = (function(key) { return function(val) { return val[key]; } })(iter);
+        iter = _.isString(iter) ? (function(key) { return function(val) { return val[key]; } })(iter) : (iter || I);
         return B(
             function(result, list, keys, i, res, tmp) { // body
                 if (i == 0) return;
@@ -253,10 +247,14 @@
         })();
     }
 
-    F.CB = window.CB = B([P, B.map([I, B(X, { _A_is_cb: true }, E)])]);
-    F.JCB = window.JCB = B(X, { _A_just_cb: true }, E);
+    F.CB = window.CB = B([P, B.map([I, B(X, { _ABC_is_cb: true }, E)])]);
+    F.JCB = window.JCB = B(X, { _ABC_just_cb: true }, E);
 
-    function IS_R(arg) { return _.isArray(arg) && arg._A_is_returns; }
+    function IS_R(arg) { return _.isArray(arg) && arg._ABC_is_returns; }
+    function IS_ERR(err) {
+        err = IS_R(err) ? err[0] : err;
+        return err && err.constructor == Error && err._ABC_is_err;
+    }
 
     function C() {
         var context = this;
@@ -265,38 +263,43 @@
         var fns = _.flatten(args.pop());
         if (args.length == 1 && IS_R(args[0])) args = args[0];
 
-        var then_cb = null, then_obj_returned = false;
-        var then_obj = { then: function(cb) { then_cb = cb; } };
-
-        var i = 0;
+        var i = 0, promise = null, resolve = null;
         return (function c(res) {
-            if (maybe_promise(res)) {
-                then_obj_returned = true;
-                res.then(function(r) { c(r) });
-                return then_obj;
-            }
+            if (fns[i] && ((IS_ERR(res) && !fns[i]._ABC_is_catch) || (!IS_ERR(res) && fns[i]._ABC_is_catch)) && i++) return c(res);
+
+            if (maybe_promise(res) && (res.then(function(r) { c(r) }) || true))
+                return promise || (promise = has_promise() ? new Promise(function(rs) { resolve = rs; }) : { then: function(rs) { resolve = rs; } })
 
             if (i == fns.length) {
-                if (!then_obj_returned) return res;
+                if (!promise) return res;
                 if (!IS_R(res)) res = [res];
-                // 혹시 모두 동기로 끝나버려 then_cb가 아직 안들어온 경우 안전하게 한번 기다려주고
-                return then_cb ? then_cb.apply(void 0, res) : setTimeout(function() { then_cb && then_cb.apply(void 0, res); });
+                // 혹시 모두 동기로 끝나버려 then_rs가 아직 안들어온 경우 안전하게 한번 기다려주고
+                return resolve ? resolve.apply(void 0, res) : setTimeout(function() { resolve && resolve.apply(void 0, res); });
             }
 
             if (!IS_R(res)) res = [res];
-
-            // 동기 경우
-            if (!fns[i]._A_is_cb && !fns[i]._A_just_cb) return c(fns[i++].apply(context, res));
-
-            // 동기이고 그냥 callback, 혹시 생길 수 있는 비동기를 미리 잡기 위해서도 사용
-            if (!fns[i]._A_is_cb) return fns[i++].apply(context, res.concat(function() { return c(TO_R(arguments)); }));
+            try { // 동기 경우
+                if (!fns[i]._ABC_is_cb && !fns[i]._ABC_just_cb) return c(fns[i++].apply(context, P.trim(res)));
+                // 동기이고 그냥 callback, 혹시 생길 수 있는 비동기를 미리 잡기 위해서도 사용
+                if (!fns[i]._ABC_is_cb) return fns[i++].apply(context, P.trim(res).concat(function() { return c(TO_R(arguments)); }));
+            } catch(e) { return c(ERR(e)); }
 
             // 비동기일 경우
-            then_obj_returned = true;
-            fns[i++].apply(context, res.concat(function() { return c(TO_R(arguments)); }));
-            return then_obj;
+            try { fns[i++].apply(context, P.trim(res).concat(function() { return c(TO_R(arguments)); })); }
+            catch(e) { c(ERR(e)); }
+            return promise || (promise = has_promise() ? new Promise(function(rs) { resolve = rs; }) : { then: function(rs) { resolve = rs; } });
         })(TO_R(args));
     }
+
+    F.ERR = window.ERR = function(err) {
+        setTimeout(function() { err._ABC_caught || console.error(err); }, 500);
+        return err = E(err.constructor == Error ? err : new Error(err), { _ABC_is_err: true });
+    };
+
+    F.CATCH = window.CATCH = function (f) {
+        return E(function(err) { return (err._ABC_caught = true) && f.apply(this, arguments); },
+            { _ABC_is_catch: true, _ABC_is_cb: f._ABC_is_cb, _ABC_just_cb: f._ABC_just_cb });
+    };
 
     C.each = B.each(null);
     C.map = B.map(null);
@@ -311,12 +314,11 @@
     C.div = F("TODO");
 
     function D() {}
-
     D.to_array = function(obj) { return _.toArray(arguments.length > 1 ? arguments : obj); };
 
     function F(nodes) {
         var f = V(G, nodes);
-        var err = Error('warning: ' + nodes + ' is not defined').stack;
+        var err = Error('warning: ' + nodes + ' is not defined');
         return f || setTimeout(function() { (f = f || V(G, nodes)) || console.error(err) })
             && function() { return A(arguments, f || (f = V(G, nodes)), this); }
     }
@@ -335,15 +337,15 @@
         return s_each.apply(null, [H].concat(_.toArray(arguments)));
     };
 
-    H._A_func_storage = {};
+    H._ABC_func_storage = {};
 
     function s(func, obj_name, option, var_names/*, source...*/) {      // used by H and S
         var source = C.map(_.rest(arguments, 4), function(str_or_func) {
             if (_.isString(str_or_func)) return str_or_func;
 
-            var key = _.uniqueId("_A_func_storage");
-            func._A_func_storage[key] = str_or_func;
-            return obj_name + "._A_func_storage." + key;
+            var key = _.uniqueId("_ABC_func_storage");
+            func._ABC_func_storage[key] = str_or_func;
+            return obj_name + "._ABC_func_storage." + key;
         }).join("");
 
         return function() {
@@ -482,13 +484,13 @@
 
     function R(arg) {
         if (arguments.length <= 1) return arg;
-        if (_.isArray(arg) && arg._A_is_returns) return arg;
-        return _.extend(_.toArray(arguments), { _A_is_returns: true });
+        if (_.isArray(arg) && arg._ABC_is_returns) return arg;
+        return _.extend(_.toArray(arguments), { _ABC_is_returns: true });
     }
 
     function TO_R(arg) {
-        if (_.isArray(arg) && arg._A_is_returns) return arg;
-        return _.extend(_.values(arg), { _A_is_returns: true });
+        if (_.isArray(arg) && arg._ABC_is_returns) return arg;
+        return _.extend(_.values(arg), { _ABC_is_returns: true });
     }
     F.TO_R = window.TO_R = TO_R;
 
@@ -500,7 +502,7 @@
         return s_each.apply(null, [S].concat(_.toArray(arguments)));
     };
 
-    S._A_func_storage = {};
+    S._ABC_func_storage = {};
 
     F.TO = window.TO = {};
 
@@ -521,8 +523,7 @@
 // http://underscorejs.org
 // (c) 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
 // Underscore may be freely distributed under the MIT license.
-function respect_underscore() {
-    var _ = {};
+function respect_underscore(_) {
     var ArrayProto = Array.prototype, ObjProto = Object.prototype;
     var slice = ArrayProto.slice, toString = ObjProto.toString, hasOwnProperty = ObjProto.hasOwnProperty;
     var nativeIsArray = Array.isArray, nativeKeys = Object.keys;
@@ -555,7 +556,6 @@ function respect_underscore() {
         return B.V(value);
     };
 
-    // An internal function for creating assigner functions.
     var createAssigner = function(keysFunc, undefinedOnly) {
         return function(obj) {
             var length = arguments.length;

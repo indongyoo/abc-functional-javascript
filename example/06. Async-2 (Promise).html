@@ -6,7 +6,7 @@
 </head>
 <body>
 
-<script src="https://cdn.jsdelivr.net/bluebird/latest/bluebird.js"></script>
+<!--<script src="https://cdn.jsdelivr.net/bluebird/latest/bluebird.js"></script>-->
 
 <script src="js/underscore.js"></script>
 <script src="js/jquery.js"></script>
@@ -15,7 +15,6 @@
 <script>
 
     /* abcjs는 Promise가 필요 없지만 .then을 리턴하는 함수의 비동기 제어를 지원합니다. */
-
     function delay() {
         return new Promise(function(rs) {
             setTimeout(function() {
@@ -67,6 +66,7 @@
     * 아래와 같이 마지막 결과를 then으로 받을 수 있어 Promise와 함께 사용이 가능합니다.
     * */
 
+
     C(5, 5, [
         sum,
         square
@@ -104,7 +104,13 @@
         console.log(r); // 50
     });
 
-    /* Promise를 지원하지만 C().then()이 Promise 객체는 아닙니다 */
+    /*
+    * 만일 es6 Promise나 Promise Library가 있다면 C()는 Promise 객체를 리턴합니다.
+    * 그렇지 않다면 C()의 리턴 값이 {}.then()의 형태를 띄지만 Promise 객체는 아닙니다.
+    *
+    * function has_promise() { (window || global).Promise.prototype.then; }
+    * has_promise() ? new Promise(function(rs) { resolve = rs; }) : { then: function(rs) { resolve = rs; } })
+    * */
 
 </script>
 

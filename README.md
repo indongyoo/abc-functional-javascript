@@ -589,7 +589,10 @@ C(5, 5, [
     console.log(r); // 50
 });
 ```
-Promise를 지원하지만 `C().then()`이 Promise 객체는 아닙니다.
+만일 es6 Promise나 Promise Library가 있다면 `C()`는 Promise 객체를 리턴합니다.
+그렇지 않다면 `C()`의 리턴 값이 `{}.then()`의 형태를 띄지만 Promise 객체는 아닙니다.
+`function has_promise() { (window || global).Promise.prototype.then; }`
+`has_promise() ? new Promise(function(rs) { resolve = rs; }) : { then: function(rs) { resolve = rs; } })`
 
 
 
@@ -706,7 +709,7 @@ C(users, [
     }]);
 
 C(users, [
-    B.uniq(B.V('age')),
+    B.uniq('age'),
     B.map(B.V('id')),
     function(r9) {
         console.log(r9); // [1, 3, 4, 5]
@@ -1276,8 +1279,168 @@ $(function() {
   - `V(user, 'friend.friends.0.name')` 안전하게 value 꺼내기
 
 
-### 13. CATCH
- - 준비 중입니다.
+### 13. throw, ERR, CATCH
+```javascript
+C([
+    function() {
+        console.log(1);
+    },
+    function() {
+        console.log(2);
+        throw 2;
+    },
+    function() {
+        console.log(3);
+    },
+    CATCH(function(e) {
+        console.log(4, e);
+    })]);
+// 1
+// 2
+// 4, Error: 2(…)
+console.log('-------------------------');
 
+C([
+    function() {
+        console.log(1);
+    },
+    function() {
+        console.log(2);
+        return ERR(2);
+    },
+    function() {
+        console.log(3);
+    },
+    CATCH(function(e) {
+        console.log(4, e);
+    }),
+    function() {
+        console.log(5);
+    }]);
+// 1
+// 2
+// 4, Error: 2(…)
+// 5
+console.log('-------------------------');
+
+C([
+    function() {
+        console.log(1);
+    },
+    function() {
+        console.log(2);
+    },
+    function() {
+        console.log(3);
+    },
+    CATCH(function(e) {
+        console.log(4, e);
+    }),
+    function() {
+        console.log(5);
+    }]);
+
+// 1
+// 2
+// 3
+// 5
+console.log('-------------------------');
+
+C([
+    function() {
+        console.log(1);
+    },
+    function() {
+        return C([
+            function() {
+                console.log(2);
+            },
+            function() {
+                console.log(3);
+                throw 3
+            },
+            function() {
+                console.log(4);
+            },
+            CATCH(function(e) {
+                console.log(5, e);
+            }),
+            function() {
+                console.log(6);
+            },
+            function() {
+                console.log(7);
+                return ERR(7);
+            }
+        ])
+    },
+    function() {
+        console.log(8);
+    },
+    CATCH(function(e) {
+        console.log(9, e);
+        return 'hi'
+    }),
+    function(a) {
+        console.log(10, a);
+    }
+]);
+// 1
+// 2
+// 3
+// 5 Error: 3(…)
+// 6
+// 7
+// 9 Error: 7(…)
+// 10 'hi'
+
+console.log('-------------------------');
+
+// for async
+var go = B([
+    function(a) {
+        console.log(1);
+        return a;
+    },
+    CB(function(a, next) {
+        console.log(2);
+        setTimeout(function() {
+            next(a == 1 ? 2 : ERR(2));
+        }, 500)
+    }),
+    function() {
+        console.log(3);
+    },
+    function() {
+        console.log(4);
+        return 'complete';
+    },
+    CB(CATCH(function(e, next) {
+        console.log(5, e);
+        setTimeout(function() {
+            // rollback
+            next('fail');
+        }, 1000);
+    })),
+    function(a) {
+        console.log(a);
+        console.log('------------------')
+    }
+]);
+
+go(1).then(function() {
+    // 1
+    // 2
+    // 3
+    // 4
+    // complete
+
+    go(2);
+    // 1
+    // 2
+    // 5 Error: 2(…)
+    // fail
+});
+```
 
 __이제 재밌는 함수 조립을 즐겨보세요! :smile:__
