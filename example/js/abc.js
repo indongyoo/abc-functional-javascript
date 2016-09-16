@@ -23,7 +23,7 @@
     F.S = window.S = S; // String Template Engine
     F.TODO = window.TODO;
     F.U = window.U = U; // _.noop, return undefined
-    F.V = window.V = V; // get value by string
+    F.V = window.V = V; // get value with string
     F.X = window.X = new Object();
 
     function has_promise() { return has_promise.__cache || (has_promise.__cache = !!V(window, 'Promise.prototype.then')); }

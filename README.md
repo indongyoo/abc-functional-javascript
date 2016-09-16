@@ -1065,7 +1065,7 @@ abcjs를 이용하여 함수형 프로그래밍을 하면 비동기가 지원되
 
 이미 `C`나 `B.find` 등이 이미 비동기를 잘 제어해주기 때문에 아래와 같이 callback 패턴 없이 동기 함수를 만들때와 완전히 똑같은 코딩을 할 수 있습니다.
 ```javascript
- // abc.js 455 line
+ // abc.js 459 line
  function IF(predicate, fn) {
      var store = [fn ? [predicate, fn] : [I, predicate]];
      return _.extend(IF, {
