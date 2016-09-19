@@ -470,7 +470,9 @@
         var store = [fn ? [predicate, fn] : [I, predicate]];
 
         return _.extend(IF, {
-            ELSEIF: function (predicate, fn) { return store.push(fn ? [predicate, fn] : [I, predicate]) && IF; },
+            ELSEIF: function (predicate, fn) {
+                if (!_.isFunction(predicate)) predicate = (function(predicate) { return function(val) { return val === predicate; } })(predicate);
+                return store.push(fn ? [predicate, fn] : [I, predicate]) && IF; },
             ELSE: function (fn) { return store.push([J(true), fn]) && IF; } });
 
         function IF() {
