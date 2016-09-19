@@ -1271,7 +1271,7 @@ $(function() {
 
 ### 12. ETC
 이 외에도 abcjs에는 `B.P`, `B.M`, `B.V`, `F`, `G`, `M`, `U`, `V` 등의 유용한 함수들이 있습니다.
-  - `B.P(n[,n,n...])` n번째 인자들 받기
+  - `B.P(n[,n,n...])` index가 n인 인자들 받기
   - `B.M('method', 'args1', 'args2')` 객체의 메소드 실행하기
   - `F('function.name') => G['function']['name']` 안전하게 function 찾기
   - `F.A`, `F.B`, `F.C`, ... F 네임스페이스에 모든 함수 재추가
