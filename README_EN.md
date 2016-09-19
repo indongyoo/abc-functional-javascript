@@ -153,6 +153,7 @@ You can use instantly pipeline pattern with `A`, `B`, and `C` function.
 Furthermore, unlike `_.compose` , we changed the order which is easy to read.
 
 It is easy : Put the array which has the functions as a last argument.
+
 ```javascript
 function sum(a, b) {
     return a + b;
@@ -484,6 +485,32 @@ C([
         console.log(r); // {aka: "Cojamm", created_at: Tue Sep 13 2016 04:01:18 GMT+0900 (KST)}
     }
 ]);
+```
+
+```javascript
+function sum(a, b, cb) {
+    delay(function() {
+        cb(a + b);
+    });
+}
+function minus(a, b, cb) {
+    delay(function() {
+        cb(a - b);
+    });
+}
+function square(a, cb) {
+    delay(function() {
+        cb(a * a);
+    });
+}
+var sq = B(square);
+var m5 = B(X, 5, minus);
+var s = B(sum);
+var log = B(function() {
+    console.log.apply(console, arguments);
+});
+log(sq(m5(s(10, 10))));
+console.log('216 line');
 ```
 
 
