@@ -79,8 +79,7 @@ console.log(r2);
 
 
 ### 02. [B](https://github.com/marpple/abc-functional-javascript/blob/master/example/02.%20B.html)
-`B` is similar to `bind` and `_.partial`, but is thisless.
-
+`B` is similar to `bind` and `_.partial` of underscore, but it is thisless.
 ```javascript
 function minus(a, b) {
     return a - b;
@@ -93,7 +92,9 @@ console.log(r1);
 ```
 
 
-`X` is like `_` at `_.partial`.
+Use `X` with `B`.
+
+Through `X`, it can be possible to set a position of argument that will be populated after an execution.
 ```javascript
 var f2 = B(X, 10, minus);
 var r2 = f2(20);
@@ -113,7 +114,7 @@ console.log(r3);
 
 
 ### 03. [C](https://github.com/marpple/abc-functional-javascript/blob/master/example/03.%20C.html)
-`C` is similar to `call`.
+`C` is similar to `call` without `this`.
 ```javascript
 function minus(a, b) {
     return a - b;
@@ -131,6 +132,27 @@ console.log(r2);
 
 
 ### 04. [Pipeline with ABC](https://github.com/marpple/abc-functional-javascript/blob/master/example/04.%20Pipeline%20with%20ABC.html)
+abcjs supports code pattern that looks like underscore’s `_.compose`, Jquery’s chain.
+
+Object Oriented Chaining could change a value sequentially.
+
+However, since it changes the value of the object itself, implementation is hard, although the use is easy.
+
+Moreover, it has some restriction , because it only uses the method and the value of object itself.
+
+Instead, abcjs uses `Pipeline-like` sequential function execution.
+
+This `Pipeline-like` approach has advantages :
+- more flexible
+- can make a `pure function`.
+
+abc.js didn’t make a special pipeline function.
+
+You can use instantly pipeline pattern with `A`, `B`, and `C` function.
+
+Furthermore, unlike `_.compose` , we changed the order which is easy to read.
+
+It is easy : Put the array which has the functions as a last argument.
 
 ```javascript
 function sum(a, b) {
@@ -463,6 +485,32 @@ C([
         console.log(r); // {aka: "Cojamm", created_at: Tue Sep 13 2016 04:01:18 GMT+0900 (KST)}
     }
 ]);
+```
+
+```javascript
+function sum(a, b, cb) {
+    delay(function() {
+        cb(a + b);
+    });
+}
+function minus(a, b, cb) {
+    delay(function() {
+        cb(a - b);
+    });
+}
+function square(a, cb) {
+    delay(function() {
+        cb(a * a);
+    });
+}
+var sq = B(square);
+var m5 = B(X, 5, minus);
+var s = B(sum);
+var log = B(function() {
+    console.log.apply(console, arguments);
+});
+log(sq(m5(s(10, 10))));
+console.log('216 line');
 ```
 
 
