@@ -36,13 +36,19 @@ _abcjs is functional javascript library._
 
 ### 01. [A](https://github.com/marpple/abc-functional-javascript/blob/master/README_EN.md/blob/master/example/01.%20A.html)
 `A` is similar to `apply`.
+
 You can think of `A` as `apply` without `this`.
-The ‘this’ keyword is very important in Object Oriented Programming. Since it has to change the state of the object and refer of it.
 
-However, it’s difficult to handle abstract `this` keyword. A state to manage through ‘this’ is value. There is no need to deal with the value through `Class`.
+The `this` keyword is very important in Object Oriented Programming. Since it has to change the state of the object and refer of it.
 
-Our strategy In abc.js to deal with the state : Deal with the value by making a new value through `function`.
-`A(arguments, func);`
+However, it’s difficult to handle abstract `this` keyword.
+
+A state to manage through ‘this’ is value. There is no need to deal with the value through 'Class'.
+
+Our strategy In abc.js to deal with the state :
+
+Deal with the value by making a new value through `function`.
+
 
 ```javascript
 function add(a, b) {
@@ -54,8 +60,11 @@ console.log(r1);
 // 22
 ```
 When reading a code, It is easy to read from left to right in general.
-So, A changed the direction of function and arguments :
-In A function, argument which is not a function appears first, argument which is a function appears later.
+
+So, `A` changed the direction
+ `data argument`, `function arguments`... :
+
+In `A` function, argument which is not a function appears first, argument which is a function appears later.
 ```javascript
 function minus(a, b) {
     return a - b;
