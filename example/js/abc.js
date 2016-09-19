@@ -63,17 +63,6 @@
 
     B.M = function() { return B.apply(void 0, [X].concat(_.toArray(arguments)).concat(M)); };
 
-    B.each = function(iter) {
-        return B(
-            P4, // body
-            U, // end_q
-            void 0, // end
-            P1,
-            iter, // iter_or_predi
-            base_loop_fn_base_args,
-            base_loop_fn);
-    };
-
     B.map = function(iter) {
         return B(
             function(result, list, keys, i, res) {  // body
@@ -88,21 +77,58 @@
             base_loop_fn);
     };
 
+    var arg_add_arr = function(list) { return R(list, []); };
+    var all_map = B.map(function(val_fn, key, list, args) { return A(args, val_fn, this); });
+    var div_map = B.map(function(val, key, list, funcs) { return A([val], funcs[key] || I, this); });
+
+    B.all = function() {
+        var fns = _.toArray(arguments);
+        return function() {
+            return A([fns, _.toArray(arguments)], [all_map, arg_add_arr, spread_args, TO_R], this);
+        };
+    };
+
+    B.div = function() {
+        var fns = _.toArray(arguments);
+        return function() {
+            var args = _.toArray(arguments);
+            while(args.length < fns.length) args.push(void 0);
+            return A([args, fns], [div_map, arg_add_arr, spread_args, TO_R], this);
+        };
+    };
+
     B.reduce = function(iter) {
+        var pred = iter == null ? IF(function() { return arguments.length == 3 }, R).ELSE(B.all(_.rest, B.V('0'), P1)) :
+            IF(function() { return arguments.length > 1 }, R).ELSE(B.all(_.rest, B.V('0')));
+        return B([pred,
+                B(function(result, list, keys, i, res, tmp, args) {     // body
+                    return i == 0 ? args[0] : res;
+                },
+                U, // end_q
+                void 0, // end
+                P2, // complete
+                iter,   // iter_or_predi
+                function(list, keys, i, res) { // params
+                    var key = keys ? keys[i] : i;
+                    return [res, list[key], key, list];
+                },
+                    base_loop_fn)]);
+    };
+
+    var spread_args = B.reduce(function(memo, arg) { return memo.concat(IS_R(arg) ? arg : [arg]); });
+
+    B.each = function(iter) {
         return B(
-            function(result, list, keys, i, res, tmp, args) {     // body
-                return i == 0 ? args[0] : res;
-            },
+            P4, // body
             U, // end_q
             void 0, // end
-            P2, // complete
-            iter,   // iter_or_predi
-            function(list, keys, i, res) { // params
-                var key = keys ? keys[i] : i;
-                return [res, list[key], key, list];
-            },
+            P1,
+            iter, // iter_or_predi
+            base_loop_fn_base_args,
             base_loop_fn);
     };
+
+
 
     B.filter = function(iter) {
         return B(
@@ -186,27 +212,6 @@
             iter,
             base_loop_fn_base_args,
             base_loop_fn);
-    };
-
-    var spread_args = B.reduce(function(memo, arg) { return memo.concat(IS_R(arg) ? arg : [arg]); });
-    var arg_add_arr = function(list) { return R(list, []); };
-    var all_map = B.map(function(val_fn, key, list, args) { return A(args, val_fn, this); });
-    var div_map = B.map(function(val, key, list, funcs) { return A([val], funcs[key] || I, this); });
-
-    B.all = function() {
-        var fns = _.toArray(arguments);
-        return function() {
-            return A([fns, _.toArray(arguments)], [all_map, arg_add_arr, spread_args, TO_R], this);
-        };
-    };
-
-    B.div = function() {
-        var fns = _.toArray(arguments);
-        return function() {
-            var args = _.toArray(arguments);
-            while(args.length < fns.length) args.push(void 0);
-            return A([args, fns], [div_map, arg_add_arr, spread_args, TO_R], this);
-        };
     };
 
     B.branch = function() { // fork
@@ -313,7 +318,8 @@
 
     C.each = B.each(null);
     C.map = B.map(null);
-    C.reduce = B.reduce(null);
+    var _reduce = B.reduce(null);
+    C.reduce = function(arr, memo, func) { return func ? _reduce(arr, memo, func) : _reduce(arr, memo); };
     C.filter = B.filter(null);
     C.reject = B.reject(null);
     C.find = B.find(null);
