@@ -303,7 +303,7 @@
     function ERR(err, data) {
         setTimeout(function() { err._ABC_caught || console.error(err); }, 500);
         return err = E(err.constructor == Error ? err : new Error(err), data, { _ABC_is_err: true });
-    };
+    }
     F.ERR = window.ERR = ERR;
 
     F.CATCH = window.CATCH = function (f) {
