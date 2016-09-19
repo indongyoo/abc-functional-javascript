@@ -204,6 +204,17 @@
     * 참고 - 실제 jQuery의 $.get 함수등은 { then: func.. } 를 리턴하기 때문에 CB로 감싸는 방식으로 구현할 필요 없습니다.
     * */
 
+
+    /* B를 감싸서 함수를 만들어두면 아래와 같이도 사용할 수 있습니다. 비동기 함수를 아래와 같이도 사용할 수 있습니다. */
+    var sq = B(square);
+    var m5 = B(X, 5, minus);
+    var s = B(sum);
+    var log = B(function() {
+        console.log.apply(console, arguments);
+    });
+    log(sq(m5(s(10, 10))));
+    console.log('216 line');
+
 </script>
 
 

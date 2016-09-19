@@ -26,7 +26,7 @@
     F.V = window.V = V; // get value with string
     F.X = window.X = new Object();
 
-    function has_promise() { return has_promise.__cache || (has_promise.__cache = !!V(window, 'Promise.prototype.then')); }
+    function has_Promise() { return has_Promise.__cache || (has_Promise.__cache = !!V(window, 'Promise.prototype.then')); }
 
     P.trim = function(args) { return args.length == 1 && args[0] === undefined ? [] : args; };
     B.P = B(I, base_bp), F.P0 = window.P0 = I, F.P1 = window.P1 = B.P(1),
@@ -222,8 +222,6 @@
         return [list[key], key, list];
     }
 
-    function maybe_promise(res) { return _.isObject(res) && res.then && _.isFunction(res.then); }
-
     function base_loop_fn(body, end_q, end, complete, iter_or_predi, params) {
         var context = this;
         var args = _.rest(arguments, 6);
@@ -256,6 +254,19 @@
         return err && err.constructor == Error && err._ABC_is_err;
     }
 
+    function maybe_promise(res) { return _.isObject(res) && res.then && _.isFunction(res.then); }
+    function unpack_promise(res, callback) {
+        var has_promise = false;
+        var is_r = IS_R(res);
+        return (function u(i, res, length) {
+            if (i == length) { has_promise && callback(is_r ? res : res[0]); return; }
+            return maybe_promise(res[i]) && (has_promise = true) ? (res[i].then((function(i) { return function(v) {
+                res[i] = v;
+                u(i+1, res, length);
+            } })(i))) && true : u(i+1, res, length);
+        })(0, (res = is_r ? res : [res]), res.length);
+    }
+
     function C() {
         var context = this;
         var args = _.toArray(arguments);
@@ -266,9 +277,7 @@
         var i = 0, promise = null, resolve = null;
         return (function c(res) {
             if (fns[i] && ((IS_ERR(res) && !fns[i]._ABC_is_catch) || (!IS_ERR(res) && fns[i]._ABC_is_catch)) && i++) return c(res);
-
-            if (maybe_promise(res) && (res.then(function(r) { c(r) }) || true))
-                return promise || (promise = has_promise() ? new Promise(function(rs) { resolve = rs; }) : { then: function(rs) { resolve = rs; } })
+            if (unpack_promise(res, c)) return promise || (promise = has_Promise() ? new Promise(function(rs) { resolve = rs; }) : { then: function(rs) { resolve = rs; } });
 
             if (i == fns.length) {
                 if (!promise) return res;
@@ -287,7 +296,7 @@
             // 비동기일 경우
             try { fns[i++].apply(context, P.trim(res).concat(function() { return c(TO_R(arguments)); })); }
             catch(e) { c(ERR(e)); }
-            return promise || (promise = has_promise() ? new Promise(function(rs) { resolve = rs; }) : { then: function(rs) { resolve = rs; } });
+            return promise || (promise = has_Promise() ? new Promise(function(rs) { resolve = rs; }) : { then: function(rs) { resolve = rs; } });
         })(TO_R(args));
     }
 
