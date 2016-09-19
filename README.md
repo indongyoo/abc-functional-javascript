@@ -497,7 +497,32 @@ C([
 ```
 _*참고 - 실제 jQuery의 `$.get` 함수등은 `{ then: func.. }` 를 리턴하기 때문에 `CB`로 감싸는 방식으로 구현할 필요 없습니다._
 
-
+```javascript
+/* B를 감싸서 함수를 만들어두면 아래와 같이도 사용할 수 있습니다. 비동기 함수를 아래와 같이도 사용할 수 있습니다. */
+function sum(a, b, cb) {
+    delay(function() {
+        cb(a + b);
+    });
+}
+function minus(a, b, cb) {
+    delay(function() {
+        cb(a - b);
+    });
+}
+function square(a, cb) {
+    delay(function() {
+        cb(a * a);
+    });
+}
+var sq = B(square);
+var m5 = B(X, 5, minus);
+var s = B(sum);
+var log = B(function() {
+    console.log.apply(console, arguments);
+});
+log(sq(m5(s(10, 10))));
+console.log('216 line');
+```
 
 ### 06. [Async-2(Promise)](https://github.com/marpple/abc-functional-javascript/blob/master/example/06.%20Async-2%20(Promise).html)
 abcjs는 Promise가 필요 없지만 `.then`을 리턴하는 함수의 비동기 제어를 지원합니다.

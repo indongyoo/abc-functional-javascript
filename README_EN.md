@@ -465,6 +465,32 @@ C([
 ]);
 ```
 
+```javascript
+function sum(a, b, cb) {
+    delay(function() {
+        cb(a + b);
+    });
+}
+function minus(a, b, cb) {
+    delay(function() {
+        cb(a - b);
+    });
+}
+function square(a, cb) {
+    delay(function() {
+        cb(a * a);
+    });
+}
+var sq = B(square);
+var m5 = B(X, 5, minus);
+var s = B(sum);
+var log = B(function() {
+    console.log.apply(console, arguments);
+});
+log(sq(m5(s(10, 10))));
+console.log('216 line');
+```
+
 
 ### 06. [Async-2(Promise)](https://github.com/marpple/abc-functional-javascript/blob/master/example/06.%20Async-2%20(Promise).html)
 abcjs supports Promise.
