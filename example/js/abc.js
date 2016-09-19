@@ -97,10 +97,10 @@
         };
     };
 
+    var c_if = IF(function() { return arguments.length == 3 }, R).ELSE(B.all(_.rest, B.V('0'), P1));
+    var b_if = IF(function() { return arguments.length > 1 }, R).ELSE(B.all(_.rest, B.V('0')));
     B.reduce = function(iter) {
-        var pred = iter == null ? IF(function() { return arguments.length == 3 }, R).ELSE(B.all(_.rest, B.V('0'), P1)) :
-            IF(function() { return arguments.length > 1 }, R).ELSE(B.all(_.rest, B.V('0')));
-        return B([pred,
+        return B([iter == null ? c_if : b_if,
                 B(function(result, list, keys, i, res, tmp, args) {     // body
                     return i == 0 ? args[0] : res;
                 },
