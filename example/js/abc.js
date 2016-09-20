@@ -5,6 +5,7 @@
 
 !function(G) {
     var _ = respect_underscore({}), window = typeof window != 'object' ? G : window;
+    _.isEqual = _.isEqual || function(a, b) { return a===b; };
 
     F.A = window.A = A; // thisless apply
     F.B = window.B = B; // thisless bind, like underscore partial
@@ -128,8 +129,6 @@
             base_loop_fn);
     };
 
-
-
     B.filter = function(iter) {
         return B(
             function(result, list, keys, i, res) {  // body
@@ -222,6 +221,8 @@
         });
     };
 
+    //B.find_index(ary, predicate, context)
+
     function base_loop_fn_base_args(list, keys, i) {
         var key = keys ? keys[i] : i;
         return [list[key], key, list];
@@ -238,15 +239,17 @@
         var result = [];
         var tmp = [];
 
+        var resolve = null;
         return (function f(res) {
             res = body(result, list, keys, i, res, tmp, args);
 
-            if (end_q(res)) return end(list, keys, i);
-            if (i == length) return complete(result, list, res);
+            if (end_q(res)) return resolve ? resolve(end(list, keys, i)) : end(list, keys, i);
+            if (i == length) return resolve ? resolve(complete(result, list, res)) : complete(result, list, res);
 
-            return A(params(list, keys, i++, res).concat(args), [iter_or_predi, function() {
-                return f(arguments.length == 1 ? arguments[0] : TO_R(arguments));
-            }], context);
+            var res2 = A(params(list, keys, i++, res).concat(args), iter_or_predi, context);
+            if (!maybe_promise(res2)) return f(res2);
+            res2.then(function(res) { f(res) });
+            return resolve || C(CB(function(cb) { resolve = cb; }));
         })();
     }
 
@@ -265,10 +268,13 @@
         var is_r = IS_R(res);
         return (function u(i, res, length) {
             if (i == length) { has_promise && callback(is_r ? res : res[0]); return; }
-            return maybe_promise(res[i]) && (has_promise = true) ? (res[i].then((function(i) { return function(v) {
-                res[i] = v;
-                u(i+1, res, length);
-            } })(i))) && true : u(i+1, res, length);
+            return maybe_promise(res[i]) && (has_promise = true) ? (function(i) {
+                res[i].then(function(v) {
+                    res[i] = v;
+                    u(i+1, res, length);
+                });
+                return true;
+            })(i) : u(i+1, res, length);
         })(0, (res = is_r ? res : [res]), res.length);
     }
 
@@ -276,7 +282,8 @@
         var context = this;
         var args = _.toArray(arguments);
         if (!_.isArray(args[args.length-1])) args[args.length-1] = [args[args.length-1]];
-        var fns = _.flatten(args.pop());
+         var fns = _.flatten(args.pop());
+        //var fns = C.map(_.flatten(args.pop()), function(v) { return _.isFunction(v) ? v : B(v, X, _.isEqual) });
         if (args.length == 1 && IS_R(args[0])) args = args[0];
 
         var i = 0, promise = null, resolve = null;
@@ -299,9 +306,10 @@
             } catch(e) { return c(ERR(e)); }
 
             // 비동기일 경우
+            promise || (promise = has_Promise() ? new Promise(function(rs) { resolve = rs; }) : { then: function(rs) { resolve = rs; } });
             try { fns[i++].apply(context, P.trim(res).concat(function() { return c(TO_R(arguments)); })); }
             catch(e) { c(ERR(e)); }
-            return promise || (promise = has_Promise() ? new Promise(function(rs) { resolve = rs; }) : { then: function(rs) { resolve = rs; } });
+            return promise;
         })(TO_R(args));
     }
 
@@ -472,12 +480,13 @@
     function I(v) { return v; }
 
     function IF(predicate, fn) {
-        if (!_.isFunction(predicate)) predicate = (function(predicate) { return function(val) { return val === predicate; } })(predicate);
+        //if (!_.isFunction(predicate))
+        //    predicate = (function(predicate) { return function(val) { return _.isEqual(val, predicate); } })(predicate);
         var store = [fn ? [predicate, fn] : [I, predicate]];
 
         return _.extend(IF, {
             ELSEIF: function (predicate, fn) {
-                if (!_.isFunction(predicate)) predicate = (function(predicate) { return function(val) { return val === predicate; } })(predicate);
+                //if (!_.isFunction(predicate)) predicate = (function(predicate) { return function(val) { return _.isEqual(val, predicate); } })(predicate);
                 return store.push(fn ? [predicate, fn] : [I, predicate]) && IF; },
             ELSE: function (fn) { return store.push([J(true), fn]) && IF; } });
 
