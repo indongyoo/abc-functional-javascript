@@ -175,7 +175,15 @@ var r1 = C(1, 2, [
 console.log(r1);
 // 61
 ```
+arguments `1,2` is passed into `sum`.
 
+And the result of `sum` is passed to `square`, and so on ;
+
+The result of function is passed as an arugument of next function.
+
+Finally, the returned value of the last function will be the result of `C` execution.
+
+Through `A`, You can use Pipeline pattern with array and arguments object.
 ```javascript
 A([1, 2], [
     sum,
@@ -205,8 +213,6 @@ var r3 = f1(1, 2);
 console.log(r3);
 // 61
 ```
-
-
 With `X`.
 ```javascript
 function minus(a, b) {
