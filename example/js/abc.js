@@ -25,6 +25,7 @@
     F.U = window.U = U; // _.noop, return undefined
     F.V = window.V = V; // get value with string
     F.X = window.X = new Object();
+    F.BD = window.BD = BD;
 
     function has_Promise() { return has_Promise.__cache || (has_Promise.__cache = !!V(window, 'Promise.prototype.then')); }
 
@@ -339,18 +340,21 @@
     D.f = D.false = J(false);
     D.to_array = _.toArray;
 
-    // BD를 전역으로 만들어주면 D.is를 지울 것! => 당연히 아래에 사용된 D.is 는 BD.is로 바꿔줄 것!
-    BD.is = D.is = function(b) { return B([D.arr_or_p_to_array, B.find(function(v){ return b != v; }), function(v) { return v === void 0; }]); };
-    BD.isnt = D.isnt = function(b) { return B([D.arr_or_p_to_array, B.find(function(v) { return b == v; }), D.is(void 0)]); };
+    BD.is = function(a) {
+      return function(arr) {
+        return _.findIndex(_.isArray(arr) ? arr : _.toArray(arguments), function(v) { return a !== v; }) === -1;
+      };
+    };
+    BD.isnt = function(a) {
+      return function(arr) {
+        return _.findIndex(_.isArray(arr) ? arr : _.toArray(arguments), function(v) { return a === v; }) === -1;
+      };
+    };
 
     D.not = function(v) { return !v; };
-    D.notnot = function(v) { return !!v; };
-
+    D.nnot = function(v) { return !!v; };
     D.and = function(v) { return !!(v && _.findIndex(arguments, function(v) { return !v; }) === -1); };
-    // D.and = IF([P, B.find_i(D.not), '===-1']).ELSE(D.f);
-    // D.and = IF([P, B(X, D.not, _.findIndex), BD.eq(-1)]).ELSE(J(false));
-
-    D.or = B([P, B.find(I), D.notnot]);
+    D.or = B([P, B.find(I), D.nnot]);
 
     D.add = B([D.arr_or_p_to_array = IF(_.isArray, I).ELSE([P, D.to_array]), B.reduce(function(a, b) { return a + b; })]);
     D.sub = B([D.arr_or_p_to_array, B.reduce(function(a, b) { return a - b; })]);
@@ -362,14 +366,8 @@
     D.iadd = B([D.parse_int, D.add]);
     D.isub = B([D.parse_int, D.sub]);
 
-    D.eq = B([D.arr_or_p_to_array, B.find(function(v,i,a) { return a[0] != v; }), D.is(void 0)]);
-    // D.eq = B([D.arr_or_p_to_array, B.find_i(function(v,i,a) { return a[0] != v; }), BD.is(-1)]); // find_i가 구현되면 사용할 함수 => 위 함수는 제거
-
-    D.seq = function(arr) {
-      var args =  _.isArray(arr) ? arr : D.to_array(arguments);
-      return D.is(-1)(_.findIndex(args, function(v) { return args[0] !== v; }));
-    };
-    // D.seq = B([D.arr_or_p_to_array, B.find_i(function(v,i,a) { return a[0] !== v; }), BD.is(-1)]); // find_i가 구현되면 사용할 함수 => 위 함수는 제거
+    D.eq = B([D.arr_or_p_to_array, B(X, function(v,i,a) { return a[0] != v; }, _.findIndex), BD.is(-1)]);
+    D.seq = B([D.arr_or_p_to_array, B(X, function(v,i,a) { return a[0] !== v; }, _.findIndex), BD.is(-1)]);
 
     D.neq = B([D.eq, D.not]);
     D.sneq = B([D.seq, D.not]);
