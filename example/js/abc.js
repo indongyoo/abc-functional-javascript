@@ -310,22 +310,29 @@
 
     function D() {}
 
-    D.to_array = _.toArray;
-    D.not = _.negate(I);
-    // D.t = D.true = J(true);
-    // D.f = D.false = J(false);
     // G['=== 0']= G['===0'] = D.is_zero = function(v) { return v === 0; };
     // G['=== -1']= G['===-1'] = function(v) { return v === -1; };
 
+    D.t = D.true = J(true);
+    D.f = D.false = J(false);
+    D.to_array = _.toArray;
+
+    D.not = function(v) { return !v; };
     D.and = function(v) { return !!(v && _.findIndex(arguments, function(v) { return !v; }) === -1); };
     // D.and = IF([P, B.find_i(D.not), '===-1']).ELSE(D.f);
     // D.and = IF([P, B(X, D.not, _.findIndex), BD.eq(-1)]).ELSE(J(false));
+    D.or = B([P, B.find(I), function(v) { return v !== void 0; }]);
 
-    D.or = B([P, B.find(I), _.negate(function(v) { return v === void 0; })]);
+    D.add = B([D.arr_or_p_to_array = IF(_.isArray, I).ELSE([P, D.to_array]), B.reduce(function(a, b) { return a + b; })]);
+    D.sub = B([D.arr_or_p_to_array, B.reduce(function(a, b) { return a - b; })]);
+
+    D.parse_int = B([D.arr_or_p_to_array, B.map(function(v) { return parseInt(v); })]);
+    D.iadd = B([D.parse_int, D.add]);
+    D.isub = B([D.parse_int, D.sub]);
 
     D.eq = function(arr) {
       var args = _.isArray(arr) ? arr : D.to_array(arguments);
-      return (C.find(args, function(val) { return args[0] != val; })) === void 0;
+      return (_.findIndex(args, function(v) { return args[0] != v; })) === -1;
     };
 
     D.seq = function(arr) {
@@ -334,26 +341,8 @@
       return flag;
     };
 
-    D.neq = _.negate(D.eq);
-    D.sneq = _.negate(D.seq);
-
-    D.add = function(arr) {
-      var args = _.isArray(arr) ? arr : _.toArray(arguments);
-      return args.reduce(function(a,b) { return a + b; });
-    };
-
-    D.sub = function(arr) {
-      var args = _.isArray(arr) ? arr : _.toArray(arguments);
-      return args.reduce(function(a,b) { return a - b; });
-    };
-
-    D.parseInt = function(arr) {
-      var args = _.isArray(arr) ? arr : _.toArray(arguments);
-      return C.map(args, function(v) { return parseInt(v); });
-    };
-
-    D.iadd = B([D.parseInt, D.add]);
-    D.isub = B([D.parseInt, D.sub]);
+    D.neq = function() { return !A(arguments, D.eq); };
+    D.sneq = function() { return !A(arguments, D.seq); };
 
 
     function F(nodes) {
@@ -775,12 +764,6 @@ function respect_underscore() {
     _.uniqueId = function(prefix) {
         var id = ++idCounter + '';
         return prefix ? prefix + id : id;
-    };
-
-    _.negate = function(predicate) {
-        return function() {
-            return !predicate.apply(this, arguments);
-        };
     };
 
     return _;
