@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>abcjs - this</title>
+</head>
+<body>
+<script src="https://cdn.jsdelivr.net/bluebird/latest/bluebird.js"></script>
+<script src="http://momentjs.com/downloads/moment.js"></script>
+
+<script src="js/underscore.js"></script>
+<script src="js/jquery.js"></script>
+<script src="js/abc.js"></script>
+
+<script>
+
+    /*
+    * A, B, C 모두 this가 주어진다면 파이프라인안의 모든 함수에서 this를 이어줍니다.
+    * */
+
+    /*
+    * 1. A 함수로 this 전달하기
+    * A 함수에서는 마지막 인자로 this를 받을 수 있습니다.
+    * */
+    var r1 = A([1, 2], [
+        function(a, b) {
+            return a + b + this.c;
+        },
+        function(a) {
+            return a * this.c;
+        }
+    ], { c: 5 });
+    console.log(r1); // 40
+
+
+    /*
+    * 2. B 함수로 this 전달하기
+    * B 함수는 함수를 리턴하는 함수입니다. B를 살행하여 리턴된 함수에 context를 넘겨주셔야합니다.
+    * _.bind나 Function.prototype.bind 처럼 미리 this를 bind하는 기능은 없습니다.
+    * 자바스크립트에서의 this를 잘 이해하고 있다면 전혀 어렵지 않습니다.
+    * 아래와 같은 케이스가 가능하겠습니다. 메소드 정의를 할때 유용합니다.
+    * */
+    var user1 = {
+        firstName: "jamm",
+        lastName: "Co",
+        getName1: B(function() {
+            return this.lastName + ' ' + this.firstName;
+        }),
+        getName2: B([
+            B.all(function() {
+                return this.firstName;
+            }, function() {
+                return this.lastName;
+            }),
+            function(a, b) {
+                return a + ' ' + b;
+            }
+        ])
+    };
+
+    console.log(user1.getName1()); // Co jamm
+    console.log(user1.getName2()); // jamm Co
+
+    var same_age_friends = B([
+        function() {
+            return this.friends;
+        },
+        B.filter(function(friend) { return friend.age == this.me.age })
+    ]);
+
+    var r2 = same_age_friends.call({
+        friends: [
+            { id: 1, name: "a", age: 10 },
+            { id: 2, name: "b", age: 12 },
+            { id: 3, name: "c", age: 12 },
+            { id: 4, name: "d", age: 13 }
+        ],
+        me: { id: 5, name: "e", age: 12 }
+    });
+
+    console.log(JSON.stringify(r2)); // [{"id":2,"name":"b","age":12},{"id":3,"name":"c","age":12}]
+
+    /*
+    * 3. C 함수로 this 전달하기
+    * */
+    var r3 = C.call({ c: 5 }, 1, 2, [
+        function(a, b) {
+            return a + b + this.c;
+        },
+        function(a) {
+            return a * this.c;
+        }
+    ]);
+    console.log(r3); // 40
+
+
+    /*
+    * 4. with jQuery
+    * */
+    $(function() {
+        $('button').click(B([
+            CB(function(e, next) {
+                return $(this).animate({
+                    'margin-left': 300
+                }, 1000, next);
+            }),
+            function() {
+                $(this).text('finish');
+            }
+        ]));
+    });
+    // go --------------> finish
+
+
+
+</script>
+
+<button type="button">go</button>
+
+</body>
+</html>
