@@ -499,6 +499,7 @@ _*참고 - 실제 jQuery의 `$.get` 함수등은 `{ then: func.. }` 를 리턴�
 
 ```javascript
 /* B를 감싸서 함수를 만들어두면 아래와 같이도 사용할 수 있습니다. 비동기 함수를 아래와 같이도 사용할 수 있습니다. */
+CB(sum, minus, square);
 function sum(a, b, cb) {
     delay(function() {
         cb(a + b);
