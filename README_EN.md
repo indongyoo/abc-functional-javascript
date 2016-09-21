@@ -750,8 +750,8 @@ C(users, [
 ```
 
 Functions for Array and Object.
-`C.each`, `C.map`, `C.reduce`, `C.filter`, `C.reject`, `C.find`, `C.some`, `C.every`, `C.uniq`,
-`B.each`, `map`, `B.reduce`, `B.filter`, `B.reject`, `B.find`, `B.some`, `B.every`, `B.uniq`
+`C.each`, `C.map`, `C.reduce`, `C.filter`, `C.reject`, `C.find`, `C.find_index`, `C.some`, `C.every`, `C.uniq`,
+`B.each`, `map`, `B.reduce`, `B.filter`, `B.reject`, `B.find`, `B.find_index`, `B.some`, `B.every`, `B.uniq`
 
 
 
