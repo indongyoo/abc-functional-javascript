@@ -172,7 +172,7 @@
             base_loop_fn);
     };
 
-    B.find_index = B.find_i = function(iter) {
+    B.find_i = B.find_index = function(iter) {
         return B(
             P4, // body
             I, // end_q
@@ -348,7 +348,7 @@
     C.uniq = B.uniq(null);
     C.all = F("TODO");
     C.div = F("TODO");
-    C.find_index = C.find_i = B.find_index(null);
+    C.find_i = C.find_index = B.find_index(null);
 
     function D() {}
     D.to_array = function(obj) { return _.toArray(arguments.length > 1 ? arguments : obj); };
