@@ -7,24 +7,26 @@
     var _ = respect_underscore({}), window = typeof window != 'object' ? G : window;
     _.isEqual = _.isEqual || function(a, b) { return a===b; };
 
-    F.A = window.A = A; // thisless apply
-    F.B = window.B = B; // thisless bind, like underscore partial
+    F.A = window.A = A; // similar to apply
+    F.B = window.B = B; // thisless bind, similar to _.partial
     F.B2 = window.B2 = B2; // 우리만씀
     F.C = window.C = C; // thisless call
     F.E = window.E = _.extend;
+
     F.F = window.F = F; // find function
     F.H = window.H = H; // HTML Template Engine
     F.G = window.G = G; // window or global
+
     F.I = window.I = I; // _.identity
     F.J = window.J = J; // _.always
-    F.M = window.M = M; // for method
-    F.N = window.N; // _.always(null),
-    F.P = window.P = P; // parameters, arguments
+
+    B.method = B.m = F.M = window.M = M; // for method
+    C.args = F.P = window.P = P; // parameters, arguments
     F.R = window.R = R; // like multiple return in Go Lang. return x, y; => return R(x, y)
     F.S = window.S = S; // String Template Engine
     F.TODO = window.TODO;
-    F.U = window.U = U; // _.noop, return undefined
-    F.V = window.V = V; // get value with string
+    C.u = C.noop = F.U = window.U = U; // _.noop, return undefined
+    C.v = F.V = window.V = V; // get value with string
     F.X = window.X = new Object();
 
     function has_Promise() { return has_Promise.__cache || (has_Promise.__cache = !!V(window, 'Promise.prototype.then')); }
@@ -270,8 +272,8 @@
         })();
     }
 
-    F.CB = window.CB = B([P, B.map([I, B(X, { _ABC_is_cb: true }, E)])]);
-    F.JCB = window.JCB = B(X, { _ABC_just_cb: true }, E);
+    F.CB = window.CB = B([P, B.map([I, B(X, { _ABC_is_cb: true }, _.extend)])]);
+    F.JCB = window.JCB = B(X, { _ABC_just_cb: true }, _.extend);
 
     function IS_R(arg) { return _.isArray(arg) && arg._ABC_is_returns; }
     function IS_ERR(err) {
@@ -331,12 +333,12 @@
 
     function ERR(err, data) {
         setTimeout(function() { err._ABC_caught || console.error(err); }, 500);
-        return err = E(err.constructor == Error ? err : new Error(err), data, { _ABC_is_err: true });
+        return err = _.extend(err.constructor == Error ? err : new Error(err), data, { _ABC_is_err: true });
     }
     F.ERR = window.ERR = ERR;
 
     F.CATCH = window.CATCH = function (f) {
-        return E(function(err) { return (err._ABC_caught = true) && f.apply(this, arguments); },
+        return _.extend(function(err) { return (err._ABC_caught = true) && f.apply(this, arguments); },
             { _ABC_is_catch: true, _ABC_is_cb: f._ABC_is_cb, _ABC_just_cb: f._ABC_just_cb });
     };
 
@@ -543,11 +545,7 @@
     J.t = J.true = J(true);
     J.f = J.false = J(false);
 
-    function M(obj, method) {
-        return obj[method].apply(obj, _.rest(arguments, 2));
-    }
-
-    F.N = window.N = J(null);
+    function M(obj, method) { return obj[method].apply(obj, _.rest(arguments, 2)); }
 
     function P() { return arguments; }
 
