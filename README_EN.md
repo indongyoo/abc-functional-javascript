@@ -190,7 +190,11 @@ A([1, 2], [
         // 61
     }]);
 ```
+Through `B`, you can build ‘big’ function by gathering ‘small’ functions.
 
+Or, you can split ‘big’ function into small unit.
+
+By assembling with small functions, code reusability increases.
 
 ```javascript
 var f1 = B([
@@ -206,7 +210,10 @@ var r3 = f1(1, 2);
 console.log(r3);
 // 61
 ```
-With `X`.
+In the combination of functions,
+
+with `X`, it can be possible to set a position of argument that will be populated after an execution.
+
 ```javascript
 function minus(a, b) {
     return a - b;
