@@ -11,7 +11,6 @@
     F.B = window.B = B; // thisless bind, like underscore partial
     F.B2 = window.B2 = B2; // 우리만씀
     F.C = window.C = C; // thisless call
-    F.D = window.D = D; // Data
     F.E = window.E = _.extend;
     F.F = window.F = F; // find function
     F.H = window.H = H; // HTML Template Engine
@@ -27,7 +26,6 @@
     F.U = window.U = U; // _.noop, return undefined
     F.V = window.V = V; // get value with string
     F.X = window.X = new Object();
-    F.BD = window.BD = BD;
 
     function has_Promise() { return has_Promise.__cache || (has_Promise.__cache = !!V(window, 'Promise.prototype.then')); }
 
@@ -53,6 +51,7 @@
     }
     function B() { return base_b(arguments); }
     function B2() { return base_b(arguments, true); }
+    function B3() { return B(C.to_array(arguments)); }
 
     function base_bp(next, idx) {
         if (arguments.length == 2) return function () { return arguments[idx] };
@@ -238,6 +237,8 @@
         });
     };
 
+    B.is = function(a) { return B3(C.arr_or_p_to_array, B.find_i(function(v) { return a !== v; }), function(v) { return v === -1; }); };
+    B.isnt = function(a) { return B3(C.arr_or_p_to_array, B.find_i([I, B.is(a)]), B.is(-1)); };
 
     function base_loop_fn_base_args(list, keys, i) {
         var key = keys ? keys[i] : i;
@@ -352,41 +353,29 @@
     C.all = F("TODO");
     C.div = F("TODO");
     C.find_index = C.find_i = B.find_index(null);
+    C.to_array = _.toArray;
 
-    /* D start */
-    function D() {}
-    function BD() {}
-    // G['=== 0']= G['===0'] = D.is_zero = function(v) { return v === 0; };
-    // G['=== -1']= G['===-1'] = function(v) { return v === -1; };
+    C.add = B3(C.arr_or_p_to_array = IF(_.isArray, I).ELSE([P, C.to_array]), B.reduce(function(a, b) { return a + b; }));
+    C.sub = B3(C.arr_or_p_to_array, B.reduce(function(a, b) { return a - b; }));
+    C.mod = B3(C.arr_or_p_to_array, B.reduce(function(a, b) { return a % b; }));
+    C.mul = B3(C.arr_or_p_to_array, B.reduce(function(a, b) { return a * b; }));
+    C.div = B3(C.arr_or_p_to_array, B.reduce(function(a, b) { return a / b; }));
 
-    D.t = D.true = J(true);
-    D.f = D.false = J(false);
-    D.to_array = _.toArray;
-    
-    D.add = B([D.arr_or_p_to_array = IF(_.isArray, I).ELSE([P, D.to_array]), B.reduce(function(a, b) { return a + b; })]);
-    D.sub = B([D.arr_or_p_to_array, B.reduce(function(a, b) { return a - b; })]);
-    D.mod = B([D.arr_or_p_to_array, B.reduce(function(a, b) { return a % b; })]);
-    D.mul = B([D.arr_or_p_to_array, B.reduce(function(a, b) { return a * b; })]);
-    D.div = B([D.arr_or_p_to_array, B.reduce(function(a, b) { return a / b; })]);
+    C.parse_int = function(v) { return parseInt(v, 10); };
+    C.parse_int_all = B3(C.arr_or_p_to_array, B.map(C.parse_int));
+    C.iadd = B3(C.parse_int_all, C.add);
+    C.isub = B3(C.parse_int_all, C.sub);
 
-    D.parse_int = B([D.arr_or_p_to_array, B.map(function(v) { return parseInt(v); })]);
-    D.iadd = B([D.parse_int, D.add]);
-    D.isub = B([D.parse_int, D.sub]);
+    C.not = function(v) { return !v; };
+    C.nnot = function(v) { return !!v; };
 
-    BD.is = function(a) { return B([D.arr_or_p_to_array, B.find_i(function(v) { return a !== v; }), function(v) { return v === -1; }]); };
-    BD.isnt = function(a) { return B([D.arr_or_p_to_array, B.find_i([I, BD.is(a)]), BD.is(-1)]); };
+    C.and = B3(C.arr_or_p_to_array, B.find_i(C.not), B.is(-1));
+    C.or = B3(C.arr_or_p_to_array, B.find(I), C.nnot);
 
-    D.not = function(v) { return !v; };
-    D.nnot = function(v) { return !!v; };
-
-    D.and = B([D.arr_or_p_to_array, B.find_i(D.not), BD.is(-1)]);
-    D.or = B([D.arr_or_p_to_array, B.find(I), D.nnot]);
-
-    D.eq = B([D.arr_or_p_to_array, B.find_i(function(v,i,a) { return a[0] != v; }), BD.is(-1)]);
-    D.seq = B([D.arr_or_p_to_array, B.find_i(function(v,i,a) { return a[0] !== v; }), BD.is(-1)]);
-
-    D.neq = B([D.eq, D.not]);
-    D.sneq = B([D.seq, D.not]);
+    C.eq = B3(C.arr_or_p_to_array, B.find_i(function(v,i,a) { return a[0] != v; }), B.is(-1));
+    C.seq = B3(C.arr_or_p_to_array, B.find_i(function(v,i,a) { return a[0] !== v; }), B.is(-1));
+    C.neq = B3(C.eq, C.not);
+    C.sneq = B3(C.seq, C.not);
 
 
     function F(nodes) {
@@ -548,7 +537,10 @@
     }
     F.IF = window.IF = IF;
 
-    function J(v) { return function() { return v; } }
+    function J(v) { return function() { return v; }; }
+
+    J.t = J.true = J(true);
+    J.f = J.false = J(false);
 
     function M(obj, method) {
         return obj[method].apply(obj, _.rest(arguments, 2));
