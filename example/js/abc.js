@@ -173,6 +173,20 @@
             base_loop_fn);
     };
 
+    B.find_i = B.find_index = function(iter) {
+        return B(
+            P4, // body
+            I, // end_q
+            function(list, keys, i) {
+                return keys ? keys[i-1] : i-1;
+            }, // end
+            J(-1), // complete
+            iter, // iter_or_predi
+            base_loop_fn_base_args,
+            base_loop_fn
+        )
+    };
+
     B.some = function(iter) {
         return B(
             P4,
@@ -194,7 +208,6 @@
             base_loop_fn_base_args,
             base_loop_fn);
     };
-
 
     B.uniq = function(iter) {
         iter = _.isString(iter) ? (function(key) { return function(val) { return val[key]; } })(iter) : (iter || I);
@@ -222,7 +235,6 @@
         });
     };
 
-    //B.find_index(ary, predicate, context)
 
     function base_loop_fn_base_args(list, keys, i) {
         var key = keys ? keys[i] : i;
@@ -337,6 +349,7 @@
     C.uniq = B.uniq(null);
     C.all = F("TODO");
     C.div = F("TODO");
+    C.find_i = C.find_index = B.find_index(null);
 
     /* D start */
     function D() {}
