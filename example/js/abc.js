@@ -54,7 +54,7 @@
     function B3() { return B(C.to_array(arguments)); }
 
     function base_bp(next, idx) {
-        if (arguments.length == 2) return function () { return arguments[idx] };
+        if (arguments.length == 2) return function () { return arguments[idx]; };
         var idxs = _.rest(arguments);
         return function() {
             return next(C.map(idxs, arguments, function(v, i, l, args) { return args[v]; }));
@@ -101,8 +101,8 @@
         };
     };
 
-    var c_if = IF(function() { return arguments.length == 3 }, R).ELSE(B.all(_.rest, B.V('0'), P1));
-    var b_if = IF(function() { return arguments.length > 1 }, R).ELSE(B.all(_.rest, B.V('0')));
+    var c_if = IF(function() { return arguments.length == 3; }, R).ELSE(B.all(_.rest, B.V('0'), P1));
+    var b_if = IF(function() { return arguments.length > 1; }, R).ELSE(B.all(_.rest, B.V('0')));
     B.reduce = function(iter) {
         return B([iter == null ? c_if : b_if,
                 B(function(result, list, keys, i, res, tmp, args) {     // body
@@ -186,7 +186,7 @@
             iter, // iter_or_predi
             base_loop_fn_base_args,
             base_loop_fn
-        )
+        );
     };
 
     B.some = function(iter) {
@@ -203,7 +203,7 @@
     B.every = function(iter) {
         return B(
             function(result, list, keys, i, res) { return i == 0 ? true : res; },   // body
-            function(v) { return !v }, // end_q
+            function(v) { return !v; }, // end_q
             J(false), // end
             J(true), // complete
             iter,
@@ -212,7 +212,7 @@
     };
 
     B.uniq = function(iter) {
-        iter = _.isString(iter) ? (function(key) { return function(val) { return val[key]; } })(iter) : (iter || I);
+        iter = _.isString(iter) ? (function(key) { return function(val) { return val[key]; }; })(iter) : (iter || I);
         return B(
             function(result, list, keys, i, res, tmp) { // body
                 if (i == 0) return;
@@ -265,7 +265,7 @@
 
             var res2 = A(params(list, keys, i++, res).concat(args), iter_or_predi, context);
             if (!maybe_promise(res2)) return f(res2);
-            res2.then(function(res) { f(res) });
+            res2.then(function(res) { f(res); });
             return resolve || C(CB(function(cb) { resolve = cb; }));
         })();
     }
@@ -389,7 +389,7 @@
     var TAB_SIZE = 4;
     var TAB = "( {"+TAB_SIZE+"}|\\t)"; // "( {4}|\\t)"
     var TABS = TAB + "+";
-    var number_of_tab = function(a) { return a.match(new RegExp("^"+TAB+"+"))[0].length/TAB_SIZE };
+    var number_of_tab = function(a) { return a.match(new RegExp("^"+TAB+"+"))[0].length/TAB_SIZE; };
 
     function H(var_names/*, source...*/) {
         return s.apply(null, [H, 'H', convert_to_html].concat(_.toArray(arguments)));
