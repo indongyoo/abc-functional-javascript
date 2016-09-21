@@ -760,8 +760,8 @@ C(users, [
 ```
 
 array, object, [object, object, object] 등을 편하게 다룰 수 있는 유용한 함수들입니다.
-`C.each`, `C.map`, `C.reduce`, `C.filter`, `C.reject`, `C.find`, `C.some`, `C.every`, `C.uniq`,
-`B.each`, `map`, `B.reduce`, `B.filter`, `B.reject`, `B.find`, `B.some`, `B.every`, `B.uniq`
+`C.each`, `C.map`, `C.reduce`, `C.filter`, `C.reject`, `C.find`, 'C.find_index', `C.some`, `C.every`, `C.uniq`,
+`B.each`, `map`, `B.reduce`, `B.filter`, `B.reject`, `B.find`, 'B.find_index', `B.some`, `B.every`, `B.uniq`
 
 
 
