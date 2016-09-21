@@ -170,7 +170,7 @@
                 return list[keys ? keys[i-1] : i-1];
             }, // end
             U, // complete
-            iter,   // iter_or_predi
+            iter,
             base_loop_fn_base_args,
             base_loop_fn);
     };
@@ -183,7 +183,7 @@
                 return keys ? keys[i-1] : i-1;
             }, // end
             J(-1), // complete
-            _.isFunction(iter) ? iter : function(v) { return v === iter}, // iter_or_predi
+            iter,
             base_loop_fn_base_args,
             base_loop_fn
         )
@@ -345,12 +345,12 @@
     C.filter = B.filter(null);
     C.reject = B.reject(null);
     C.find = B.find(null);
+    C.find_index = C.find_i = B.find_index(null);
     C.some = B.some(null);
     C.every = B.every(null);
     C.uniq = B.uniq(null);
     C.all = F("TODO");
     C.div = F("TODO");
-    C.find_index = C.find_i = B.find_index(null);
 
     function D() {}
     D.to_array = function(obj) { return _.toArray(arguments.length > 1 ? arguments : obj); };
