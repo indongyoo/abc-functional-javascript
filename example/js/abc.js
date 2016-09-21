@@ -493,8 +493,7 @@
     function I(v) { return v; }
 
     function IF(predicate, fn) {
-        //if (!_.isFunction(predicate))
-        //    predicate = (function(predicate) { return function(val) { return _.isEqual(val, predicate); } })(predicate);
+        //if (!_.isFunction(predicate)) predicate = (function(predicate) { return function(val) { return _.isEqual(val, predicate); } })(predicate);
         var store = [fn ? [predicate, fn] : [I, predicate]];
 
         return _.extend(IF, {
