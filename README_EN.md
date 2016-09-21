@@ -14,7 +14,7 @@ _abcjs is functional javascript library._
     - ....
   - It is available in the Web browser, Node JS.
   - You can control more easily the asynchronous function than 'Promise'.
-  - Async `each`, `map`, `reduce`, `filter`, `reject`, `find`, `some`, `every`, `uniq`.
+  - Async `each`, `map`, `reduce`, `filter`, `reject`, `find`, `find_index`, `some`, `every`, `uniq`.
   - HTML Template Engine like Jade.
   - abcjs is no dependencies on other libraries and it is a total of 750 lines.
   - _Respect Underscorejs!_
@@ -750,8 +750,8 @@ C(users, [
 ```
 
 Functions for Array and Object.
-`C.each`, `C.map`, `C.reduce`, `C.filter`, `C.reject`, `C.find`, `C.some`, `C.every`, `C.uniq`,
-`B.each`, `map`, `B.reduce`, `B.filter`, `B.reject`, `B.find`, `B.some`, `B.every`, `B.uniq`
+`C.each`, `C.map`, `C.reduce`, `C.filter`, `C.reject`, `C.find`, `C.find_index`, `C.some`, `C.every`, `C.uniq`,
+`B.each`, `map`, `B.reduce`, `B.filter`, `B.reject`, `B.find`, `B.find_index`, `B.some`, `B.every`, `B.uniq`
 
 
 

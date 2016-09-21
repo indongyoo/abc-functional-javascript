@@ -9,6 +9,7 @@
 
     F.A = window.A = A; // thisless apply
     F.B = window.B = B; // thisless bind, like underscore partial
+    F.B2 = window.B2 = B2; // 우리만씀
     F.C = window.C = C; // thisless call
     F.D = window.D = D; // Data
     F.E = window.E = _.extend;
@@ -36,8 +37,8 @@
 
     function A(args, func) { return C.apply(arguments[2] || this, _.toArray(args).concat([func])); }
 
-    function B() {
-        var args = _.toArray(arguments);
+    function base_b(args, is_bp2) {
+        args = _.toArray(args);
         if (!_.isArray(args[args.length-1])) args[args.length-1] = [args[args.length-1]];
         var fns = args.pop();
         return function() {
@@ -47,9 +48,11 @@
                 var idx = args3.indexOf(X);
                 args3[idx == -1 ? args3.length : idx] = arg2;
             }
-            return A(args3, fns, this);
+            return A(args3, fns, is_bp2 ? { args: args3, parent: this } : this);
         };
     }
+    function B() { return base_b(arguments); }
+    function B2() { return base_b(arguments, true); }
 
     function base_bp(next, idx) {
         if (arguments.length == 2) return function () { return arguments[idx] };
@@ -173,7 +176,7 @@
             base_loop_fn);
     };
 
-    B.find_i = B.find_index = function(iter) {
+    B.find_index = B.find_i = function(iter) {
         return B(
             P4, // body
             I, // end_q
@@ -295,7 +298,7 @@
         var context = this;
         var args = _.toArray(arguments);
         if (!_.isArray(args[args.length-1])) args[args.length-1] = [args[args.length-1]];
-         var fns = _.flatten(args.pop());
+         var fns = args.pop();
         //var fns = C.map(_.flatten(args.pop()), function(v) { return _.isFunction(v) ? v : B(v, X, _.isEqual) });
         if (args.length == 1 && IS_R(args[0])) args = args[0];
 
@@ -306,9 +309,8 @@
 
             if (i == fns.length) {
                 if (!promise) return res;
-                if (!IS_R(res)) res = [res];
                 // 혹시 모두 동기로 끝나버려 then_rs가 아직 안들어온 경우 안전하게 한번 기다려주고
-                return resolve ? resolve.apply(void 0, res) : setTimeout(function() { resolve && resolve.apply(void 0, res); });
+                return resolve ? resolve(res) : setTimeout(function() { resolve && resolve(res); });
             }
 
             if (!IS_R(res)) res = [res];
@@ -349,7 +351,7 @@
     C.uniq = B.uniq(null);
     C.all = F("TODO");
     C.div = F("TODO");
-    C.find_i = C.find_index = B.find_index(null);
+    C.find_index = C.find_i = B.find_index(null);
 
     /* D start */
     function D() {}
@@ -403,7 +405,6 @@
     function H(var_names/*, source...*/) {
         return s.apply(null, [H, 'H', convert_to_html].concat(_.toArray(arguments)));
     }
-
     H.each = function(var_names/*, source...*/) {
         return s_each.apply(null, [H].concat(_.toArray(arguments)));
     };
@@ -527,8 +528,7 @@
     function I(v) { return v; }
 
     function IF(predicate, fn) {
-        //if (!_.isFunction(predicate))
-        //    predicate = (function(predicate) { return function(val) { return _.isEqual(val, predicate); } })(predicate);
+        //if (!_.isFunction(predicate)) predicate = (function(predicate) { return function(val) { return _.isEqual(val, predicate); } })(predicate);
         var store = [fn ? [predicate, fn] : [I, predicate]];
 
         return _.extend(IF, {
