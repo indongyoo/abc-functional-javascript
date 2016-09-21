@@ -58,7 +58,7 @@
                 | foo bar\
                 | hello world'),
         $,
-        B.M('appendTo', 'body')]);
+        B.method('appendTo', 'body')]);
 
 
     hr();
@@ -81,7 +81,7 @@
                 .name {{user.name}}\
                 .age {{user.age}}'),
         $,
-        B.M('appendTo', 'body')]);
+        B.method('appendTo', 'body')]);
 
     hr();
 
@@ -97,13 +97,13 @@
             .body 내용: {{post.body}}\
             .created_at 시간: {{post.created_at}}'),
         $,
-        B.M('appendTo', 'body')]);
+        B.method('appendTo', 'body')]);
 
     hr();
 
     delete post.name;
 
-    window.moment_lll = B([moment, B.M('format', 'lll')]);
+    window.moment_lll = B([moment, B.method('format', 'lll')]);
 
     C(post, [
         H('post', '\
@@ -111,7 +111,7 @@
             .body 내용: {{{post.body}}}\
             .created_at 시간: {{moment_lll(post.created_at)}}'),
         $,
-        B.M('appendTo', 'body')]);
+        B.method('appendTo', 'body')]);
 
     hr();
 
@@ -141,7 +141,7 @@
                     }).join("");
                 },')}}}'),
         $,
-        B.M('appendTo', 'body')]);
+        B.method('appendTo', 'body')]);
 
     hr();
 
@@ -156,7 +156,7 @@
                     li {{i+1}}. {{song}}'),
                 ')}!'),
         $,
-        B.M('appendTo', 'body')]);
+        B.method('appendTo', 'body')]);
 
 
     hr();
@@ -186,7 +186,7 @@
                     li {{C(i, 1, sum)}}. {{song}}'), // delay
                 ')}}}'),
         $,
-        B.M('appendTo', 'body'), // 2초 뒤 렌더링
+        B.method('appendTo', 'body'), // 2초 뒤 렌더링
         function() {
             $("html, body").animate({ scrollTop: $(window).scrollTop() + $(window).height() });
         }]);

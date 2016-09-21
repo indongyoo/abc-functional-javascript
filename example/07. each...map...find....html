@@ -154,19 +154,6 @@
     * */
 
 
-var a = C([1,2,3],
-    B.map(function(v) {
-        return v;
-    })
-)
-    console.log(a, '=========');
-    C([1,2,3],
-            B.map(CB(function(v, i, l, cb) {
-                cb(v ,2);
-            }))
-    ).then(function(v) {
-        console.log(v)
-    })
 </script>
 
 </body>
