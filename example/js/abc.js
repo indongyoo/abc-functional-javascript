@@ -305,9 +305,8 @@
 
             if (i == fns.length) {
                 if (!promise) return res;
-                if (!IS_R(res)) res = [res];
                 // 혹시 모두 동기로 끝나버려 then_rs가 아직 안들어온 경우 안전하게 한번 기다려주고
-                return resolve ? resolve.apply(void 0, res) : setTimeout(function() { resolve && resolve.apply(void 0, res); });
+                return resolve ? resolve(res) : setTimeout(function() { resolve && resolve(res); });
             }
 
             if (!IS_R(res)) res = [res];
