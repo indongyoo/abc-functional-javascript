@@ -3,21 +3,14 @@ _abcjs is functional javascript library._
 
 
 ## Summary
-    - It can be used in Web browser and NodeJS.
-    - It supports asynchronous control simpler and handier than ‘Promise’ or ‘Monad’.
-    - Even if the function is ‘asynchronous’, abc.js can make a logic structure as we make a ‘synchronous’ function.
-    - There are functions which added the ‘asynchronous control’ feature : each, map, reduce, filter, reject, find, some, every, uniq
-    - abc.js provides a HTML template engine of which grammar and function is similar to Jade.
-    - abc.js provides functions which wrtie SQL query easier.
-    - The line of script file of abc.js is just 750 lines. Moreover, it doesn’t have a dependency to another javascript library.
-    - abc.js respect underscore.js concept!
-    - ....
-  - It is available in the Web browser, Node JS.
-  - You can control more easily the asynchronous function than 'Promise'.
-  - Async `each`, `map`, `reduce`, `filter`, `reject`, `find`, `find_index`, `some`, `every`, `uniq`.
-  - HTML Template Engine like Jade.
-  - abcjs is no dependencies on other libraries and it is a total of 750 lines.
-  - _Respect Underscorejs!_
+ - It can be used in Web browser and NodeJS.
+ - It supports asynchronous control simpler and handier than ‘Promise’ or ‘Monad’.
+ - Even if the function is ‘asynchronous’, abc.js can make a logic structure as we make a ‘synchronous’ function.
+ - There are functions which added the ‘asynchronous control’ feature : each, map, reduce, filter, reject, find, some, every, uniq
+ - abc.js provides a HTML template engine of which grammar and function is similar to Jade.
+ - abc.js provides functions which wrtie SQL query easier.
+ - The line of script file of abc.js is just 808 lines. Moreover, it doesn’t have a dependency to another javascript library.
+ - abc.js respect underscore.js concept!
 
 ## Table of Contents
  - [A (apply)](https://github.com/marpple/abc-functional-javascript/blob/master/README_EN.md#01-a)
