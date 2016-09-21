@@ -78,17 +78,11 @@
 
             function(a, b) { return R(a, b); }  // c, d (multiple results)
         ),
-        D.to_array,
+        P,
+        _.toArray,
         function(a) {
             console.log(a); // [6, 16, 1, 5]
         }]);
-
-
-    console.log(D.to_array(1, 2, 3, 4)); // [1, 2, 3, 4]
-    console.log(D.to_array({"0": 1, "1": 2})); // [1, 2]
-    (function() {
-        console.log(D.to_array(arguments)); // [1, 2, 3]
-    }) (1, 2, 3)
 
 
     /*

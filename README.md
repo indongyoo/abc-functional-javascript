@@ -1176,17 +1176,11 @@ C(1, 5, [
 
         function(a, b) { return R(a, b); }  // c, d (multiple results)
     ),
-    D.to_array,
+    P,
+    _.toArray,
     function(a) {
         console.log(a); // [6, 16, 1, 5]
     }]);
-
-
-console.log(D.to_array(1, 2, 3, 4)); // [1, 2, 3, 4]
-console.log(D.to_array({"0": 1, "1": 2})); // [1, 2]
-(function() {
-    console.log(D.to_array(arguments)); // [1, 2, 3]
-}) (1, 2, 3)
 ```
 Pipeline 패턴으로 코딩을 하다보면 `B.all`과 `B.div` 같은 일을 하고 싶을때가 많습니다.
 `B.all`과 `B.div`에게 넘겨진 함수 혹은 Pipeline들은 하나씩 차례대로 실행됩니다.
