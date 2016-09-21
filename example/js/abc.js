@@ -38,7 +38,6 @@
 
     function base_b(args, is_bp2) {
         args = _.toArray(args);
-        if (!_.isArray(args[args.length-1])) args[args.length-1] = [args[args.length-1]];
         var fns = args.pop();
         return function() {
             var args3 = _.clone(args);
@@ -297,7 +296,7 @@
         var context = this;
         var args = _.toArray(arguments);
         if (!_.isArray(args[args.length-1])) args[args.length-1] = [args[args.length-1]];
-         var fns = args.pop();
+         var fns = _.flatten(args.pop());
         //var fns = C.map(_.flatten(args.pop()), function(v) { return _.isFunction(v) ? v : B(v, X, _.isEqual) });
         if (args.length == 1 && IS_R(args[0])) args = args[0];
 
@@ -309,7 +308,8 @@
             if (i == fns.length) {
                 if (!promise) return res;
                 // 혹시 모두 동기로 끝나버려 then_rs가 아직 안들어온 경우 안전하게 한번 기다려주고
-                return resolve ? resolve(res) : setTimeout(function() { resolve && resolve(res); });
+                if (!IS_R(res)) res = [res];
+                return resolve ? resolve.apply(void 0, res) : setTimeout(function() { resolve && resolve.apply(void 0, res); });
             }
 
             if (!IS_R(res)) res = [res];
