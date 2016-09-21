@@ -183,7 +183,7 @@
                 return keys ? keys[i-1] : i-1;
             }, // end
             J(-1), // complete
-            iter, // iter_or_predi
+            _.isFunction(iter) ? iter : function(v) { return v === iter}, // iter_or_predi
             base_loop_fn_base_args,
             base_loop_fn
         )
