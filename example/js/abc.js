@@ -340,19 +340,24 @@
 
     /* D start */
     function D() {}
-    function BD() {} // BD를 전역으로 만들어줘야 함
+    function BD() {}
     // G['=== 0']= G['===0'] = D.is_zero = function(v) { return v === 0; };
     // G['=== -1']= G['===-1'] = function(v) { return v === -1; };
 
+    D.log = function(v) { console.log(v); return v; };
     D.t = D.true = J(true);
     D.f = D.false = J(false);
     D.to_array = _.toArray;
 
+    // BD.is = function(a) { return B([D.arr_or_p_to_array, B(X, function(v) { return a !== v; }, _.findIndex), function(v) { return v === -1; }]); };
+    // BD.isnt = function(a) { return B([D.arr_or_p_to_array, B(X, function(v) { return a === v; }, _.findIndex), BD.is(-1)]); };
+
     BD.is = function(a) {
-      return function(arr) {
-        return _.findIndex(_.isArray(arr) ? arr : _.toArray(arguments), function(v) { return a !== v; }) === -1;
+       return function(arr) {
+         return _.findIndex(_.isArray(arr) ? arr : _.toArray(arguments), function(v) { return a !== v; }) === -1;
       };
     };
+
     BD.isnt = function(a) {
       return function(arr) {
         return _.findIndex(_.isArray(arr) ? arr : _.toArray(arguments), function(v) { return a === v; }) === -1;
@@ -361,7 +366,9 @@
 
     D.not = function(v) { return !v; };
     D.nnot = function(v) { return !!v; };
-    D.and = function(v) { return !!(v && _.findIndex(arguments, function(v) { return !v; }) === -1); };
+
+    // D.and = IF([P, B(X, D.not, _.findIndex), function(v) { return v === -1; }]).ELSE(D.f);
+    D.and = IF([P, B(X, D.not, _.findIndex), BD.is(-1)]).ELSE(D.f);
     D.or = B([P, B.find(I), D.nnot]);
 
     D.add = B([D.arr_or_p_to_array = IF(_.isArray, I).ELSE([P, D.to_array]), B.reduce(function(a, b) { return a + b; })]);
