@@ -104,6 +104,21 @@
     *
     * */
 
+
+
+    C(1, 5, [
+        B.all(
+                function(a, b) { return a + b; }, // a
+
+                [function(a, b) { return a - b; },
+                    function(a) { return a * a; }],  // b
+
+                CB(function(a, b, cb) { return cb(a, 1); })  // c, d (multiple results)
+        ),
+        function() {
+            console.log(arguments); // [6, 16, 1, 5]
+        }]);
+
 </script>
 
 </body>

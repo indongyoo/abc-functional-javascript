@@ -257,6 +257,7 @@
 
         var resolve = null;
         return (function f(res) {
+            //if (IS_R(res)) res = res[0]; 생각이 정리되면 하
             res = body(result, list, keys, i, res, tmp, args);
 
             if (end_q(res)) return resolve ? resolve(end(list, keys, i)) : end(list, keys, i);
@@ -310,8 +311,7 @@
             if (i == fns.length) {
                 if (!promise) return res;
                 // 혹시 모두 동기로 끝나버려 then_rs가 아직 안들어온 경우 안전하게 한번 기다려주고
-                if (!IS_R(res)) res = [res];
-                return resolve ? resolve.apply(void 0, res) : setTimeout(function() { resolve && resolve.apply(void 0, res); });
+                return resolve ? resolve(res) : setTimeout(function() { resolve && resolve(res); });
             }
 
             if (!IS_R(res)) res = [res];
@@ -323,7 +323,7 @@
 
             // 비동기일 경우
             promise || (promise = has_Promise() ? new Promise(function(rs) { resolve = rs; }) : { then: function(rs) { resolve = rs; } });
-            try { fns[i++].apply(context, P.trim(res).concat(function() { return c(TO_R(arguments)); })); }
+            try { fns[i++].apply(context, P.trim(res).concat(function() { arguments.length <= 1 ? c.apply(null, arguments) : c(TO_R(arguments)); })); }
             catch(e) { c(ERR(e)); }
             return promise;
         })(TO_R(args));
