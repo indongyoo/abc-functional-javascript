@@ -9,6 +9,7 @@
 
     F.A = window.A = A; // thisless apply
     F.B = window.B = B; // thisless bind, like underscore partial
+    F.B2 = window.B2 = B2; // 우리만씀
     F.C = window.C = C; // thisless call
     F.D = window.D = D; // Data
     F.E = window.E = _.extend;
@@ -35,8 +36,8 @@
 
     function A(args, func) { return C.apply(arguments[2] || this, _.toArray(args).concat([func])); }
 
-    function B() {
-        var args = _.toArray(arguments);
+    function base_b(args, is_bp2) {
+        args = _.toArray(args);
         if (!_.isArray(args[args.length-1])) args[args.length-1] = [args[args.length-1]];
         var fns = args.pop();
         return function() {
@@ -46,9 +47,11 @@
                 var idx = args3.indexOf(X);
                 args3[idx == -1 ? args3.length : idx] = arg2;
             }
-            return A(args3, fns, this);
+            return A(args3, fns, is_bp2 ? { args: args3, parent: this } : this);
         };
     }
+    function B() { return base_b(arguments); }
+    function B2() { return base_b(arguments, true); }
 
     function base_bp(next, idx) {
         if (arguments.length == 2) return function () { return arguments[idx] };
