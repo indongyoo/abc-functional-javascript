@@ -294,7 +294,7 @@
         var context = this;
         var args = _.toArray(arguments);
         if (!_.isArray(args[args.length-1])) args[args.length-1] = [args[args.length-1]];
-         var fns = _.flatten(args.pop());
+         var fns = args.pop();
         //var fns = C.map(_.flatten(args.pop()), function(v) { return _.isFunction(v) ? v : B(v, X, _.isEqual) });
         if (args.length == 1 && IS_R(args[0])) args = args[0];
 
