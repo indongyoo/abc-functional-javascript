@@ -360,18 +360,8 @@
     D.t = D.true = J(true);
     D.f = D.false = J(false);
     D.to_array = _.toArray;
-    D.arr_or_p_to_array = IF(_.isArray, I).ELSE([P, D.to_array]);
-
-    BD.is = function(a) { return B([D.arr_or_p_to_array, B.find_i(function(v) { return a !== v; }), function(v) { return v === -1; }]); };
-    BD.isnt = function(a) { return B([D.arr_or_p_to_array, B.find_i(function(v) { return a === v; }), BD.is(-1)]); };
-
-    D.not = function(v) { return !v; };
-    D.nnot = function(v) { return !!v; };
-
-    D.and = B([D.arr_or_p_to_array, B.find_i(D.not), BD.is(-1)]);
-    D.or = B([D.arr_or_p_to_array, B.find(I), D.nnot]);
-
-    D.add = B([D.arr_or_p_to_array, B.reduce(function(a, b) { return a + b; })]);
+    
+    D.add = B([D.arr_or_p_to_array = IF(_.isArray, I).ELSE([P, D.to_array]), B.reduce(function(a, b) { return a + b; })]);
     D.sub = B([D.arr_or_p_to_array, B.reduce(function(a, b) { return a - b; })]);
     D.mod = B([D.arr_or_p_to_array, B.reduce(function(a, b) { return a % b; })]);
     D.mul = B([D.arr_or_p_to_array, B.reduce(function(a, b) { return a * b; })]);
@@ -380,6 +370,15 @@
     D.parse_int = B([D.arr_or_p_to_array, B.map(function(v) { return parseInt(v); })]);
     D.iadd = B([D.parse_int, D.add]);
     D.isub = B([D.parse_int, D.sub]);
+
+    BD.is = function(a) { return B([D.arr_or_p_to_array, B.find_i(function(v) { return a !== v; }), function(v) { return v === -1; }]); };
+    BD.isnt = function(a) { return B([D.arr_or_p_to_array, B.find_i([I, BD.is(a)]), BD.is(-1)]); };
+
+    D.not = function(v) { return !v; };
+    D.nnot = function(v) { return !!v; };
+
+    D.and = B([D.arr_or_p_to_array, B.find_i(D.not), BD.is(-1)]);
+    D.or = B([D.arr_or_p_to_array, B.find(I), D.nnot]);
 
     D.eq = B([D.arr_or_p_to_array, B.find_i(function(v,i,a) { return a[0] != v; }), BD.is(-1)]);
     D.seq = B([D.arr_or_p_to_array, B.find_i(function(v,i,a) { return a[0] !== v; }), BD.is(-1)]);
