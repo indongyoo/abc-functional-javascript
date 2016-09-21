@@ -20,7 +20,7 @@
     F.I = window.I = I; // _.identity
     F.J = window.J = J; // _.always
 
-    B.method = B.m = F.M = window.M = M; // for method
+    C.method = C.m = F.M = window.M = M; // for method
     C.args = F.P = window.P = P; // parameters, arguments
     F.R = window.R = R; // like multiple return in Go Lang. return x, y; => return R(x, y)
     F.S = window.S = S; // String Template Engine
@@ -33,7 +33,7 @@
 
     P.trim = function(args) { return args.length == 1 && args[0] === undefined ? [] : args; };
     B.P = B(I, base_bp), F.P0 = window.P0 = I, F.P1 = window.P1 = B.P(1),
-    F.P2 = window.P2 = B.P(2), F.P3 = window.P3 = B.P(3), F.P4 = window.P4 = B.P(4);
+        F.P2 = window.P2 = B.P(2), F.P3 = window.P3 = B.P(3), F.P4 = window.P4 = B.P(4);
 
     function A(args, func) { return C.apply(arguments[2] || this, _.toArray(args).concat([func])); }
 
@@ -66,7 +66,7 @@
 
     B.V = function(key) { return B(X, key, V); };
 
-    B.M = function() { return B.apply(void 0, [X].concat(_.toArray(arguments)).concat(M)); };
+    B.method = B.m = B.M = function() { return B.apply(void 0, [X].concat(_.toArray(arguments)).concat(M)); };
 
     B.map = function(iter) {
         return B(
@@ -106,7 +106,7 @@
     var b_if = IF(function() { return arguments.length > 1; }, R).ELSE(B.all(_.rest, B.V('0')));
     B.reduce = function(iter) {
         return B([iter == null ? c_if : b_if,
-                B(function(result, list, keys, i, res, tmp, args) {     // body
+            B(function(result, list, keys, i, res, tmp, args) {     // body
                     return i == 0 ? args[0] : res;
                 },
                 U, // end_q
@@ -117,7 +117,7 @@
                     var key = keys ? keys[i] : i;
                     return [res, list[key], key, list];
                 },
-                    base_loop_fn)]);
+                base_loop_fn)]);
     };
 
     var spread_args = B.reduce(function(memo, arg) { return memo.concat(IS_R(arg) ? arg : [arg]); });
@@ -301,7 +301,7 @@
         var context = this;
         var args = _.toArray(arguments);
         if (!_.isArray(args[args.length-1])) args[args.length-1] = [args[args.length-1]];
-         var fns = _.flatten(args.pop());
+        var fns = _.flatten(args.pop());
         //var fns = C.map(_.flatten(args.pop()), function(v) { return _.isFunction(v) ? v : B(v, X, _.isEqual) });
         if (args.length == 1 && IS_R(args[0])) args = args[0];
 
