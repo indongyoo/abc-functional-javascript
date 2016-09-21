@@ -37,7 +37,6 @@
 
     function base_b(args, is_bp2) {
         args = _.toArray(args);
-        if (!_.isArray(args[args.length-1])) args[args.length-1] = [args[args.length-1]];
         var fns = args.pop();
         return function() {
             var args3 = _.clone(args);
@@ -170,7 +169,7 @@
                 return list[keys ? keys[i-1] : i-1];
             }, // end
             U, // complete
-            iter,   // iter_or_predi
+            iter,
             base_loop_fn_base_args,
             base_loop_fn);
     };
@@ -183,7 +182,7 @@
                 return keys ? keys[i-1] : i-1;
             }, // end
             J(-1), // complete
-            iter, // iter_or_predi
+            iter,
             base_loop_fn_base_args,
             base_loop_fn
         );
@@ -299,7 +298,7 @@
         var context = this;
         var args = _.toArray(arguments);
         if (!_.isArray(args[args.length-1])) args[args.length-1] = [args[args.length-1]];
-         var fns = args.pop();
+         var fns = _.flatten(args.pop());
         //var fns = C.map(_.flatten(args.pop()), function(v) { return _.isFunction(v) ? v : B(v, X, _.isEqual) });
         if (args.length == 1 && IS_R(args[0])) args = args[0];
 
@@ -311,7 +310,8 @@
             if (i == fns.length) {
                 if (!promise) return res;
                 // 혹시 모두 동기로 끝나버려 then_rs가 아직 안들어온 경우 안전하게 한번 기다려주고
-                return resolve ? resolve(res) : setTimeout(function() { resolve && resolve(res); });
+                if (!IS_R(res)) res = [res];
+                return resolve ? resolve.apply(void 0, res) : setTimeout(function() { resolve && resolve.apply(void 0, res); });
             }
 
             if (!IS_R(res)) res = [res];
@@ -347,12 +347,13 @@
     C.filter = B.filter(null);
     C.reject = B.reject(null);
     C.find = B.find(null);
+    C.find_index = C.find_i = B.find_index(null);
     C.some = B.some(null);
     C.every = B.every(null);
     C.uniq = B.uniq(null);
     C.all = F("TODO");
     C.div = F("TODO");
-    C.find_index = C.find_i = B.find_index(null);
+
     C.to_array = _.toArray;
 
     C.add = B3(C.arr_or_p_to_array = IF(_.isArray, I).ELSE([P, C.to_array]), B.reduce(function(a, b) { return a + b; }));
