@@ -65,8 +65,7 @@
 
     B.PR = B(TO_R, base_bp);
 
-    B.V = function(key) { return B(X, key, V); };
-
+    B.val = B.v = B.V = function(key) { return B(X, key, V); };
     B.method = B.m = B.M = function() { return B.apply(void 0, [X].concat(_.toArray(arguments)).concat(M)); };
 
     B.map = function(iter) {
@@ -89,9 +88,7 @@
 
     B.all = function() {
         var fns = _.toArray(arguments);
-        return function() {
-            return A([fns, _.toArray(arguments)], [all_map, arg_add_arr, spread_args, TO_R], this);
-        };
+        return function() { return A([fns, _.toArray(arguments)], [all_map, arg_add_arr, spread_args, TO_R], this); };
     };
 
     B.div = function() {
@@ -107,9 +104,7 @@
     var b_if = IF(function() { return arguments.length > 1; }, R).ELSE(B.all(_.rest, B.V('0')));
     B.reduce = function(iter) {
         return B([iter == null ? c_if : b_if,
-            B(function(result, list, keys, i, res, tmp, args) {     // body
-                    return i == 0 ? args[0] : res;
-                },
+            B(function(result, list, keys, i, res, tmp, args) { return i == 0 ? args[0] : res; }, //body
                 U, // end_q
                 void 0, // end
                 P2, // complete
@@ -168,9 +163,7 @@
         return B(
             P4,
             I, // end_q
-            function(list, keys, i) {
-                return list[keys ? keys[i-1] : i-1];
-            }, // end
+            function(list, keys, i) { return list[keys ? keys[i-1] : i-1]; }, // end
             U, // complete
             iter,
             base_loop_fn_base_args,
@@ -181,9 +174,7 @@
         return B(
             P4, // body
             I, // end_q
-            function(list, keys, i) {
-                return keys ? keys[i-1] : i-1;
-            }, // end
+            function(list, keys, i) { return keys ? keys[i-1] : i-1; }, // end
             J(-1), // complete
             iter,
             base_loop_fn_base_args,
@@ -233,12 +224,10 @@
 
     B.tap = function() {
         var fns = arguments;
-        return function() {
-            return A(arguments, [fns, J(arguments), TO_R], this);
-        };
+        return function() { return A(arguments, [fns, J(arguments), TO_R], this); };
     };
 
-    B.branch = function() { // fork
+    B.boomerang = function() { // fork
         var fns = arguments;
         return JCB(function(res, cb) {
             cb(res);
@@ -258,26 +247,22 @@
         var context = this;
         var args = _.rest(arguments, 6);
         var list = args.shift();
-        if (!iter_or_predi) iter_or_predi = args.pop();
         var keys = _.isArray(list) ? null : _.keys(list);
+        iter_or_predi = iter_or_predi || args.pop();
         var length = (keys || list).length;
-        var i = 0;
-        var result = [];
-        var tmp = [];
-
-        var resolve = null;
-        return (function f(res) {
+        var result = [], tmp = [];
+        var resolve = I, async = false;
+        return (function f(i, res) {
             //if (IS_R(res)) res = res[0]; 생각이 정리되면 하
             res = body(result, list, keys, i, res, tmp, args);
+            if (end_q(res)) return resolve(end(list, keys, i));
+            if (i == length) return resolve(complete(result, list, res));
 
-            if (end_q(res)) return resolve ? resolve(end(list, keys, i)) : end(list, keys, i);
-            if (i == length) return resolve ? resolve(complete(result, list, res)) : complete(result, list, res);
-
-            var res2 = A(params(list, keys, i++, res).concat(args), iter_or_predi, context);
-            if (!maybe_promise(res2)) return f(res2);
-            res2.then(function(res) { f(res); });
-            return resolve || C(CB(function(cb) { resolve = cb; }));
-        })();
+            var res2 = A(params(list, keys, i, res).concat(args), iter_or_predi, context);
+            if (!maybe_promise(res2)) return f(i+1, res2);
+            res2.then(function(res3) { f(i+1, res3); });
+            return async || C(CB(function(cb) { resolve = cb; async = true; }));
+        })(0);
     }
 
     F.CB = window.CB = B([P, B.map([I, B(X, { _ABC_is_cb: true }, _.extend)])]);
@@ -291,18 +276,17 @@
 
     function maybe_promise(res) { return _.isObject(res) && res.then && _.isFunction(res.then); }
     function unpack_promise(res, callback) {
-        var has_promise = false;
         var is_r = IS_R(res);
-        return (function u(i, res, length) {
+        return (function u(i, res, length, has_promise) {
             if (i == length) { has_promise && callback(is_r ? res : res[0]); return; }
             return maybe_promise(res[i]) && (has_promise = true) ? (function(i) {
                 res[i].then(function(v) {
                     res[i] = v;
-                    u(i+1, res, length);
+                    u(i+1, res, length, has_promise);
                 });
                 return true;
-            })(i) : u(i+1, res, length);
-        })(0, (res = is_r ? res : [res]), res.length);
+            })(i) : u(i+1, res, length, has_promise);
+        })(0, (res = is_r ? res : [res]), res.length, false);
     }
 
     function C() {
@@ -321,7 +305,7 @@
             if (i == fns.length) {
                 if (!promise) return res;
                 // 혹시 모두 동기로 끝나버려 then_rs가 아직 안들어온 경우 안전하게 한번 기다려주고
-                return resolve ? resolve(res) : setTimeout(function() { resolve && resolve(res); });
+                return resolve ? resolve(res) : setTimeout(function() { resolve && resolve(res); }, 0);
             }
 
             if (!IS_R(res)) res = [res];
@@ -392,7 +376,7 @@
     function F(nodes) {
         var f = V(G, nodes);
         var err = Error('warning: ' + nodes + ' is not defined');
-        return f || setTimeout(function() { (f = f || V(G, nodes)) || console.error(err) })
+        return f || setTimeout(function() { (f = f || V(G, nodes)) || console.error(err) }, 0)
             && function() { return A(arguments, f || (f = V(G, nodes)), this); }
     }
 
@@ -591,7 +575,7 @@
         })(obj, 0, key.split('.'));
     }
 
-    X.context = function() { return this; };
+    X.context = X.this = function() { return this; };
 }(typeof global == 'object' && global.global == global && (global.G = global) || window);
 
 // Underscore.js 1.8.
@@ -630,7 +614,6 @@ function respect_underscore(_) {
         if (_.isObject(value)) return _.matcher(value);
         return B.V(value);
     };
-
 
     var createAssigner = function(keysFunc, undefinedOnly) {
         return function(obj) {
@@ -739,9 +722,7 @@ function respect_underscore(_) {
 
         while (nonEnumIdx--) {
             prop = nonEnumerableProps[nonEnumIdx];
-            if (prop in obj && obj[prop] !== proto[prop] && !_.contains(keys, prop)) {
-                keys.push(prop);
-            }
+            if (prop in obj && obj[prop] !== proto[prop] && !_.contains(keys, prop)) keys.push(prop);
         }
     }
 
