@@ -51,8 +51,9 @@
         };
     }
     function B() { return base_b(arguments); }
-    function B2() { return base_b(arguments, true); }
-    function B3() { return B(C.to_array(arguments)); }
+    function B2() { return base_b([C.to_array(arguments)]); }
+    B.indent = function() { return base_b(arguments, true); };
+    B2.indent = function() { return base_b([C.to_array(arguments)], true); };
 
     function base_bp(next, idx) {
         if (arguments.length == 2) return function () { return arguments[idx]; };
@@ -230,6 +231,13 @@
             base_loop_fn);
     };
 
+    B.tap = function() {
+        var fns = arguments;
+        return function() {
+            return A(arguments, [fns, J(arguments), TO_R], this);
+        };
+    };
+
     B.branch = function() { // fork
         var fns = arguments;
         return JCB(function(res, cb) {
@@ -238,8 +246,8 @@
         });
     };
 
-    B.is = function(a) { return B3(C.arr_or_p_to_array, B.find_i(function(v) { return a !== v; }), function(v) { return v === -1; }); };
-    B.isnt = function(a) { return B3(C.arr_or_p_to_array, B.find_i([I, B.is(a)]), B.is(-1)); };
+    B.is = function(a) { return B2(C.arr_or_p_to_array, B.find_i(function(v) { return a !== v; }), function(v) { return v === -1; }); };
+    B.isnt = function(a) { return B2(C.arr_or_p_to_array, B.find_i([I, B.is(a)]), B.is(-1)); };
 
     function base_loop_fn_base_args(list, keys, i) {
         var key = keys ? keys[i] : i;
@@ -358,27 +366,27 @@
 
     C.to_array = _.toArray;
 
-    C.add = B3(C.arr_or_p_to_array = IF(_.isArray, I).ELSE([P, C.to_array]), B.reduce(function(a, b) { return a + b; }));
-    C.sub = B3(C.arr_or_p_to_array, B.reduce(function(a, b) { return a - b; }));
-    C.mod = B3(C.arr_or_p_to_array, B.reduce(function(a, b) { return a % b; }));
-    C.mul = B3(C.arr_or_p_to_array, B.reduce(function(a, b) { return a * b; }));
-    C.div = B3(C.arr_or_p_to_array, B.reduce(function(a, b) { return a / b; }));
+    C.add = B2(C.arr_or_p_to_array = IF(_.isArray, I).ELSE([P, C.to_array]), B.reduce(function(a, b) { return a + b; }));
+    C.sub = B2(C.arr_or_p_to_array, B.reduce(function(a, b) { return a - b; }));
+    C.mod = B2(C.arr_or_p_to_array, B.reduce(function(a, b) { return a % b; }));
+    C.mul = B2(C.arr_or_p_to_array, B.reduce(function(a, b) { return a * b; }));
+    C.div = B2(C.arr_or_p_to_array, B.reduce(function(a, b) { return a / b; }));
 
     C.parse_int = function(v) { return parseInt(v, 10); };
-    C.parse_int_all = B3(C.arr_or_p_to_array, B.map(C.parse_int));
-    C.iadd = B3(C.parse_int_all, C.add);
-    C.isub = B3(C.parse_int_all, C.sub);
+    C.parse_int_all = B2(C.arr_or_p_to_array, B.map(C.parse_int));
+    C.iadd = B2(C.parse_int_all, C.add);
+    C.isub = B2(C.parse_int_all, C.sub);
 
     C.not = function(v) { return !v; };
     C.nnot = function(v) { return !!v; };
 
-    C.and = B3(C.arr_or_p_to_array, B.find_i(C.not), B.is(-1));
-    C.or = B3(C.arr_or_p_to_array, B.find(I), C.nnot);
+    C.and = B2(C.arr_or_p_to_array, B.find_i(C.not), B.is(-1));
+    C.or = B2(C.arr_or_p_to_array, B.find(I), C.nnot);
 
-    C.eq = B3(C.arr_or_p_to_array, B.find_i(function(v,i,a) { return a[0] != v; }), B.is(-1));
-    C.seq = B3(C.arr_or_p_to_array, B.find_i(function(v,i,a) { return a[0] !== v; }), B.is(-1));
-    C.neq = B3(C.eq, C.not);
-    C.sneq = B3(C.seq, C.not);
+    C.eq = B2(C.arr_or_p_to_array, B.find_i(function(v,i,a) { return a[0] != v; }), B.is(-1));
+    C.seq = B2(C.arr_or_p_to_array, B.find_i(function(v,i,a) { return a[0] !== v; }), B.is(-1));
+    C.neq = B2(C.eq, C.not);
+    C.sneq = B2(C.seq, C.not);
 
 
     function F(nodes) {
