@@ -5,8 +5,8 @@ _abcjs는 함수형 자바스크립트(functional javascript) 라이브러리입
   - Web browser와 NodeJS에서 사용할 수 있습니다.
   - Promise, jQuery Deferred Object, Future 등의 모나드식 해법 보다 간결하고 편리한 비동기 제어를 지원합니다.
   - 비동기 함수일지라도 동기 함수를 작성하듯이 논리 구조를 만들 수 있습니다.
-  - 비동기 제어 기능을 더한 `each`, `map`, `reduce`, `filter`, `reject`, `find`, `find_index`, `some`, `every`, `uniq` 함수가 있습니다.
-  - Jade와 비슷한 문법, Function을 쉽게 사용할 수 있는 HTML Template Engine.
+  - 비동기 제어 기능을 더한 `each`, `map`, `reduce`, `filter`, `reject`, `find`, `findIndex`, `some`, `every`, `uniq` 함수가 있습니다.
+  - Jade와 비슷한 HTML Template 함수가 있습니다. 함수 사용과 비동기 함수를 지원합니다.
   - sql 등을 작성하기 편한 함수가 있습니다.
   - 다른 자바스크립트 라이브러리에 대한 의존성이 없는 작은 라이브러리입니다.
   - _Respect Underscorejs!_
@@ -201,29 +201,29 @@ chain 패턴이나 `_.compose`, `Promise` 등의 일종의 파이프라인 혹�
 `B(X, 11, minus)` 를 통해 두개의 인자가 사용되도록 했지만 여전히 사실은 위에서 부터 내려오는 인자는 하나입니다.
 
 인자를 하나만 받는 함수만 조립할 수 있다면 실용성이 떨어지고 인자가 두개 이상 필요한 함수를 사용하기 위해선 항상 wrapper 함수가 있어야합니다.
-이를 위해 `R`이 있습니다. `R`을 이용하면 다음 함수가 여러개의 결과를 인자로 받을 수 있습니다.
-`R` 사용은 아래와 같은 두가지 사용법이 있습니다.
+이를 위해 `MR`이 있습니다. `MR`을 이용하면 다음 함수가 여러개의 결과를 인자로 받을 수 있습니다.
+`MR` 사용은 아래와 같은 두가지 사용법이 있습니다.
 ```javascript
 C(3, 2, [
     function(a, b) {
-        return R(a + b, a - b, a * b); // multiple results
+        return MR(a + b, a - b, a * b); // multiple results
     },
     function(a, b, c) {
         console.log(a, b, c);
-        return R(a, c); // multiple results
+        return MR(a, c); // multiple results
     },
     function(a, c) {
         console.log(a, c);
         return arguments;
     },
-    TO_R, // arguments to multiple results
+    C.toMR, // arguments to multiple results
     function(a, c) {
         console.log(a, c); // 5, 6
     }]);
 ```
 
 
-`B`를 통해 함수를 정의하면 ABC를 이용하지 않고도 `R(returns)`을 동작 시킬 수 있습니다.
+`B`를 통해 함수를 정의하면 ABC를 이용하지 않고도 `MR()`을 동작 시킬 수 있습니다.
 ```javascript
 var minus = B(function(a, b) {
     console.log(a, b); // 20, 10
@@ -235,13 +235,13 @@ console.log(r5); // -10
 
 /* swap 함수의 multiple results를 바로 minus에게 넘김 */
 var swap = function(a, b) {
-    return R(b, a);
+    return MR(b, a);
 };
 var r6 = minus(swap(10, 20));
 console.log(r6);
 // 10
 ```
-`R`은 Go언어의 Multiple Results와 비슷합니다.
+`MR`은 Go언어의 Multiple Results와 비슷합니다.
 [GO Lang - Multiple Results](https://tour.golang.org/basics/6)
 
 
@@ -249,7 +249,7 @@ console.log(r6);
 ```javascript
 var difference = B([
     function(a, b) {
-        return R(Math.max(a, b), Math.min(a, b));
+        return MR(Math.max(a, b), Math.min(a, b));
     },
     minus
 ]);
@@ -268,11 +268,11 @@ console.log(r8);
 abcjs의 다른 함수를 활용하면  `difference`를 아래와 같이 구현할 수도 있습니다.
 ```javascript
 var difference2 = B([
-    P, // function() { return arguments },
+    C.args, // function() { return arguments },
     _.toArray,
     B.M('sort'), // function(a) { return a.sort(); },
     B.M('reverse'),  // function(a) { return a.reverse(); },
-    TO_R, // array to multiple results
+    C.toMR, // array to multiple results
     minus]);
 
 var r9 = difference2(10, 20);
@@ -439,11 +439,11 @@ C([
     },
     function(data, cb) {
         console.log(_.clone(data)); // {a: 5, b: 3}
-        $.post("/post_data", E(data, { c: 10 }), cb);
+        $.post("/post_data", _.extend(data, { c: 10 }), cb);
     },
     function(data, cb) {
         console.log(_.clone(data)); // {a: 5, b: 3, c: 10, created_at: Tue Sep 13 2016 04:01:19 GMT+0900 (KST)}
-        $.put("/put_data", E(data, { c: 5 }), cb);
+        $.put("/put_data", _.extend(data, { c: 5 }), cb);
     }),
     function(r) {
         console.log(r);
@@ -458,9 +458,9 @@ CB($.get, $.post, $.put);
 
 C([
     B("/get_data", $.get),
-    B({ c: 20 }, E),
+    B({ c: 20 }, _.extend),
     B("/post_data", $.post),
-    B({ c: 30 }, E),
+    B({ c: 30 }, _.extend),
     B("/put_data", $.put),
     function(r) {
         console.log(r);
@@ -469,7 +469,7 @@ C([
 ]);
 ```
 
-`J`와 `R`을 활용하면 다음과 같이 사용할 수 있습니다.
+`J`와 `MR`을 활용하면 다음과 같이 사용할 수 있습니다.
 ```javascript
 function J(v) {
  return function() {
@@ -480,7 +480,7 @@ function J(v) {
 
 ```javascript
 C([
-    J(R("/post_data", { aka: 'Cojamm' })),
+    J(MR("/post_data", { aka: 'Cojamm' })),
     $.post,
     function(r) {
         console.log(r); // {aka: "Cojamm", created_at: Tue Sep 13 2016 04:01:18 GMT+0900 (KST)}
@@ -657,20 +657,15 @@ var r3 = C.map([1, 2, 3], 5, function(v, i, l, a) { //val, idx, list, 5
 });
 console.log(r3); // [6, 7, 8]
 
-/* B.P는 들어온 인자중 원하는 번째의 인자를 모아 배열로 바꿔주는 기능입니다. */
-var r4 = C.map([1, 2, 3], 5, [B.P(0, 3), TO_R, sum]);
+/* B.args는 들어온 인자중 원하는 번째의 인자를 선택하여 Multiple Results로 만듭니다. */
+var r4 = C.map([1, 2, 3], 5, [B.args(0, 3), sum]);
 console.log(r4); // [6, 7, 8]
-
-/* B.PR은 R(B.P()) 입니다. */
-var r5 = C.map([1, 2, 3], 5, [B.PR(0, 3), sum]);
-console.log(r5); // [6, 7, 8]
-
 
 var r6 =
     C({ a: 1, b: 2, c: 3 }, [
         B.map(I), // [1, 2, 3] // function I(v) { return v; }
         B.map(square), // [1, 4, 9]
-        function(v) { return R(v, 0); },
+        function(v) { return MR(v, 0); },
         B.reduce(function(memo, v) {
             return memo + v;
         })]);
@@ -683,8 +678,8 @@ var minus = function(a, b) {
 C({ a: 1, b: 2, c: 3 }, [
     B.map(I), // [1, 2, 3]
     B.map(square), // [1, 4, 9]
-    function(v) { return R(v, 0); },
-    B.reduce([B.PR(0, 1), minus]), // 동기
+    function(v) { return MR(v, 0); },
+    B.reduce([B.args(0, 1), minus]), // 동기
     function(r7) {
         console.log(r7); // -14
     }]);
@@ -702,8 +697,8 @@ var minus2 = CB(function(a, b, cb) {
 C({ a: 1, b: 2, c: 3 }, [
     B.map(I), // [1, 2, 3]
     B.map(square), // [1, 4, 9]
-    function(v) { return R(v, 0); },
-    B.reduce([B.PR(0, 1), minus2]), // 비동기
+    function(v) { return MR(v, 0); },
+    B.reduce([B.args(0, 1), minus2]), // 비동기
     function(r7) {
         console.log(r7); // -14
     }]);
@@ -931,7 +926,7 @@ C(songs, [
 ```javascript
 C({ id: 5, body: "foo bar" }, [
     _.values,
-    TO_R,
+    C.toMR,
     S('id, body', "update posts set body = '{{body}}' where id = {{id}};"),
     function(query) {
         console.log(query);
@@ -1114,7 +1109,7 @@ C(1, 5, [
         [function(a, b) { return a - b; },
         function(a) { return a * a; }],  // b
 
-        function(a, b) { return R(a, b); }  // c, d (multiple results)
+        function(a, b) { return MR(a, b); }  // c, d (multiple results)
     ),
     function(a, b, c, d) {
         console.log(a, b, c, d); // 6, 16, 1, 5
@@ -1131,7 +1126,7 @@ C(1, 2, 3, 4, [
         [function(a) { return a + a; },
         function(a) { return a * a; }], // b
 
-        function(a) { return R(a, a - a); }  // c, d (multiple results)
+        function(a) { return MR(a, a - a); }  // c, d (multiple results)
 
         // e ** 인자수보다 function의 갯수가 적을 경우 I로 채웁니다. function I(v) { return v }
     ),
@@ -1146,7 +1141,7 @@ C(1, 2, 3, 4, [
         [function(a) { return a + a; },
         function(a) { return a * a; }], // b
 
-        function(a) { return R(a, a - a); }, // c, d
+        function(a) { return MR(a, a - a); }, // c, d
 
         I, // e
         I  // f  ** 인자수보다 function의 갯수가 많을 경우 인자는 undefined로 들어옵니다.
@@ -1166,10 +1161,10 @@ C(1, 5, [
         [function(a, b) { return a - b; },
         function(a) { return a * a; }],  // b
 
-        function(a, b) { return R(a, b); }  // c, d (multiple results)
+        function(a, b) { return MR(a, b); }  // c, d (multiple results)
     ),
-    P,
-    _.toArray,
+    C.args,
+    C.toArray,
     function(a) {
         console.log(a); // [6, 16, 1, 5]
     }]);
@@ -1282,14 +1277,14 @@ $(function() {
 
 
 ### 12. ETC
-이 외에도 abcjs에는 `B.P`, `B.M`, `B.V`, `F`, `G`, `M`, `U`, `V` 등의 유용한 함수들이 있습니다.
-  - `B.P(n[,n,n...])` index가 n인 인자들 받기
-  - `B.M('method', 'args1', 'args2')` 객체의 메소드 실행하기
+이 외에도 abcjs에는 B.args, B.m, C.val, F, G, C.u, C.val 등의 유용한 함수들이 있습니다.
+  - `B.args(n[,n,n...])` index가 n인 인자들 받기
+  - `B.m('method', 'args1', 'args2')` 객체의 메소드 실행하는 함수 뱉기
   - `F('function.name') => G['function']['name']` 안전하게 function 찾기
   - `F.A`, `F.B`, `F.C`, ... F 네임스페이스에 모든 함수 재추가
   - `G = global || window`
-  - `U = function() {};`
-  - `V(user, 'friend.friends.0.name')` 안전하게 value 꺼내기
+  - `C.u = function() {};`
+  - `C.val(user, 'friend.friends.0.name')` 안전하게 value 꺼내기
 
 
 ### 13. [throw, ERR, CATCH](https://github.com/marpple/abc-functional-javascript/blob/master/example/13.%20CATCH.html)

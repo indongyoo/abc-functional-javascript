@@ -12,6 +12,7 @@
 
 <script>
 
+
     /*
     * abcjs에서는 비동기 제어와 관련된 많은 기능을 제공합니다.
     * 파이프라인에서 사용할 콜백 패턴의 함수를 CB 함수로 한번 넘겨 두기만 하면 됩니다.
@@ -153,11 +154,11 @@
         },
         function(data, cb) {
             console.log(_.clone(data)); // {a: 5, b: 3}
-            $.post("/post_data", E(data, { c: 10 }), cb);
+            $.post("/post_data", _.extend(data, { c: 10 }), cb);
         },
         function(data, cb) {
             console.log(_.clone(data)); // {a: 5, b: 3, c: 10, created_at: Tue Sep 13 2016 04:01:19 GMT+0900 (KST)}
-            $.put("/put_data", E(data, { c: 5 }), cb);
+            $.put("/put_data", _.extend(data, { c: 5 }), cb);
         }),
         function(r) {
             console.log(r);
@@ -173,9 +174,9 @@
 
     C([
         B("/get_data", $.get),
-        B({ c: 20 }, E),
+        B({ c: 20 }, _.extend),
         B("/post_data", $.post),
-        B({ c: 30 }, E),
+        B({ c: 30 }, _.extend),
         B("/put_data", $.put),
         function(r) {
             console.log(r);
@@ -184,7 +185,7 @@
     ]);
 
     /*
-    * J와 R을 활용하면 다음과 같이 사용할 수 있습니다.
+    * J와 MR을 활용하면 다음과 같이 사용할 수 있습니다.
     * function J(v) {
     *   return function() {
     *       return v;
@@ -193,7 +194,7 @@
     * */
 
     C([
-        J(R("/post_data", { aka: 'Cojamm' })),
+        J(MR("/post_data", { aka: 'Cojamm' })),
         $.post,
         function(r) {
             console.log(r); // {aka: "Cojamm", created_at: Tue Sep 13 2016 04:01:18 GMT+0900 (KST)}

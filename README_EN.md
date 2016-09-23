@@ -8,7 +8,7 @@ _abcjs is functional javascript library._
  - Even if the function is ‘asynchronous’, abc.js can make a logic structure as we make a ‘synchronous’ function.
  - There are functions which added the ‘asynchronous control’ feature : each, map, reduce, filter, reject, find, some, every, uniq
  - abc.js provides a HTML template engine of which grammar and function is similar to Jade.
- - abc.js provides functions which wrtie SQL query easier.
+ - abc.js provides functions which write SQL query easier.
  - The line of script file of abc.js is just 808 lines. Moreover, it doesn’t have a dependency to another javascript library.
  - abc.js respect underscore.js concept!
 
@@ -29,19 +29,6 @@ _abcjs is functional javascript library._
 
 ### 01. [A](https://github.com/marpple/abc-functional-javascript/blob/master/README_EN.md/blob/master/example/01.%20A.html)
 `A` is similar to `apply`.
-
-You can think of `A` as `apply` without `this`.
-
-The `this` keyword is very important in Object Oriented Programming. Since it has to change the state of the object and refer of it.
-
-However, it’s difficult to handle abstract `this` keyword.
-
-A state to manage through ‘this’ is value. There is no need to deal with the value through 'Class'.
-
-Our strategy In abc.js to deal with the state :
-
-Deal with the value by making a new value through `function`.
-
 
 ```javascript
 function add(a, b) {
@@ -73,6 +60,7 @@ console.log(r2);
 
 ### 02. [B](https://github.com/marpple/abc-functional-javascript/blob/master/example/02.%20B.html)
 `B` is similar to `bind` and `_.partial` of underscore, but it is thisless.
+
 ```javascript
 function minus(a, b) {
     return a - b;
@@ -230,22 +218,22 @@ console.log(r4);
 ```
 
 
-This Supports Multiple results by `R`.
+This Supports Multiple results by `MR`.
 
 ```javascript
 C(3, 2, [
     function(a, b) {
-        return R(a + b, a - b, a * b); // multiple results
+        return MR(a + b, a - b, a * b); // multiple results
     },
     function(a, b, c) {
         console.log(a, b, c);
-        return R(a, c); // multiple results
+        return MR(a, c); // multiple results
     },
     function(a, c) {
         console.log(a, c);
         return arguments;
     },
-    TO_R, // arguments to multiple results
+    C.toMR, // arguments to multiple results
     function(a, c) {
         console.log(a, c); // 5, 6
     }]);
@@ -261,21 +249,21 @@ var r5 = minus(10, 20);
 console.log(r5); // -10
 
 var swap = function(a, b) {
-    return R(b, a);
+    return MR(b, a);
 };
 var r6 = minus(swap(10, 20));
 console.log(r6);
 // 10
 ```
 
-`R` is similar to `return` of Go.
+`MR` is similar to `return` of Go.
 [Go Lang - Multiple Results](https://tour.golang.org/basics/6)
 
 
 ```javascript
 var difference = B([
     function(a, b) {
-        return R(Math.max(a, b), Math.min(a, b));
+        return MR(Math.max(a, b), Math.min(a, b));
     },
     minus
 ]);
@@ -292,11 +280,11 @@ console.log(r8);
 
 ```javascript
 var difference2 = B([
-    P, // function() { return arguments },
+    C.args, // function() { return arguments },
     _.toArray,
     B.M('sort'), // function(a) { return a.sort(); },
     B.M('reverse'),  // function(a) { return a.reverse(); },
-    TO_R, // array to multiple results
+    C.toMR, // array to multiple results
     minus]);
 
 var r9 = difference2(10, 20);
@@ -445,11 +433,11 @@ C([
     },
     function(data, cb) {
         console.log(_.clone(data)); // {a: 5, b: 3}
-        $.post("/post_data", E(data, { c: 10 }), cb);
+        $.post("/post_data", _.extend(data, { c: 10 }), cb);
     },
     function(data, cb) {
         console.log(_.clone(data)); // {a: 5, b: 3, c: 10, created_at: Tue Sep 13 2016 04:01:19 GMT+0900 (KST)}
-        $.put("/put_data", E(data, { c: 5 }), cb);
+        $.put("/put_data", _.extend(data, { c: 5 }), cb);
     }),
     function(r) {
         console.log(r);
@@ -464,9 +452,9 @@ CB($.get, $.post, $.put);
 
 C([
     B("/get_data", $.get),
-    B({ c: 20 }, E),
+    B({ c: 20 }, _.extend),
     B("/post_data", $.post),
-    B({ c: 30 }, E),
+    B({ c: 30 }, _.extend),
     B("/put_data", $.put),
     function(r) {
         console.log(r);
@@ -485,7 +473,7 @@ function J(v) {
 
 ```javascript
 C([
-    J(R("/post_data", { aka: 'Cojamm' })),
+    J(MR("/post_data", { aka: 'Cojamm' })),
     $.post,
     function(r) {
         console.log(r); // {aka: "Cojamm", created_at: Tue Sep 13 2016 04:01:18 GMT+0900 (KST)}
@@ -608,8 +596,8 @@ C(5, 5, [
     console.log(r); // 50
 });
 ```
-`function has_promise() { (window || global).Promise.prototype.then; }`
-`has_promise() ? new Promise(function(rs) { resolve = rs; }) : { then: function(rs) { resolve = rs; } })`
+`function hasPromise() { (window || global).Promise.prototype.then; }`
+`hasPromise() ? new Promise(function(rs) { resolve = rs; }) : { then: function(rs) { resolve = rs; } })`
 
 
 
@@ -655,20 +643,16 @@ var r3 = C.map([1, 2, 3], 5, function(v, i, l, a) { //val, idx, list, 5
 });
 console.log(r3); // [6, 7, 8]
 
-/* B.P(0, 3) => value, 5 */
-var r4 = C.map([1, 2, 3], 5, [B.P(0, 3), TO_R, sum]);
+/* B.args(0, 3) => value, 5 */
+var r4 = C.map([1, 2, 3], 5, [B.args(0, 3), sum]);
 console.log(r4); // [6, 7, 8]
-
-/* B.PR is R(B.P()). */
-var r5 = C.map([1, 2, 3], 5, [B.PR(0, 3), sum]);
-console.log(r5); // [6, 7, 8]
 
 
 var r6 =
     C({ a: 1, b: 2, c: 3 }, [
         B.map(I), // [1, 2, 3] // function I(v) { return v; }
         B.map(square), // [1, 4, 9]
-        function(v) { return R(v, 0); },
+        function(v) { return MR(v, 0); },
         B.reduce(function(memo, v) {
             return memo + v;
         })]);
@@ -681,8 +665,8 @@ var minus = function(a, b) {
 C({ a: 1, b: 2, c: 3 }, [
     B.map(I), // [1, 2, 3]
     B.map(square), // [1, 4, 9]
-    function(v) { return R(v, 0); },
-    B.reduce([B.PR(0, 1), minus]),
+    function(v) { return MR(v, 0); },
+    B.reduce([B.args(0, 1), minus]),
     function(r7) {
         console.log(r7); // -14
     }]);
@@ -700,8 +684,8 @@ No need to modify the code for asynchronous.
 C({ a: 1, b: 2, c: 3 }, [
     B.map(I), // [1, 2, 3]
     B.map(square), // [1, 4, 9]
-    function(v) { return R(v, 0); },
-    B.reduce([B.PR(0, 1), minus2]), // Async
+    function(v) { return MR(v, 0); },
+    B.reduce([B.args(0, 1), minus2]), // Async
     function(r7) {
         console.log(r7); // -14
     }]);
@@ -914,7 +898,7 @@ SQL
 ```javascript
 C({ id: 5, body: "foo bar" }, [
     _.values,
-    TO_R,
+    C.toMR,
     S('id, body', "update posts set body = '{{body}}' where id = {{id}};"),
     function(query) {
         console.log(query);
@@ -1088,7 +1072,7 @@ C(1, 5, [
         [function(a, b) { return a - b; },
         function(a) { return a * a; }],  // b
 
-        function(a, b) { return R(a, b); }  // c, d (multiple results)
+        function(a, b) { return MR(a, b); }  // c, d (multiple results)
     ),
     function(a, b, c, d) {
         console.log(a, b, c, d); // 6, 16, 1, 5
@@ -1105,7 +1089,7 @@ C(1, 2, 3, 4, [
         [function(a) { return a + a; },
         function(a) { return a * a; }], // b
 
-        function(a) { return R(a, a - a); }  // c, d (multiple results)
+        function(a) { return MR(a, a - a); }  // c, d (multiple results)
     ),
     function(a, b, c, d, e) {
         console.log(a, b, c, d, e); // 2, 16, 3, 0, 4
@@ -1118,7 +1102,7 @@ C(1, 2, 3, 4, [
         [function(a) { return a + a; },
         function(a) { return a * a; }], // b
 
-        function(a) { return R(a, a - a); }, // c, d
+        function(a) { return MR(a, a - a); }, // c, d
 
         I, // e
         I  // f  ** argument is undefined.
@@ -1137,10 +1121,10 @@ C(1, 5, [
         [function(a, b) { return a - b; },
         function(a) { return a * a; }],  // b
 
-        function(a, b) { return R(a, b); }  // c, d (multiple results)
+        function(a, b) { return MR(a, b); }  // c, d (multiple results)
     ),
-    P,
-    _.toArray,
+    C.args,
+    C.toArray,
     function(a) {
         console.log(a); // [6, 16, 1, 5]
     }]);
@@ -1243,16 +1227,19 @@ $(function() {
 // go --------------> finish
 ```
 
+The `this` keyword is very important in Object Oriented Programming. Since it has to change the state of the object and refer of it.
+
+However, it’s difficult to handle abstract `this` keyword.
+
+A state to manage through ‘this’ is value. There is no need to deal with the value through 'Class'.
+
+Our strategy In abc.js to deal with the state :
+
+Deal with the value by making a new value through `function`.
 
 
-### 12. ETC
-`B.P`, `B.M`, `B.V`, `F`, `G`, `M`, `U`, `V` ...
-  - `G = global || window`
-  - `U = function() {};`
-  - `V(user, 'friend.friends.0.name')`
 
-
-### 13. [throw, ERR, CATCH](https://github.com/marpple/abc-functional-javascript/blob/master/example/13.%20CATCH.html)
+### 12. [throw, ERR, CATCH](https://github.com/marpple/abc-functional-javascript/blob/master/example/13.%20CATCH.html)
 ```javascript
 C([
     function() {

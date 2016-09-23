@@ -55,20 +55,15 @@
     });
     console.log(r3); // [6, 7, 8]
 
-    /* B.P는 들어온 인자중 원하는 번째의 인자를 모아 array로 바꿔주는 기능입니다. */
-    var r4 = C.map([1, 2, 3], 5, [B.P(0, 3), TO_R, sum]);
+    /* B.args는 들어온 인자중 원하는 번째의 인자를 선택하여 Multiple Results로 만듭니다. */
+    var r4 = C.map([1, 2, 3], 5, [B.args(0, 3), sum]);
     console.log(r4); // [6, 7, 8]
-
-    /* B.PR은 R(B.P()) 입니다. */
-    var r5 = C.map([1, 2, 3], 5, [B.PR(0, 3), sum]);
-    console.log(r5); // [6, 7, 8]
-
 
     var r6 =
         C({ a: 1, b: 2, c: 3 }, [
             B.map(I), // [1, 2, 3] // function I(v) { return v; }
             B.map(square), // [1, 4, 9]
-            function(v) { return R(v, 0); },
+            function(v) { return MR(v, 0); },
             B.reduce(function(memo, v) {
                 return memo + v;
             })]);
@@ -81,8 +76,8 @@
     C({ a: 1, b: 2, c: 3 }, [
         B.map(I), // [1, 2, 3]
         B.map(square), // [1, 4, 9]
-        function(v) { return R(v, 0); },
-        B.reduce([B.PR(0, 1), minus]), // 동기
+        function(v) { return MR(v, 0); },
+        B.reduce([B.args(0, 1), minus]), // 동기
         function(r7) {
             console.log(r7); // -14
         }]);
@@ -99,8 +94,8 @@
     C({ a: 1, b: 2, c: 3 }, [
         B.map(I), // [1, 2, 3]
         B.map(square), // [1, 4, 9]
-        function(v) { return R(v, 0); },
-        B.reduce([B.PR(0, 1), minus2]), // 비동기
+        function(v) { return MR(v, 0); },
+        B.reduce([B.args(0, 1), minus2]), // 비동기
         function(r7) {
             console.log(r7); // -14
         }]);

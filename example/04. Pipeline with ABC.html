@@ -108,17 +108,17 @@
 
     C(3, 2, [
         function(a, b) {
-            return R(a + b, a - b, a * b); // multiple results
+            return MR(a + b, a - b, a * b); // multiple results
         },
         function(a, b, c) {
             console.log(a, b, c);
-            return R(a, c); // multiple results
+            return MR(a, c); // multiple results
         },
         function(a, c) {
             console.log(a, c);
             return arguments;
         },
-        TO_R, // arguments to multiple results
+        C.toMR, // arguments to multiple results
         function(a, c) {
             console.log(a, c); // 5, 6
         }]);
@@ -134,7 +134,7 @@
 
     /* swap 함수의 multiple results를 바로 minus에게 넘김 */
     var swap = function(a, b) {
-        return R(b, a);
+        return MR(b, a);
     };
     var r6 = minus(swap(10, 20));
     console.log(r6);
@@ -150,7 +150,7 @@
     /* 함수 조립의 즐거움 */
     var difference = B([
         function(a, b) {
-            return R(Math.max(a, b), Math.min(a, b));
+            return MR(Math.max(a, b), Math.min(a, b));
         },
         minus
     ]);
@@ -165,11 +165,11 @@
 
     /* abc의 다른 함수를 활용하면  difference를 아래와 같이 구현해볼수도 있겠습니다. */
     var difference2 = B([
-        P, // function() { return arguments },
+        C.args, // function() { return arguments },
         _.toArray,
         B.m('sort'), // function(a) { return a.sort(); },
         B.m('reverse'),  // function(a) { return a.reverse(); },
-        TO_R, // array to multiple results
+        C.toMR, // array to multiple results
         minus]);
 
     var r9 = difference2(10, 20);
