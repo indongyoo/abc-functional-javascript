@@ -1,10 +1,9 @@
 # abcjs
 _abcjs는 함수형 자바스크립트(functional javascript) 라이브러리입니다._
 
-
 ## 특징
   - Web browser와 NodeJS에서 사용할 수 있습니다.
-  - Promise, 모나드보다 간결하고 더욱 편리한 비동기 제어를 지원합니다.
+  - Promise, jQuery Deferred Object, Future 등의 모나드식 해법 보다 간결하고 편리한 비동기 제어를 지원합니다.
   - 비동기 함수일지라도 동기 함수를 작성하듯이 논리 구조를 만들 수 있습니다.
   - 비동기 제어 기능을 더한 `each`, `map`, `reduce`, `filter`, `reject`, `find`, `find_index`, `some`, `every`, `uniq` 함수가 있습니다.
   - Jade와 비슷한 문법, Function을 쉽게 사용할 수 있는 HTML Template Engine.
