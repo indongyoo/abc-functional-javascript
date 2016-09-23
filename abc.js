@@ -33,7 +33,7 @@
 
     P.trim = function(args) { return args.length == 1 && args[0] === undefined ? [] : args; };
     B.P = B(I, base_bp), F.P0 = window.P0 = I, F.P1 = window.P1 = B.P(1),
-    F.P2 = window.P2 = B.P(2), F.P3 = window.P3 = B.P(3), F.P4 = window.P4 = B.P(4);
+        F.P2 = window.P2 = B.P(2), F.P3 = window.P3 = B.P(3), F.P4 = window.P4 = B.P(4);
 
     function A(args, func) { return C.apply(arguments[2] || this, _.toArray(args).concat([func])); }
 
@@ -372,6 +372,7 @@
     C.neq = B2(C.eq, C.not);
     C.sneq = B2(C.seq, C.not);
 
+    C.log = window.console && window.console.log ? console.log.bind(console) : I;
 
     function F(nodes) {
         var f = V(G, nodes);
