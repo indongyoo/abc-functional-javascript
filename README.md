@@ -31,15 +31,9 @@ __abcjs와 함께 함수형 프로그래밍을 즐겨보세요.__
  - [throw, ERR, CATCH](https://github.com/marpple/abc-functional-javascript/blob/master/README.md#13-throw-err-catch)
 
 ### 01. [A](https://github.com/marpple/abc-functional-javascript/blob/master/README.md/blob/master/example/01.%20A.html)
-`A`는 `this`를 제외한 `apply`라고 생각하면 쉽습니다.
 
-객체지향에서 `this` 키워드는 매우 중요합니다. 자신이 가진 메소드를 실행하거나 자신이 가진 상태를 참조하거나 변경해야하기 때문입니다.
+`A`는 `apply`와 비슷합니다.
 
-하지만 추상적인 `this`를 다루는 것은 어렵습니다.
-`this`를 통해 다루는 상태는 값입니다. 반드시 클래스를 통해서만 값을 다룰 필요는 없습니다.
-
-메소드를 통해 클래스 내부에서만 값을 참조하는 것보다 쉽고 유연하고 추상적이지 않은 방법이 있습니다.
-함수를 통해 값을 새로운 값으로 만드는 식으로 다루는 것입니다.
 ```javascript
 function add(a, b) {
     return a + b;
@@ -65,7 +59,6 @@ console.log(r2);
 // 15
 ```
 배열이나 arguments객체를 사용하면 됩니다.
-
 
 
 ### 02. [B](https://github.com/marpple/abc-functional-javascript/blob/master/example/02.%20B.html)
@@ -124,7 +117,7 @@ console.log(r2);
 ### 04. [Pipeline with ABC](https://github.com/marpple/abc-functional-javascript/blob/master/example/04.%20Pipeline%20with%20ABC.html)
 abcjs는 underscore의 `_.compose`나 jQuery의 chain과 유사한 코드 패턴을 지원합니다.
 객체지향적인 체인방식은 연속적으로 값을 변경해나갈 수 있지만 자신이 가진 값을 바꾸는 방법이기 때문에 사용은 쉽지만 구현이 어렵습니다.
-또한 자신이 가진 메소드와 자신의 값만을 사용하기 때문에 제약이 있습니다. 파이프라인과 같은 연속적인 함수 실행 방식은 객체지향적인 체인방식보다 유연하고 순수 함수들을 만들 수 있어 좋습니다.
+또한 자신이 가진 메소드와 자신의 값만을 사용하기 때문에 제약이 있습니다. 파이프라인과 같은 연속적인 함수 실행 방식은 체인방식보다 유연하고 순수 함수들을 만들 수 있어 좋습니다.
 
 abcjs에서는 별도의 파이프라인 함수를 만들지 않고 기본 함수 실행 함수인 ABC에서 파이프라인 패턴을 바로 사용할수 있도록 했습니다.
 또한 `_.compose`와 달리 읽기 쉬운 방향으로 순서를 바꿨습니다. 쉽습니다. 마지막 인자 자리에 함수 대신 배열로 함수들을 나열하기만 하면 됩니다.
