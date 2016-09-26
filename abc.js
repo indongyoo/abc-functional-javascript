@@ -365,19 +365,17 @@
     C.isArrayLike = _.isArrayLike;
 
     C.test = function(tests) {
-        var fails = [], results = [];
-        return C([
-            J('------------Start------------'), C.log,
-            J(tests),
-            B.map([function(func, key) {
-                return C([func, IF([J.u, function () { results.push(key + ' ----> success'); }]).ELSE([J.u, function () { results.push(key + ' ----> fail'); fails.push(key + ' ----> fail'); }]) ]);
-            }]),
+        var fails = J([]), all = J([]), fna = J([fails(), all()]);
+        return C([J('------------Start------------'), C.log, J(tests),
+            B.map(function(f, k) {
+                return IF([all, B.m('push', k + ' ----> success')])
+                    .ELSE([fna, B.map([I, B.m('push', k + ' ----> fail')])])(f());
+            }),
             J('------------Fail-------------'), C.log,
-            J(fails), B.each([I, C.error]),
+            fails, B.each([I, C.error]),
             J('------------All--------------'), C.log,
-            J(results), B.each([I, C.log]),
-            J('------------End--------------'), C.log
-        ]);
+            all, B.each([I, C.log]),
+            J('------------End--------------'), C.log]);
     };
 
     function F(nodes) {
@@ -388,7 +386,7 @@
     }
 
     /* H start */
-    var TAB_SIZE = 4;
+    var TAB_SIZE = 2;
     var TAB = "( {"+TAB_SIZE+"}|\\t)"; // "( {4}|\\t)"
     var TABS = TAB + "+";
     var number_of_tab = function(a) { return a.match(new RegExp("^"+TAB+"+"))[0].length/TAB_SIZE; };
