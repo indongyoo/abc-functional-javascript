@@ -362,10 +362,9 @@
 
     C.test = function(tests) {
         return C.log('Test start!') || C.map(tests, function(func, key) {
-                return C([func, IF([J.u, B(key + ' test is success', C.log)]).ELSE([J.u, B(key + ' test is fail', C.error)])]);
-            });
+            return C([func, IF([J.u, B(key + ' ----> success', C.log)]).ELSE([J.u, B(key + ' ----> fail', C.error)])]);
+        });
     };
-
 
     function F(nodes) {
         var f = getValue(G, nodes);
