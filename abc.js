@@ -73,6 +73,12 @@
     var all_map = B.map(function(val_fn, key, list, args) { return A(args, val_fn, this); });
     var div_map = B.map(function(val, key, list, funcs) { return A([val], funcs[key] || I, this); });
 
+    C.test = function(tests) {
+        return C.log('Test start!') || C.map(tests, function(func, key) {
+            return C([func, IF([J.u, B(key + ' test is success', C.log)]).ELSE([J.u, B(key + ' test is fail', C.error)])]);
+        });
+    };
+
     B.all = function() {
         var fns = _.toArray(arguments);
         return function() { return A([fns, _.toArray(arguments)], [all_map, arg_add_arr, spread_args, toMR], this); };
@@ -311,7 +317,7 @@
     }
 
     function ERR(err, data) {
-        setTimeout(function() { err._ABC_caught || console.error(err); }, 500);
+        setTimeout(function() { err._ABC_caught || C.error(err); }, 500);
         return err = _.extend(err.constructor == Error ? err : new Error(err), data, { _ABC_is_err: true });
     }
     F.ERR = window.ERR = ERR;
@@ -358,11 +364,12 @@
     C.sneq = B2(C.seq, C.not);
 
     C.log = window.console && window.console.log ? console.log.bind(console) : I;
+    C.error = window.console && window.console.error ? console.error.bind(console) : I;
 
     function F(nodes) {
         var f = getValue(G, nodes);
         var err = Error('warning: ' + nodes + ' is not defined');
-        return f || setTimeout(function() { (f = f || getValue(G, nodes)) || console.error(err) }, 0)
+        return f || setTimeout(function() { (f = f || getValue(G, nodes)) || C.error(err) }, 0)
             && function() { return A(arguments, f || (f = getValue(G, nodes)), this); }
     }
 
