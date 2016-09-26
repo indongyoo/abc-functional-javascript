@@ -360,10 +360,24 @@
     C.log = window.console && window.console.log ? console.log.bind(console) : I;
     C.error = window.console && window.console.error ? console.error.bind(console) : I;
 
+    C.isString = _.isString;
+    C.isArray = _.isArray;
+    C.isArrayLike = _.isArrayLike;
+
     C.test = function(tests) {
-        return C.log('Test start!') || C.map(tests, function(func, key) {
-            return C([func, IF([J.u, B(key + ' ----> success', C.log)]).ELSE([J.u, B(key + ' ----> fail', C.error)])]);
-        });
+        var fails = [], results = [];
+        return C([
+            J('------------Start------------'), C.log,
+            J(tests),
+            B.map([function(func, key) {
+                return C([func, IF([J.u, function () { results.push(key + ' ----> success'); }]).ELSE([J.u, function () { results.push(key + ' ----> fail'); fails.push(key + ' ----> fail'); }]) ]);
+            }]),
+            J('------------Fail-------------'), C.log,
+            J(fails), B.each([I, C.error]),
+            J('------------All--------------'), C.log,
+            J(results), B.each([I, C.log]),
+            J('------------End--------------'), C.log
+        ]);
     };
 
     function F(nodes) {
@@ -624,13 +638,13 @@ function respect_underscore(_) {
 
     var MAX_ARRAY_INDEX = Math.pow(2, 53) - 1;
     var getLength = function(obj) { return obj.length; };
-    var isArrayLike = function(collection) {
+    _.isArrayLike = function(collection) {
         var length = getLength(collection);
         return typeof length == 'number' && length >= 0 && length <= MAX_ARRAY_INDEX;
     };
 
     _.contains = function(obj, item, fromIndex, guard) {
-        if (!isArrayLike(obj)) obj = _.values(obj);
+        if (!_.isArrayLike(obj)) obj = _.values(obj);
         if (typeof fromIndex != 'number' || guard) fromIndex = 0;
         return _.indexOf(obj, item, fromIndex) >= 0;
     };
@@ -649,7 +663,7 @@ function respect_underscore(_) {
         var output = [], idx = 0;
         for (var i = startIndex || 0, length = getLength(input); i < length; i++) {
             var value = input[i];
-            if (isArrayLike(value) && (_.isArray(value) || _.isArguments(value))) {
+            if (_.isArrayLike(value) && (_.isArray(value) || _.isArguments(value))) {
                 if (!shallow) value = flatten(value, shallow, strict);
                 var j = 0, len = value.length;
                 output.length += len;
