@@ -514,13 +514,14 @@
     return ary.concat(rest_ary);
   }
 
-  function start_tag(str, tag_stack, attrs, name, cls) {
+  function start_tag(str, tag_stack, attrs, name, cls, is_complete_tag) {
     attrs = '';
     name = str.match(/^\w+/);
 
     // name
     name = (!name || name == 'd') ? 'div' : name == 'sp' ? 'span' : name;
-    if (name != 'input' && name != 'br' ) tag_stack.push(name);
+    if (is_complete_tag = C.every(['input', 'img', 'br', 'area', 'base', 'col', 'embed', 'hr', 'keygen', 'link', 'meta', 'param', 'source'], //unclosed_tags
+            function(u_tag) { return name != u_tag })) tag_stack.push(name);
 
     // attrs
     str = str.replace(/\[(.*)\]/, function(match, inner) { return (attrs += ' ' + inner) && ''; });
@@ -535,7 +536,8 @@
     attrs = [''].concat(C.map(str.match(/#(\{\{\{.*?\}\}\}|\{\{.*?\}\}|[\w\-]+)/g),
         function(v) { return v.slice(1); })).join(' id=') + attrs;
 
-    return '<' + name + attrs + ' >'; // 띄어쓰기 <a href=www.marpple.com/> 를 위해
+    //return '<' + name + attrs + ' >'; // 띄어쓰기 <a href=www.marpple.com/> 를 위해
+    return '<' + name + attrs + (is_complete_tag ? ' >' : ' />'); // 홀태그, 더 엄격한 xhtml 기준을 따름
   }
 
   function end_tag(tag) { return '</' + tag + '>'; }
