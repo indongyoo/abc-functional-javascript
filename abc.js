@@ -450,10 +450,15 @@
   }
 
   /* H start */
-  var TAB_SIZE = 2;
-  var TAB = "( {" + TAB_SIZE + "}|\\t)"; // "( {4}|\\t)"
-  var TABS = TAB + "+";
-  var number_of_tab = function(a) { return a.match(new RegExp("^" + TAB + "+"))[0].length / TAB_SIZE; };
+  H.TAB_SIZE = 2;
+  function TAB() { return "( {" + H.TAB_SIZE + "}|\\t)"; }; // "( {4}|\\t)"
+  function TABS() { return TAB() + "+"; };
+  function number_of_tab(a) {
+    var snt = a.match(new RegExp("^" + TABS()))[0];
+    var tab_length = (snt.match(/\t/g) || []).length;
+    var space = snt.replace(/\t/g, "");
+    return space / H.TAB_SIZE + tab_length;
+  }
 
   function H(var_names/*, source...*/) {
     return s.apply(null, [H, 'H', convert_to_html].concat(_.toArray(arguments)));
@@ -489,7 +494,7 @@
 
   function remove_comment(source, data) {
     return MR(source.replace(/\/\*(.*?)\*\//g, "").replace(
-      new RegExp("\/\/" + TABS + ".*?(?=((\/\/)?" + TABS + "))|\/\/" + TABS + ".*", "g"), ""), data);
+      new RegExp("\/\/" + TABS() + ".*?(?=((\/\/)?" + TABS() + "))|\/\/" + TABS() + ".*", "g"), ""), data);
   }
 
   var unescaped_exec = B(/!\{(.*?)\}!/, I, s_exec); //!{}!
@@ -507,9 +512,9 @@
 
   function convert_to_html(source, data) {
     var tag_stack = [];
-    var ary = source.match(new RegExp(TABS + "\\S.*?(?=" + TABS + "\\S)|" + TABS + "\\S.*", "g"));
+    var ary = source.match(new RegExp(TABS() + "\\S.*?(?=" + TABS() + "\\S)|" + TABS() + "\\S.*", "g"));
     var base_tab = number_of_tab(ary[0]);
-    ary[ary.length - 1] = ary[ary.length - 1].replace(new RegExp(TAB + "{" + base_tab + "}$"), "");
+    ary[ary.length - 1] = ary[ary.length - 1].replace(new RegExp(TAB() + "{" + base_tab + "}$"), "");
 
     var is_paragraph = 0;
     for (var i = 0; i < ary.length; i++) {
@@ -523,12 +528,12 @@
 
       if (!is_paragraph) {
         ary[i] = line(ary[i], tag_stack);
-        if (tmp.match(new RegExp("^(" + TABS + ")(\\[.*?\\]|\\{.*?\\}|\\S)+\\.(?!\\S)"))) is_paragraph = number_of_tab(RegExp.$1) + 1;
+        if (tmp.match(new RegExp("^(" + TABS() + ")(\\[.*?\\]|\\{.*?\\}|\\S)+\\.(?!\\S)"))) is_paragraph = number_of_tab(RegExp.$1) + 1;
         continue;
       }
 
-      ary[i] = ary[i].replace(new RegExp("(" + TAB + "{" + is_paragraph + "})", "g"), "\n");
-      if (ary[i] !== (ary[i] = ary[i].replace(new RegExp("\\n(" + TABS + "[\\s\\S]*)"), "\n"))) ary = push_in(ary, i + 1, RegExp.$1);
+      ary[i] = ary[i].replace(new RegExp("(" + TAB() + "{" + is_paragraph + "})", "g"), "\n");
+      if (ary[i] !== (ary[i] = ary[i].replace(new RegExp("\\n(" + TABS() + "[\\s\\S]*)"), "\n"))) ary = push_in(ary, i + 1, RegExp.$1);
     }
 
     while (tag_stack.length) ary[ary.length - 1] += end_tag(tag_stack.pop()); // 마지막 태그
@@ -537,7 +542,7 @@
   }
 
   function line(source, tag_stack) {
-    source = source.replace(new RegExp("^" + TABS + "\\|"), "\n").replace(/^ */, "");
+    source = source.replace(new RegExp("^" + TABS() + "\\|"), "\n").replace(/^\s*/, "");
     return source.match(/^[\[.#\w\-]/) ? source.replace(/^(\[.*\]|\{.*?\}|\S)+ ?/, function(str) {
       return start_tag(str, tag_stack);
     }) : source;
