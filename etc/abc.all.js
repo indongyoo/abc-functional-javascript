@@ -520,7 +520,7 @@
 
     // name
     name = (!name || name == 'd') ? 'div' : name == 'sp' ? 'span' : name;
-    if (name != 'input') tag_stack.push(name);
+    if (name != 'input' && name != 'br' ) tag_stack.push(name);
 
     // attrs
     str = str.replace(/\[(.*)\]/, function(match, inner) { return (attrs += ' ' + inner) && ''; });
