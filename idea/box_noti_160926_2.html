@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>abcjs - CATCH</title>
+  <meta charset="UTF-8">
+  <title>abcjs - CATCH</title>
 </head>
 <body>
 <!--<script src="https://cdn.jsdelivr.net/bluebird/latest/bluebird.js"></script>-->
@@ -14,107 +14,107 @@
 
 <script>
 
-    /*! http://github.com/raganwald/string-lambdas (c) 2012-2013 Oliver Steele, Michael Fogus, and Reg Braithwaite. MIT Licensed. */
-    (function (root) {
+  /*! http://github.com/raganwald/string-lambdas (c) 2012-2013 Oliver Steele, Michael Fogus, and Reg Braithwaite. MIT Licensed. */
+  (function (root) {
 
-        // Setup
-        // -----
+    // Setup
+    // -----
 
-        // Establish the root object, `window` in the browser, or `global` on the server.
-        // *taken from [Underscore.js](http://underscorejs.org/)*
+    // Establish the root object, `window` in the browser, or `global` on the server.
+    // *taken from [Underscore.js](http://underscorejs.org/)*
 
-        var root = this;
+    var root = this;
 
-        var __slice = Array.prototype.slice;
+    var __slice = Array.prototype.slice;
 
-        // ## Functionalizing
-        //
-        // The utility functions operate on other functions. They can also operate on string
-        // abbreviations for functions by calling `functionalize(...)` on their inputs.
+    // ## Functionalizing
+    //
+    // The utility functions operate on other functions. They can also operate on string
+    // abbreviations for functions by calling `functionalize(...)` on their inputs.
 
-        // SHIM
-        if ('ab'.split(/a*/).length < 2) {
-            if (typeof console !== "undefined" && console !== null) {
-                console.log("Warning: IE6 split is not ECMAScript-compliant.  This breaks '->1'");
-            }
+    // SHIM
+    if ('ab'.split(/a*/).length < 2) {
+      if (typeof console !== "undefined" && console !== null) {
+        console.log("Warning: IE6 split is not ECMAScript-compliant.  This breaks '->1'");
+      }
+    }
+
+    function to_function(str) {
+      var expr, leftSection, params, rightSection, sections, v, vars, _i, _len;
+      params = [];
+      expr = str;
+      sections = expr.split(/\s*->\s*/m);
+      var is_ = false;
+      if (sections.length > 1) {
+        while (sections.length) {
+          expr = sections.pop();
+          params = sections.pop().split(/\s*,\s*|\s+/m);
+          sections.length && sections.push('(function(' + params + '){return (' + expr + ')})');
         }
-
-        function to_function (str) {
-            var expr, leftSection, params, rightSection, sections, v, vars, _i, _len;
-            params = [];
-            expr = str;
-            sections = expr.split(/\s*->\s*/m);
-            var is_ = false;
-            if (sections.length > 1) {
-                while (sections.length) {
-                    expr = sections.pop();
-                    params = sections.pop().split(/\s*,\s*|\s+/m);
-                    sections.length && sections.push('(function(' + params + '){return (' + expr + ')})');
-                }
-            } else if (expr.match(/\b_\b/)) {
-                is_ = true;
-                params = '_';
-            } else {
-                leftSection = expr.match(/^\s*(?:[+*\/%&|\^\.=<>]|!=)/m);
-                rightSection = expr.match(/[+\-*\/%&|\^\.=<>!]\s*$/m);
-                if (leftSection || rightSection) {
-                    if (leftSection) {
-                        params.push('$1');
-                        expr = '$1' + expr;
-                    }
-                    if (rightSection) {
-                        params.push('$2');
-                        expr = expr + '$2';
-                    }
-                } else {
-                    vars = str.replace(/(?:\b[A-Z]|\.[a-zA-Z_$])[a-zA-Z_$\d]*|[a-zA-Z_$][a-zA-Z_$\d]*\s*:|this|arguments|'(?:[^'\\]|\\.)*'|"(?:[^"\\]|\\.)*"/g, '').match(/([a-z_$][a-z_$\d]*)/gi) || [];
-                    for (_i = 0, _len = vars.length; _i < _len; _i++) {
-                        v = vars[_i];
-                        params.indexOf(v) >= 0 || params.push(v);
-                    }
-                }
-            }
-            var f = new Function(params, 'return (' + expr + ')');
-            return is_ ? f : f();
-        };
-
-        function functionalize (fn) {
-            if (typeof fn === 'function') {
-                return fn;
-            } else if (typeof fn === 'string' && /^[_a-zA-Z]\w*$/.test(fn)) {
-                return function() {
-                    var args, receiver, _ref;
-                    receiver = arguments[0], args = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
-                    return (_ref = receiver[fn]).call.apply(_ref, [receiver].concat(__slice.call(args)));
-                };
-            } else if (typeof fn.lambda === 'function') {
-                return fn.lambda();
-            } else if (typeof fn.toFunction === 'function') {
-                return fn.toFunction();
-            } else if (typeof fn === 'string') {
-                return to_function(fn);
-            }
-        };
-
-        var string_lambdas = {
-            functionalize: functionalize,
-            'λ': functionalize
-        };
-
-
-        // Exports and sundries
-        // --------------------
-
-        if (typeof exports !== 'undefined') {
-            if (typeof module !== 'undefined' && module.exports) {
-                exports = module.exports = string_lambdas;
-            }
-            exports.string_lambdas = string_lambdas;
+      } else if (expr.match(/\b_\b/)) {
+        is_ = true;
+        params = '_';
+      } else {
+        leftSection = expr.match(/^\s*(?:[+*\/%&|\^\.=<>]|!=)/m);
+        rightSection = expr.match(/[+\-*\/%&|\^\.=<>!]\s*$/m);
+        if (leftSection || rightSection) {
+          if (leftSection) {
+            params.push('$1');
+            expr = '$1' + expr;
+          }
+          if (rightSection) {
+            params.push('$2');
+            expr = expr + '$2';
+          }
         } else {
-            root.string_lambdas = string_lambdas;
+          vars = str.replace(/(?:\b[A-Z]|\.[a-zA-Z_$])[a-zA-Z_$\d]*|[a-zA-Z_$][a-zA-Z_$\d]*\s*:|this|arguments|'(?:[^'\\]|\\.)*'|"(?:[^"\\]|\\.)*"/g, '').match(/([a-z_$][a-z_$\d]*)/gi) || [];
+          for (_i = 0, _len = vars.length; _i < _len; _i++) {
+            v = vars[_i];
+            params.indexOf(v) >= 0 || params.push(v);
+          }
         }
+      }
+      var f = new Function(params, 'return (' + expr + ')');
+      return is_ ? f : f();
+    };
 
-    }).call(this);
+    function functionalize(fn) {
+      if (typeof fn === 'function') {
+        return fn;
+      } else if (typeof fn === 'string' && /^[_a-zA-Z]\w*$/.test(fn)) {
+        return function () {
+          var args, receiver, _ref;
+          receiver = arguments[0], args = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
+          return (_ref = receiver[fn]).call.apply(_ref, [receiver].concat(__slice.call(args)));
+        };
+      } else if (typeof fn.lambda === 'function') {
+        return fn.lambda();
+      } else if (typeof fn.toFunction === 'function') {
+        return fn.toFunction();
+      } else if (typeof fn === 'string') {
+        return to_function(fn);
+      }
+    };
+
+    var string_lambdas = {
+      functionalize: functionalize,
+      'λ': functionalize
+    };
+
+
+    // Exports and sundries
+    // --------------------
+
+    if (typeof exports !== 'undefined') {
+      if (typeof module !== 'undefined' && module.exports) {
+        exports = module.exports = string_lambdas;
+      }
+      exports.string_lambdas = string_lambdas;
+    } else {
+      root.string_lambdas = string_lambdas;
+    }
+
+  }).call(this);
 
 </script>
 
@@ -122,100 +122,100 @@
 <script>
 
 
-//    Box.data.users = {
-//        models: []
-//    }
-//
-//    Box.data.users = [
-//        { _bid: 12323 }
-//    ];
-//    Box.data.ready_cache = {
-//        "b12323": 'users'
-//    };
-//    Box.data.ready_cache.posts = [12323];
-//    Box.data.cache = {
-//        "b12323": 'users'
-//        "users": [],
-//    };
-//
-//    Box.bid(post.comments);
-//
-//
-//    Box.data["b1231233"] = post.comments;
-//
-//    Box.data.ready_cache = {
-//        "b1231233": "b1231233"
-//    };
-//
-//    // users = [{}]
-//    Box.bid('users', {});
-//    Box.bid('users', {});
-//
-//    Box.
-//
-//    //
-//    Box.bid(5);
-//    Box.bid([]);
-//    Box.bid({});
-//    Box.bid("233");
-//
-//
-//
-//
-//
-//    {
-//        posts: {
-//            id: {
-//                "5": 10
-//            }
-//        }
-//    }
-//
-//
-//    {
-//        posts: [
-//            10
-//        ]
-//    }
-//
-//    {
-//        posts: [
-//            {id: 10}
-//        ]
-//    }
-//
-//
-//box.get('users#30.name')
-//
-//    "user.posts[v.id==5].comments[v.id==6]"
-//    "user.posts[(v, k, l) => k.id==5].comments[v.id==6]"
-//
-//
-//
-//    user.posts.id.5._.comments.id.10
-//
-//    users.asd.asd.id.5
+  //    Box.data.users = {
+  //        models: []
+  //    }
+  //
+  //    Box.data.users = [
+  //        { _bid: 12323 }
+  //    ];
+  //    Box.data.ready_cache = {
+  //        "b12323": 'users'
+  //    };
+  //    Box.data.ready_cache.posts = [12323];
+  //    Box.data.cache = {
+  //        "b12323": 'users'
+  //        "users": [],
+  //    };
+  //
+  //    Box.bid(post.comments);
+  //
+  //
+  //    Box.data["b1231233"] = post.comments;
+  //
+  //    Box.data.ready_cache = {
+  //        "b1231233": "b1231233"
+  //    };
+  //
+  //    // users = [{}]
+  //    Box.bid('users', {});
+  //    Box.bid('users', {});
+  //
+  //    Box.
+  //
+  //    //
+  //    Box.bid(5);
+  //    Box.bid([]);
+  //    Box.bid({});
+  //    Box.bid("233");
+  //
+  //
+  //
+  //
+  //
+  //    {
+  //        posts: {
+  //            id: {
+  //                "5": 10
+  //            }
+  //        }
+  //    }
+  //
+  //
+  //    {
+  //        posts: [
+  //            10
+  //        ]
+  //    }
+  //
+  //    {
+  //        posts: [
+  //            {id: 10}
+  //        ]
+  //    }
+  //
+  //
+  //box.get('users#30.name')
+  //
+  //    "user.posts[v.id==5].comments[v.id==6]"
+  //    "user.posts[(v, k, l) => k.id==5].comments[v.id==6]"
+  //
+  //
+  //
+  //    user.posts.id.5._.comments.id.10
+  //
+  //    users.asd.asd.id.5
 
-    var lam = string_lambdas.functionalize;
+  var lam = string_lambdas.functionalize;
 
-    var list = [1,2,3];
-//    console.log(_.map(list, lam("(v) => v * 2")));
+  var list = [1, 2, 3];
+  //    console.log(_.map(list, lam("(v) => v * 2")));
 
-    console.log(lam("_.id==10")({id: 10}));
-//    console.log(lam("(v)=> v.id == 10")()({id: 20}));
-    console.log(lam("(v)=> v.id == 10")({id: 10}));
+  console.log(lam("_.id==10")({id: 10}));
+  //    console.log(lam("(v)=> v.id == 10")()({id: 20}));
+  console.log(lam("(v)=> v.id == 10")({id: 10}));
 
 
-//    Box.find('users.find(_.id==!{user.id}!).');
-//    Box.find('users.filter((v)=>v==10).');
-//    Box.find('users.2.');
-//
+  //    Box.find('users.find(_.id==!{user.id}!).');
+  //    Box.find('users.filter((v)=>v==10).');
+  //    Box.find('users.2.');
+  //
 
 </script>
 
-    <div class="comment" box_selector="posts.(_.id==!{post.id}!).comments.(_.id==!{comment.id}!)">
+<div class="comment" box_selector="posts.(_.id==!{post.id}!).comments.(_.id==!{comment.id}!)">
 
-    </div>
+</div>
 
 </body>
 </html>

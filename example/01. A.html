@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>abcjs - A</title>
+  <meta charset="UTF-8">
+  <title>abcjs - A</title>
 </head>
 <body>
 
@@ -12,50 +12,50 @@
 
 <script>
 
-    /*
-    *
-    * abcjs는 함수형 자바스크립트(functional javascript) 라이브러리입니다.
-    *  - Web browser와 NodeJS에서 사용할 수 있습니다.
-    *  - Promise, jQuery Deferred Object, Future 등의 모나드식 해법 보다 간결하고 편리한 비동기 제어를 지원합니다.
-    *  - 비동기 함수일지라도 동기 함수를 작성하듯이 논리 구조를 만들 수 있습니다.
-    *  - 비동기도 제어 기능을 더한 each, map, reduce, filter, reject, find, findIndex, some, every, uniq 함수가 있습니다.
-    *  - Jade와 비슷한 HTML Template 함수가 있습니다.
-    *  - sql 등을 작성하기 편한 함수가 있습니다.
-    *  - 다른 자바스크립트 라이브러리에 대한 의존성이 없는 750줄 정도의 작은 라이브러리입니다.
-    *  - Respect Underscorejs!
-    *
-    * abcjs와 함께 함수형 프로그래밍을 즐겨보세요 :)
-    *
-    * `A`는 `apply`와 비슷합니다.
-    *
-    * */
+  /*
+   *
+   * abcjs는 함수형 자바스크립트(functional javascript) 라이브러리입니다.
+   *  - Web browser와 NodeJS에서 사용할 수 있습니다.
+   *  - Promise, jQuery Deferred Object, Future 등의 모나드식 해법 보다 간결하고 편리한 비동기 제어를 지원합니다.
+   *  - 비동기 함수일지라도 동기 함수를 작성하듯이 논리 구조를 만들 수 있습니다.
+   *  - 비동기도 제어 기능을 더한 each, map, reduce, filter, reject, find, findIndex, some, every, uniq 함수가 있습니다.
+   *  - Jade와 비슷한 HTML Template 함수가 있습니다.
+   *  - sql 등을 작성하기 편한 함수가 있습니다.
+   *  - 다른 자바스크립트 라이브러리에 대한 의존성이 없는 750줄 정도의 작은 라이브러리입니다.
+   *  - Respect Underscorejs!
+   *
+   * abcjs와 함께 함수형 프로그래밍을 즐겨보세요 :)
+   *
+   * `A`는 `apply`와 비슷합니다.
+   *
+   * */
 
-    function add(a, b) {
-        return a + b;
-    }
+  function add(a, b) {
+    return a + b;
+  }
 
-    var r1 = A([20, 2], add); // add.apply(undefined, [20, 2]);
-    console.log(r1);
-    // 22
+  var r1 = A([20, 2], add); // add.apply(undefined, [20, 2]);
+  console.log(r1);
+  // 22
 
-    /*
-    * 대부분 왼쪽에서 오른쪽, 위에서 아래로 읽는데 익숙합니다.
-    * 그래서 A는 인자와 함수사용에 대한 방향을 바꾸었습니다.
-    * */
+  /*
+   * 대부분 왼쪽에서 오른쪽, 위에서 아래로 읽는데 익숙합니다.
+   * 그래서 A는 인자와 함수사용에 대한 방향을 바꾸었습니다.
+   * */
 
-    function minus(a, b) {
-        return a - b;
-    }
+  function minus(a, b) {
+    return a - b;
+  }
 
-    var r2 = A([20, 5], function() {
-        return A(arguments, minus);
-    });
-    console.log(r2);
-    // 15
+  var r2 = A([20, 5], function () {
+    return A(arguments, minus);
+  });
+  console.log(r2);
+  // 15
 
-    /*
-     * Array나 arguments를 사용하면 됩니다.
-     * */
+  /*
+   * Array나 arguments를 사용하면 됩니다.
+   * */
 
 </script>
 

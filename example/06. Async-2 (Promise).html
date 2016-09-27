@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>abcjs - Async-2 (Promise)</title>
+  <meta charset="UTF-8">
+  <title>abcjs - Async-2 (Promise)</title>
 </head>
 <body>
 
@@ -14,103 +14,103 @@
 
 <script>
 
-    /* abcjs는 Promise가 필요 없지만 .then을 리턴하는 함수의 비동기 제어를 지원합니다. */
-    function delay() {
-        return new Promise(function(rs) {
-            setTimeout(function() {
-                rs();
-            }, 1000);
-        })
-    }
+  /* abcjs는 Promise가 필요 없지만 .then을 리턴하는 함수의 비동기 제어를 지원합니다. */
+  function delay() {
+    return new Promise(function (rs) {
+      setTimeout(function () {
+        rs();
+      }, 1000);
+    })
+  }
 
-    function sum(a, b) {
-        return delay().then(function() {
-            return a + b;
-        });
-    }
+  function sum(a, b) {
+    return delay().then(function () {
+      return a + b;
+    });
+  }
 
-    function minus(a, b) {
-        return delay().then(function() {
-            return a - b;
-        });
-    }
+  function minus(a, b) {
+    return delay().then(function () {
+      return a - b;
+    });
+  }
 
-    function square(a) {
-        return delay().then(function() {
-            return a * a;
-        });
-    }
+  function square(a) {
+    return delay().then(function () {
+      return a * a;
+    });
+  }
 
-    // Promise
-    sum(2, 4)
-        .then(function(r) {
-            return minus(r, 4);
-        }).then(function(r) {
-            return square(r);
-        }).then(function(r) {
-            console.log(r); // 4
-        });
+  // Promise
+  sum(2, 4)
+      .then(function (r) {
+        return minus(r, 4);
+      }).then(function (r) {
+    return square(r);
+  }).then(function (r) {
+    console.log(r); // 4
+  });
 
-    // ABC
-    C(3, 6, [
-        sum,
-        function(r) {
-            return minus(r, 5);
-        },
-        square,
-        function(r) {
-            console.log(r); // 16
-        }]);
+  // ABC
+  C(3, 6, [
+    sum,
+    function (r) {
+      return minus(r, 5);
+    },
+    square,
+    function (r) {
+      console.log(r); // 16
+    }]);
 
-    /*
-    * 아래와 같이 마지막 결과를 then으로 받을 수 있어 Promise와 함께 사용이 가능합니다.
-    * */
+  /*
+   * 아래와 같이 마지막 결과를 then으로 받을 수 있어 Promise와 함께 사용이 가능합니다.
+   * */
 
 
-    C(5, 5, [
+  C(5, 5, [
+    sum,
+    square
+  ]).then(function (r) {
+    console.log(r); // 100
+  });
+
+  sum(2, 4)
+      .then(function (r) {
+        return C(r, 2, [
+          sum,
+          square
+        ]);
+      }).then(function (r) {
+    console.log(r); // 64
+  });
+
+  // B를 사용하면 더욱 간단하게 만들 수 있습니다.
+  sum(2, 4)
+      .then(B(X, 2, [
         sum,
         square
-    ]).then(function(r) {
-        console.log(r); // 100
-    });
+      ])).then(function (r) {
+    console.log(r); // 64
+  });
 
-    sum(2, 4)
-        .then(function(r) {
-            return C(r, 2, [
-                sum,
-                square
-            ]);
-        }).then(function(r) {
-            console.log(r); // 64
-        });
+  /* CB와 함께 사용 가능합니다. */
+  C(5, 5, [
+    sum,
+    square,
+    CB(function (r, cb) {
+      cb(r / 2)
+    })
+  ]).then(function (r) {
+    console.log(r); // 50
+  });
 
-    // B를 사용하면 더욱 간단하게 만들 수 있습니다.
-    sum(2, 4)
-        .then(B(X, 2, [
-            sum,
-            square
-        ])).then(function(r) {
-            console.log(r); // 64
-        });
-
-    /* CB와 함께 사용 가능합니다. */
-    C(5, 5, [
-        sum,
-        square,
-        CB(function(r, cb) {
-            cb(r / 2)
-        })
-    ]).then(function(r) {
-        console.log(r); // 50
-    });
-
-    /*
-    * 만일 es6 Promise나 Promise Library가 있다면 C()는 Promise 객체를 리턴합니다.
-    * 그렇지 않다면 C()의 리턴 값이 {}.then()의 형태를 띄지만 Promise 객체는 아닙니다.
-    *
-    * function has_promise() { (window || global).Promise.prototype.then; }
-    * has_promise() ? new Promise(function(rs) { resolve = rs; }) : { then: function(rs) { resolve = rs; } })
-    * */
+  /*
+   * 만일 es6 Promise나 Promise Library가 있다면 C()는 Promise 객체를 리턴합니다.
+   * 그렇지 않다면 C()의 리턴 값이 {}.then()의 형태를 띄지만 Promise 객체는 아닙니다.
+   *
+   * function has_promise() { (window || global).Promise.prototype.then; }
+   * has_promise() ? new Promise(function(rs) { resolve = rs; }) : { then: function(rs) { resolve = rs; } })
+   * */
 
 </script>
 

@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>abcjs - CATCH</title>
+  <meta charset="UTF-8">
+  <title>abcjs - CATCH</title>
 </head>
 <body>
 <!--<script src="https://cdn.jsdelivr.net/bluebird/latest/bluebird.js"></script>-->
@@ -14,227 +14,226 @@
 
 
 <script>
-    /*
-     * throw, ERR, CATCH
-     * */
+  /*
+   * throw, ERR, CATCH
+   * */
 
-    C([
-        function() {
-            console.log(1);
-        },
-        function() {
-            console.log(2);
-            throw 2;
-        },
-        function() {
-            console.log(3);
-        },
-        CATCH(function(e) {
-            console.log(4, e);
-        })]);
-    // 1
-    // 2
-    // 4, Error: 2(…)
-    console.log('-------------------------');
+  C([
+    function () {
+      console.log(1);
+    },
+    function () {
+      console.log(2);
+      throw 2;
+    },
+    function () {
+      console.log(3);
+    },
+    CATCH(function (e) {
+      console.log(4, e);
+    })]);
+  // 1
+  // 2
+  // 4, Error: 2(…)
+  console.log('-------------------------');
 
-    C([
-        function() {
-            console.log(1);
+  C([
+    function () {
+      console.log(1);
+    },
+    function () {
+      console.log(2);
+      return ERR(2);
+    },
+    function () {
+      console.log(3);
+    },
+    CATCH(function (e) {
+      console.log(4, e);
+    }),
+    function () {
+      console.log(5);
+    }]);
+  // 1
+  // 2
+  // 4, Error: 2(…)
+  // 5
+  console.log('-------------------------');
+
+  C([
+    function () {
+      console.log(1);
+      return ERR('custom data', {
+        type: 1,
+        msg: 'hi'
+      });
+    },
+    CATCH(function (err) {
+      if (err.type == 1) {
+        console.log(err.msg, err);
+      } else {
+        console.log('else');
+      }
+    })]);
+  // 1
+  // hi Error: custom data(…)
+  console.log('-------------------------');
+
+  C([
+    function () {
+      console.log(1);
+    },
+    function () {
+      console.log(2);
+    },
+    function () {
+      console.log(3);
+    },
+    CATCH(function (e) {
+      console.log(4, e);
+    }),
+    function () {
+      console.log(5);
+    }]);
+
+  // 1
+  // 2
+  // 3
+  // 5
+  console.log('-------------------------');
+
+  C([
+    function () {
+      console.log(1);
+    },
+    function () {
+      return C([
+        function () {
+          console.log(2);
         },
-        function() {
-            console.log(2);
-            return ERR(2);
+        function () {
+          console.log(3);
+          throw 3
         },
-        function() {
-            console.log(3);
+        function () {
+          console.log(4);
         },
-        CATCH(function(e) {
-            console.log(4, e);
+        CATCH(function (e) {
+          console.log(5, e);
         }),
-        function() {
-            console.log(5);
-        }]);
-    // 1
-    // 2
-    // 4, Error: 2(…)
-    // 5
-    console.log('-------------------------');
+        function () {
+          console.log(6);
+        },
+        function () {
+          console.log(7);
+          return ERR(7);
+        }
+      ])
+    },
+    function () {
+      console.log(8);
+    },
+    CATCH(function (e) {
+      console.log(9, e);
+      return 'hi'
+    }),
+    function (a) {
+      console.log(10, a);
+    }
+  ]);
+  // 1
+  // 2
+  // 3
+  // 5 Error: 3(…)
+  // 6
+  // 7
+  // 9 Error: 7(…)
+  // 10 'hi'
 
-    C([
-        function() {
-            console.log(1);
-            return ERR('custom data', {
-                type: 1,
-                msg: 'hi'
-            });
-        },
-        CATCH(function(err) {
-            if (err.type == 1) {
-                console.log(err.msg, err);
-            } else {
-                console.log('else');
-            }
-        })]);
-    // 1
-    // hi Error: custom data(…)
-    console.log('-------------------------');
+  console.log('-------------------------');
 
-    C([
-        function() {
-            console.log(1);
-        },
-        function() {
-            console.log(2);
-        },
-        function() {
-            console.log(3);
-        },
-        CATCH(function(e) {
-            console.log(4, e);
-        }),
-        function() {
-            console.log(5);
-        }]);
+  // for async
+  var go = B([
+    function (a) {
+      console.log(1);
+      return a;
+    },
+    CB(function (a, next) {
+      console.log(2);
+      setTimeout(function () {
+        next(a == 1 ? 2 : ERR(2));
+      }, 500)
+    }),
+    function () {
+      console.log(3);
+    },
+    function () {
+      console.log(4);
+      return 'complete';
+    },
+    CB(CATCH(function (e, next) {
+      console.log(5, e);
+      setTimeout(function () {
+        // rollback
+        next('fail');
+      }, 1000);
+    })),
+    function (a) {
+      console.log(a);
+      console.log('------------------')
+    }
+  ]);
 
+  go(1).then(function () {
     // 1
     // 2
     // 3
-    // 5
-    console.log('-------------------------');
+    // 4
+    // complete
 
-    C([
-        function() {
-            console.log(1);
-        },
-        function() {
-            return C([
-                function() {
-                    console.log(2);
-                },
-                function() {
-                    console.log(3);
-                    throw 3
-                },
-                function() {
-                    console.log(4);
-                },
-                CATCH(function(e) {
-                    console.log(5, e);
-                }),
-                function() {
-                    console.log(6);
-                },
-                function() {
-                    console.log(7);
-                    return ERR(7);
-                }
-            ])
-        },
-        function() {
-            console.log(8);
-        },
-        CATCH(function(e) {
-            console.log(9, e);
-            return 'hi'
-        }),
-        function(a) {
-            console.log(10, a);
-        }
-    ]);
+    go(2);
     // 1
     // 2
-    // 3
-    // 5 Error: 3(…)
-    // 6
-    // 7
-    // 9 Error: 7(…)
-    // 10 'hi'
-
-    console.log('-------------------------');
-
-    // for async
-    var go = B([
-        function(a) {
-            console.log(1);
-            return a;
-        },
-        CB(function(a, next) {
-            console.log(2);
-            setTimeout(function() {
-                next(a == 1 ? 2 : ERR(2));
-            }, 500)
-        }),
-        function() {
-            console.log(3);
-        },
-        function() {
-            console.log(4);
-            return 'complete';
-        },
-        CB(CATCH(function(e, next) {
-            console.log(5, e);
-            setTimeout(function() {
-                // rollback
-                next('fail');
-            }, 1000);
-        })),
-        function(a) {
-            console.log(a);
-            console.log('------------------')
-        }
-    ]);
-
-    go(1).then(function() {
-        // 1
-        // 2
-        // 3
-        // 4
-        // complete
-
-        go(2);
-        // 1
-        // 2
-        // 5 Error: 2(…)
-        // fail
-    });
+    // 5 Error: 2(…)
+    // fail
+  });
 
 
+  "bid"
 
-    "bid"
+  Box.add('users', []);
 
-    Box.add('users', []);
-
-    Box.data.users = Box.data.users.concat([]);
-
-
-    Box.bid(user);
-    => 123123;
+  Box.data.users = Box.data.users.concat([]);
 
 
-    Box.data.users = [user];
-    user._view_data_id = 123412392839;
-
-    Box.view_data = {};
-    Box.view_data[123412392839] = user;
-
-    Box.update(user, {});
+  Box.bid(user);
+  =
+  >
+  123123;
 
 
+  Box.data.users = [user];
+  user._view_data_id = 123412392839;
 
-    C([
-        C.val(Box, 'data.users'),
-        B.filter(),
-        B.filter(),
-        B.filter(),
-        function(user) {
-            var u = _.clone(user);
-            $.post(_.extend(u, {hh: 11})).then(function(u) {
-                Box.update(u, {});
-                Box.update_by_bid(u._bid, u);
-            })
-        }
-    ])
+  Box.view_data = {};
+  Box.view_data[123412392839] = user;
 
+  Box.update(user, {});
+
+
+  C([
+    C.val(Box, 'data.users'),
+    B.filter(),
+    B.filter(),
+    B.filter(),
+    function (user) {
+      var u = _.clone(user);
+      $.post(_.extend(u, {hh: 11})).then(function (u) {
+        Box.update(u, {});
+        Box.update_by_bid(u._bid, u);
+      })
+    }
+  ])
 
 
 </script>
@@ -243,61 +242,63 @@
 <script>
 
 
-    Event
+  Event
 
-    Event.on('hi', 'comment', function() {
+  Event.on('hi', 'comment', function () {
 
-    });
+  });
 
-    Event.on('hi', 'comment 2323', function() {
+  Event.on('hi', 'comment 2323', function () {
 
-    });
-
-
-    Event.emit('hi', function(li) {
-
-    })
+  });
 
 
-    Box.pg.scheme = {
-        users: {
-            join_as: 'us',
-            join_col_prefix: 'us_',
-            _: {
-                posts: "posts.user_id",
-                info: "users.info_id"
-            }
-        }
+  Event.emit('hi', function (li) {
+
+  })
+
+
+  Box.pg.scheme = {
+    users: {
+      join_as: 'us',
+      join_col_prefix: 'us_',
+      _: {
+        posts: "posts.user_id",
+        info: "users.info_id"
+      }
     }
+  }
 
-    Box.pg.info({
+  Box.pg.info({});
+  Box.pg.query();
+  Box.pg.load({}, 'keke1');
 
-    });
-    Box.pg.query();
-    Box.pg.load({}, 'keke1');
+  Box.load_rels(users, 'users', {
+    _: [
+      [{
+        'posts': {
+          select: '*',
+          where: function (users) {
+            return
+          }
+        }
+      }, {
+        'comments': function (users, posts) {
+          return ''
+        }
+      },
+        'user'],
+    ]
+  });
 
-    Box.load_rels(users, 'users', {
-        _: [
-            [{ 'posts': {
-                select: '*',
-                where: function(users) {
-                    return
-                }
-            } }, { 'comments': function(users, posts) {
-                return ''
-            } },
-                'user'],
-        ]
-    });
+  var box = Box.create();
+  box.data.users = [];
 
-    var box = Box.create();
-    box.data.users = [];
+  window.box = box;
 
-    window.box = box;
+  Box.update(box,);
 
-    Box.update(box, );
-
-    H('box', '\
+  H('box', '\
         {{header}}\
         .user[box.vbid(box.data.users)]\
         script\
@@ -305,22 +306,19 @@
     ');
 
 
-    select('', '', { _: [
-        ["posts", {
-            "comments": function(post_ids) {
-                return 'asdasd';
-            }
-        }],
-        [],
-    ] })
+  select('', '', {
+    _: [
+      ["posts", {
+        "comments": function (post_ids) {
+          return 'asdasd';
+        }
+      }],
+      [],
+    ]
+  })
 
 
 </script>
-
-
-
-
-
 
 
 </body>
