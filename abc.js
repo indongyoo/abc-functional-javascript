@@ -456,8 +456,8 @@
   function number_of_tab(a) {
     var snt = a.match(new RegExp("^" + TABS()))[0];
     var tab_length = (snt.match(/\t/g) || []).length;
-    var space = snt.replace(/\t/g, "");
-    return space / H.TAB_SIZE + tab_length;
+    var space_length = snt.replace(/\t/g, "").length;
+    return space_length / H.TAB_SIZE + tab_length;
   }
 
   function H(var_names/*, source...*/) {

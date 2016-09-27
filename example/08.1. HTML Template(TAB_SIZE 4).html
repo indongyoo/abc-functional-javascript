@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>abcjs - template</title>
+</head>
+<body>
+<script src="https://cdn.jsdelivr.net/bluebird/latest/bluebird.js"></script>
+<script src="http://momentjs.com/downloads/moment.js"></script>
+
+<script src="js/underscore.js"></script>
+<script src="js/jquery.js"></script>
+<script src="../abc.js"></script>
+<script>H.TAB_SIZE = 4;</script>
+
+<script>
+    function delay(func) {
+        setTimeout(function () {
+            func();
+        }, 250);
+    }
+
+    function hr() {
+        $('<hr>').appendTo('body');
+    }
+
+    /*
+     * abcjs에는 html을 효율적으로 만들 수 있는 template 함수인 H, H.each, 일반 문자열을 효율적으로 만들 수 있는 S, S.each가 있습니다.
+     * H, H.each, S, S.each는 모두 비동기 제어를 지원하고 abcjs의 다른 함수들과 함께 사용하기 좋습니다.
+     * */
+
+    C([
+        H('', '\
+            .member[style="border: 1px solid #000; padding: 20px;"]\
+                h3 People\
+                ul\
+                    li Cojamm\
+                    li BJ\
+                    li JM\
+                    li PJ\
+                    li HA\
+                    li JE\
+            #id1.class1.class2[class=class3] hi\
+            .service\
+                a[href=http://www.marpple.com target=_blank] http://www.marpple.com\
+            textarea[rows=10].\
+                Custom T-Shirts\
+                \
+                \
+                Design Platform\
+                Artwork\
+            br\
+/*            br\
+            br*/\
+//            p hi\
+            p hello\
+//            br\
+            textarea\
+                | foo bar\
+                | hello world'),
+        $,
+        B.method('appendTo', 'body')]);
+
+
+    hr();
+
+
+    /*
+     * 1. H-S는 js내에서 사용하기위해 만들어졌습니다. 짧게 작성할 수 있게 하기 위해 jade의 문법과 닮았습니다.
+     * 2. jade보다 더욱 css 문법과 동일합니다.
+     * 3. javascript 함수 사용이 편리합니다.
+     * 4. " 등을 생략할 수 있어 문자열을 다루는데 좀더 편리합니다.
+     * 5. handlebars 등의 helper 보다 더욱 편리하게 template을 위한 함수를 만들 수 있습니다.
+     * */
+
+    /*
+     * 데이터 치환
+     * */
+    C({name: 'Cojamm', age: 32}, [
+        H('user', '\
+            .person\
+                .name {{user.name}}\
+                .age {{user.age}}'),
+        $,
+        B.method('appendTo', 'body')]);
+
+    hr();
+
+    var post = {
+        body: '<em>하이</em> <a href="https://www.youtube.com/watch?v=4tdOzlB6I7w" target="_blank">랩이나 잘하라고</a>',
+        name: 'Cojamm',
+        created_at: new Date()
+    };
+
+    C(post, [
+        H('post', '\
+            .name 글쓴이: {{post.name}}\
+            .body 내용: {{post.body}}\
+            .created_at 시간: {{post.created_at}}'),
+        $,
+        B.method('appendTo', 'body')]);
+
+    hr();
+
+    delete post.name;
+
+    window.moment_lll = B([moment, B.method('format', 'lll')]);
+
+    C(post, [
+        H('post', '\
+            .name 글쓴이: {{post.name || "익명"}}\
+            .body 내용: {{{post.body}}}\
+            .created_at 시간: {{moment_lll(post.created_at)}}'),
+        $,
+        B.method('appendTo', 'body')]);
+
+    hr();
+
+
+    /*
+     * H의 인자를 여러개를 넘기면 template 문자열을 합치는데 그중 함수를 넣어 함수를 실행 시킬 수 있습니다.
+     * 복잡한 로직은 함수로 빼서 구현 할 수 있습니다.
+     * */
+
+    var songs = [
+        'The Riddle Of The Model',
+        'Up',
+        'To Find You',
+        'A Beautiful Sea',
+        'Drive It Like You Stole It',
+        'Up (Bedroom Mix)',
+        'Girls',
+        'Brown Shoes'];
+
+    C(songs, [
+        H('songs', '\
+            h3 Sing Street OST\
+            ul\
+                {{{C(songs, ', function (songs) {
+                    return _.map(songs, function (song, i) {
+                        return '<li>' + (i + 1) + '. ' + song + '</li>';
+                    }).join("");
+                }, ')}}}'),
+        $,
+        B.method('appendTo', 'body')]);
+
+    hr();
+
+    /*
+     * H.each, S.each
+     * */
+    C(songs, [
+        H('songs', '\
+            h3 Sing Street OST\
+            ul\
+                !{C(songs, ', S.each('song, i', '\
+                    li {{i+1}}. {{song}}'),
+                ')}!'),
+        $,
+        B.method('appendTo', 'body')]);
+
+
+    hr();
+
+    /*
+     * 템플릿 동작 순서
+     * 1. !{}! 실행 및 데이터 치환, 리턴 값을 H 문법으로 하고 싶을때
+     * 2. H to HTML
+     * 3. {{{}}} 실행 및 데이터 치환, 리턴 값을 HTML로 만들고 싶을때
+     * 4. {{}} 실행 및 데이터 치환, 리턴 값이 일반 문자열이어야 함
+     *
+     * !{}!, {{}} {{{}}} 의 실행결과가 .then 인 경우 비동기를 기다렸다가 완성함
+     * */
+
+    var sum = CB(function (a, b, cb) {
+        delay(function () {
+            console.log(a + b);
+            cb(a + b);
+        });
+    });
+
+    C(songs, [
+        H('songs', '\
+            h3 Sing Street OST\
+            ul\
+                {{{C(songs, ', H.each('song, i', '\
+                    li {{C(i, 1, sum)}}. {{song}}'), // delay
+                ')}}}'),
+        $,
+        B.method('appendTo', 'body'), // 2초 뒤 렌더링
+        function () {
+            $("html, body").animate({scrollTop: $(window).scrollTop() + $(window).height()});
+        }]);
+
+    /*
+     * S는 일반 문자열을 만들때 사용합니다. S와 S.each가 있습니다.
+     * H, H.each는 HTML로 변환하여 리턴하고 S, S.each는 데이터 치환만한 문자열을 리턴합니다.
+     * */
+
+    C({id: 5, body: "foo bar"}, [
+        _.values,
+        C.toMR,
+        S('id, body', "update posts set body = '{{body}}' where id = {{id}};"),
+        function (query) {
+            console.log(query);
+        }]);
+
+</script>
+
+</body>
+</html>

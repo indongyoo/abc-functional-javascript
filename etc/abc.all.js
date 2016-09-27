@@ -68,16 +68,16 @@
 
   B.map = function(iter) {
     return B(
-        function(result, list, keys, i, res) {  // body
-          if (i) result.push(res);
-          return res;
-        },
-        JU, // end_q
-        void 0, // end
-        I, // complete
-        C.lambda(iter), // iter_or_predi
-        base_loop_fn_base_args,
-        base_loop_fn);
+      function(result, list, keys, i, res) {  // body
+        if (i) result.push(res);
+        return res;
+      },
+      JU, // end_q
+      void 0, // end
+      I, // complete
+      C.lambda(iter), // iter_or_predi
+      base_loop_fn_base_args,
+      base_loop_fn);
   };
 
   var arg_add_arr = function(list) { return MR(list, []); };
@@ -106,144 +106,144 @@
   B.reduce = function(iter) {
     return B([iter == null ? c_if : b_if,
       B(function(result, list, keys, i, res, tmp, args) {
-            return i == 0 ? args[0] : res;
-          }, //body
-          JU, // end_q
-          void 0, // end
-          C.args2, // complete
-          C.lambda(iter),   // iter_or_predi
-          function(list, keys, i, res) { // params
-            var key = keys ? keys[i] : i;
-            return [res, list[key], key, list];
-          },
-          base_loop_fn)]);
+          return i == 0 ? args[0] : res;
+        }, //body
+        JU, // end_q
+        void 0, // end
+        C.args2, // complete
+        C.lambda(iter),   // iter_or_predi
+        function(list, keys, i, res) { // params
+          var key = keys ? keys[i] : i;
+          return [res, list[key], key, list];
+        },
+        base_loop_fn)]);
   };
 
   var spread_args = B.reduce(function(memo, arg) { return memo.concat(isMR(arg) ? arg : [arg]); });
 
   B.each = function(iter) {
     return B(
-        C.args4, // body
-        JU, // end_q
-        void 0, // end
-        C.args1,
-        C.lambda(iter), // iter_or_predi
-        base_loop_fn_base_args,
-        base_loop_fn);
+      C.args4, // body
+      JU, // end_q
+      void 0, // end
+      C.args1,
+      C.lambda(iter), // iter_or_predi
+      base_loop_fn_base_args,
+      base_loop_fn);
   };
 
   B.filter = function(iter) {
     return B(
-        function(result, list, keys, i, res) {  // body
-          var key = keys ? keys[i - 1] : i - 1;
-          if (res) result.push(list[key]);
-          return res;
-        },
-        JU, // end_q
-        void 0, // end
-        I, // complete
-        C.lambda(iter),   // iter_or_predi
-        base_loop_fn_base_args,
-        base_loop_fn);
+      function(result, list, keys, i, res) {  // body
+        var key = keys ? keys[i - 1] : i - 1;
+        if (res) result.push(list[key]);
+        return res;
+      },
+      JU, // end_q
+      void 0, // end
+      I, // complete
+      C.lambda(iter),   // iter_or_predi
+      base_loop_fn_base_args,
+      base_loop_fn);
   };
 
   B.reject = function(iter) {
     return B(
-        function(result, list, keys, i, res) {   // body
-          var key = keys ? keys[i - 1] : i - 1;
-          if (res == false) result.push(list[key]);
-          return res;
-        },
-        JU, // end_q
-        void 0, // end
-        I, // complete
-        C.lambda(iter),
-        base_loop_fn_base_args,
-        base_loop_fn);
+      function(result, list, keys, i, res) {   // body
+        var key = keys ? keys[i - 1] : i - 1;
+        if (res == false) result.push(list[key]);
+        return res;
+      },
+      JU, // end_q
+      void 0, // end
+      I, // complete
+      C.lambda(iter),
+      base_loop_fn_base_args,
+      base_loop_fn);
   };
 
   B.find = function(iter) {
     return B(
-        C.args4,
-        I, // end_q
-        function(list, keys, i) {
-          return list[keys ? keys[i - 1] : i - 1];
-        }, // end
-        JU, // complete
-        C.lambda(iter),
-        base_loop_fn_base_args,
-        base_loop_fn);
+      C.args4,
+      I, // end_q
+      function(list, keys, i) {
+        return list[keys ? keys[i - 1] : i - 1];
+      }, // end
+      JU, // complete
+      C.lambda(iter),
+      base_loop_fn_base_args,
+      base_loop_fn);
   };
 
   B.find_key = B.findKey = function(iter) {
     return B(
-        C.args4, // body
-        I, // end_q
-        function(list, keys, i) {
-          return keys ? keys[i - 1] : i - 1;
-        }, // end
-        J(undefined), // complete
-        C.lambda(iter),
-        base_loop_fn_base_args,
-        base_loop_fn);
+      C.args4, // body
+      I, // end_q
+      function(list, keys, i) {
+        return keys ? keys[i - 1] : i - 1;
+      }, // end
+      J(undefined), // complete
+      C.lambda(iter),
+      base_loop_fn_base_args,
+      base_loop_fn);
   };
 
   B.findIndex = B.find_index = B.find_i = function(iter) {
     return B(
-        C.args4, // body
-        I, // end_q
-        function(list, keys, i) {
-          return keys ? keys[i - 1] : i - 1;
-        }, // end
-        J(-1), // complete
-        C.lambda(iter),
-        base_loop_fn_base_args,
-        base_loop_fn);
+      C.args4, // body
+      I, // end_q
+      function(list, keys, i) {
+        return keys ? keys[i - 1] : i - 1;
+      }, // end
+      J(-1), // complete
+      C.lambda(iter),
+      base_loop_fn_base_args,
+      base_loop_fn);
   };
 
   B.some = function(iter) {
     return B(
-        C.args4,
-        I, // end_q
-        J(true), // end
-        J(false), // complete
-        C.lambda(iter),
-        base_loop_fn_base_args,
-        base_loop_fn);
+      C.args4,
+      I, // end_q
+      J(true), // end
+      J(false), // complete
+      C.lambda(iter),
+      base_loop_fn_base_args,
+      base_loop_fn);
   };
 
   B.every = function(iter) {
     return B(
-        function(result, list, keys, i, res) {
-          return i == 0 ? true : res;
-        },   // body
-        function(v) {
-          return !v;
-        }, // end_q
-        J(false), // end
-        J(true), // complete
-        C.lambda(iter),
-        base_loop_fn_base_args,
-        base_loop_fn);
+      function(result, list, keys, i, res) {
+        return i == 0 ? true : res;
+      },   // body
+      function(v) {
+        return !v;
+      }, // end_q
+      J(false), // end
+      J(true), // complete
+      C.lambda(iter),
+      base_loop_fn_base_args,
+      base_loop_fn);
   };
 
   B.uniq = function(iter) {
     iter = C.lambda != I ? C.lambda(iter || I) : _.isString(iter) ?
-        (function(k) { return function(v) { return v[k]; }; })(iter) : (iter || I);
+      (function(k) { return function(v) { return v[k]; }; })(iter) : (iter || I);
     return B(
-        function(result, list, keys, i, res, tmp) { // body
-          if (i == 0) return;
-          if (tmp.indexOf(res) == -1) {
-            tmp.push(res);
-            result.push(list[i - 1]);
-          }
-        },
-        JU,   // end_q
-        void 0,   // end
-        I, // complete
-        iter,
-        base_loop_fn_base_args,
-        base_loop_fn);
+      function(result, list, keys, i, res, tmp) { // body
+        if (i == 0) return;
+        if (tmp.indexOf(res) == -1) {
+          tmp.push(res);
+          result.push(list[i - 1]);
+        }
+      },
+      JU,   // end_q
+      void 0,   // end
+      I, // complete
+      iter,
+      base_loop_fn_base_args,
+      base_loop_fn);
   };
 
   B.tap = function() {
@@ -364,7 +364,7 @@
 
   F.CATCH = window.CATCH = function(f) {
     return _.extend(function(err) { return (err._ABC_caught = true) && f.apply(this, arguments); },
-        {_ABC_is_catch: true, _ABC_is_cb: f._ABC_is_cb, _ABC_just_cb: f._ABC_just_cb});
+      {_ABC_is_catch: true, _ABC_is_cb: f._ABC_is_cb, _ABC_just_cb: f._ABC_just_cb});
   };
 
   C.each = B.each(null);
@@ -433,7 +433,7 @@
     return C([J('------------Start------------'), C.log, J(tests),
       B.map(function(f, k) {
         return IF([all, B.m('push', k + ' ----> success')])
-            .ELSE([fna, B.map([I, B.m('push', k + ' ----> fail')])])(f());
+          .ELSE([fna, B.map([I, B.m('push', k + ' ----> fail')])])(f());
       }),
       J('------------Fail-------------'), C.log,
       fails, B.each([I, C.error]),
@@ -446,7 +446,7 @@
     var f = getValue(G, nodes);
     var err = Error('warning: ' + nodes + ' is not defined');
     return f || setTimeout(function() { (f = f || getValue(G, nodes)) || C.error(err) }, 0)
-        && function() { return A(arguments, f || (f = getValue(G, nodes)), this); }
+      && function() { return A(arguments, f || (f = getValue(G, nodes)), this); }
   }
 
   /* H start */
@@ -456,8 +456,8 @@
   function number_of_tab(a) {
     var snt = a.match(new RegExp("^" + TABS()))[0];
     var tab_length = (snt.match(/\t/g) || []).length;
-    var space = snt.replace(/\t/g, "");
-    return space / H.TAB_SIZE + tab_length;
+    var space_length = snt.replace(/\t/g, "").length;
+    return space_length / H.TAB_SIZE + tab_length;
   }
 
   function H(var_names/*, source...*/) {
@@ -494,7 +494,7 @@
 
   function remove_comment(source, data) {
     return MR(source.replace(/\/\*(.*?)\*\//g, "").replace(
-        new RegExp("\/\/" + TABS() + ".*?(?=((\/\/)?" + TABS() + "))|\/\/" + TABS() + ".*", "g"), ""), data);
+      new RegExp("\/\/" + TABS() + ".*?(?=((\/\/)?" + TABS() + "))|\/\/" + TABS() + ".*", "g"), ""), data);
   }
 
   var unescaped_exec = B(/!\{(.*?)\}!/, I, s_exec); //!{}!
@@ -503,11 +503,11 @@
 
   function s_exec(re, wrap, source, data) {
     return !source.match(re) ? MR(source, data) :
-        C(data, [new Function("data", "with(data||{}) { return " + RegExp.$1 + "; }"),
-          wrap, return_check,
-          function(res) {
-            return s_exec(re, wrap, source.replace(re, res), data);
-          }]);
+      C(data, [new Function("data", "with(data||{}) { return " + RegExp.$1 + "; }"),
+        wrap, return_check,
+        function(res) {
+          return s_exec(re, wrap, source.replace(re, res), data);
+        }]);
   }
 
   function convert_to_html(source, data) {
@@ -568,12 +568,12 @@
     // attrs = class + attrs
     (cls = C.map(str.match(/\.(\{\{\{.*?\}\}\}|\{\{.*?\}\}|[\w\-]+)/g), function(v) { return v.slice(1); }).join(' '))
     && attrs == (attrs = attrs.replace(/class\s*=\s*((\").*?\"|(\{.*?\}|\S)+)/,
-        function(match, tmp, q) { return ' class=' + '"' + cls + ' ' + (q ? tmp.slice(1, -1) : tmp) + '"'; }))
+      function(match, tmp, q) { return ' class=' + '"' + cls + ' ' + (q ? tmp.slice(1, -1) : tmp) + '"'; }))
     && (attrs = ' class="' + cls + '"' + attrs);
 
     // attrs = id + attrs
     attrs = [''].concat(C.map(str.match(/#(\{\{\{.*?\}\}\}|\{\{.*?\}\}|[\w\-]+)/g),
-            function(v) { return v.slice(1); })).join(' id=') + attrs;
+        function(v) { return v.slice(1); })).join(' id=') + attrs;
 
     return '<' + name + attrs + ' >'; // 띄어쓰기 <a href=www.marpple.com/> 를 위해
   }
@@ -693,8 +693,8 @@ function respect_underscore(_) {
       if (length < 2 || obj == null) return obj;
       for (var index = 1; index < length; index++) {
         var source = arguments[index],
-            keys = keysFunc(source),
-            l = keys.length;
+          keys = keysFunc(source),
+          l = keys.length;
         for (var i = 0; i < l; i++) {
           var key = keys[i];
           if (!undefinedOnly || obj[key] === void 0) obj[key] = source[key];

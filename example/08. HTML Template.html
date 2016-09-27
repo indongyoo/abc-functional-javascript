@@ -30,33 +30,33 @@
 
   C([
     H('', '\
-            .member[style="border: 1px solid #000; padding: 20px;"]\
-                h3 People\
-                ul\
-                    li Cojamm\
-                    li BJ\
-                    li JM\
-                    li PJ\
-                    li HA\
-                    li JE\
-            #id1.class1.class2[class=class3] hi\
-            .service\
-                a[href=http://www.marpple.com target=_blank] http://www.marpple.com\
-            textarea[rows=10].\
-                Custom T-Shirts\
-                \
-                \
-                Design Platform\
-                Artwork\
-            br\
-/*          br\
-            br*/\
-//            p hi\
-            p hello\
-//            br\
-            textarea\
-                | foo bar\
-                | hello world'),
+      .member[style="border: 1px solid #000; padding: 20px;"]\
+        h3 People\
+        ul\
+          li Cojamm\
+          li BJ\
+          li JM\
+          li PJ\
+          li HA\
+          li JE\
+      #id1.class1.class2[class=class3] hi\
+      .service\
+        a[href=http://www.marpple.com target=_blank] http://www.marpple.com\
+      textarea[rows=10].\
+        Custom T-Shirts\
+        \
+        \
+        Design Platform\
+        Artwork\
+      br\
+  /*      br\
+      br*/\
+  //      p hi\
+      p hello\
+  //      br\
+      textarea\
+        | foo bar\
+        | hello world'),
     $,
     B.method('appendTo', 'body')]);
 
@@ -77,9 +77,9 @@
    * */
   C({name: 'Cojamm', age: 32}, [
     H('user', '\
-            .person\
-                .name {{user.name}}\
-                .age {{user.age}}'),
+      .person\
+        .name {{user.name}}\
+        .age {{user.age}}'),
     $,
     B.method('appendTo', 'body')]);
 
@@ -93,9 +93,9 @@
 
   C(post, [
     H('post', '\
-            .name 글쓴이: {{post.name}}\
-            .body 내용: {{post.body}}\
-            .created_at 시간: {{post.created_at}}'),
+      .name 글쓴이: {{post.name}}\
+      .body 내용: {{post.body}}\
+      .created_at 시간: {{post.created_at}}'),
     $,
     B.method('appendTo', 'body')]);
 
@@ -107,9 +107,9 @@
 
   C(post, [
     H('post', '\
-            .name 글쓴이: {{post.name || "익명"}}\
-            .body 내용: {{{post.body}}}\
-            .created_at 시간: {{moment_lll(post.created_at)}}'),
+      .name 글쓴이: {{post.name || "익명"}}\
+      .body 내용: {{{post.body}}}\
+      .created_at 시간: {{moment_lll(post.created_at)}}'),
     $,
     B.method('appendTo', 'body')]);
 
@@ -133,13 +133,13 @@
 
   C(songs, [
     H('songs', '\
-            h3 Sing Street OST\
-            ul\
-                {{{C(songs, ', function (songs) {
-      return _.map(songs, function (song, i) {
-        return '<li>' + (i + 1) + '. ' + song + '</li>';
-      }).join("");
-    }, ')}}}'),
+      h3 Sing Street OST\
+      ul\
+        {{{C(songs, ', function (songs) {
+          return _.map(songs, function (song, i) {
+            return '<li>' + (i + 1) + '. ' + song + '</li>';
+          }).join("");
+        }, ')}}}'),
     $,
     B.method('appendTo', 'body')]);
 
@@ -150,10 +150,10 @@
    * */
   C(songs, [
     H('songs', '\
-            h3 Sing Street OST\
-            ul\
-                !{C(songs, ', S.each('song, i', '\
-                    li {{i+1}}. {{song}}'),
+      h3 Sing Street OST\
+      ul\
+        !{C(songs, ', S.each('song, i', '\
+          li {{i+1}}. {{song}}'),
         ')}!'),
     $,
     B.method('appendTo', 'body')]);
@@ -180,10 +180,10 @@
 
   C(songs, [
     H('songs', '\
-            h3 Sing Street OST\
-            ul\
-                {{{C(songs, ', H.each('song, i', '\
-                    li {{C(i, 1, sum)}}. {{song}}'), // delay
+      h3 Sing Street OST\
+      ul\
+        {{{C(songs, ', H.each('song, i', '\
+          li {{C(i, 1, sum)}}. {{song}}'), // delay
         ')}}}'),
     $,
     B.method('appendTo', 'body'), // 2초 뒤 렌더링
