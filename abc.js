@@ -19,6 +19,7 @@
   F.S = window.S = S; // String Template Engine
   F.X = window.X = new Object();
 
+  C.lambda = I;
   C.method = C.m = method; // for method
   C.args = function() { return arguments; };
   C.val = C.v = getValue; // get value with string
@@ -32,9 +33,18 @@
 
   function A(args, func) { return C.apply(arguments[2] || this, _.toArray(args).concat([func])); }
 
+  function map(list, iter) {
+    var list2 = [];
+    for (var i = 0, length = list.length; i < length ;i++) list2.push(iter(list[i], i, list));
+    return list2;
+  }
+
+  function wrap_arr(v) { return _.isArray(v) ? v : [v]; }
+
   function base_B(args, is_bp2) {
     args = _.toArray(args);
-    var fns = args.pop();
+    var fns = C.lambda == I ? args.pop() : map(_.flatten(wrap_arr(args.pop())), C.lambda);
+
     return function() {
       var args3 = _.clone(args);
       for (var i = 0, length = arguments.length; i < length; i++) {
@@ -65,14 +75,14 @@
       JU, // end_q
       void 0, // end
       I, // complete
-      iter, // iter_or_predi
+      C.lambda(iter), // iter_or_predi
       base_loop_fn_base_args,
         base_loop_fn);
   };
 
   var arg_add_arr = function(list) { return MR(list, []); };
   var all_map = B.map(function(val_fn, k, l, args) { return A(args, val_fn, this); });
-  var div_map = B.map(function(val, k, l, fns) { return A([val], fns[key] || I, this); });
+  var div_map = B.map(function(v, k, l, fns) { return A([v], fns[k] || I, this); });
 
   B.all = function() {
     var fns = _.toArray(arguments);
@@ -101,7 +111,7 @@
         JU, // end_q
         void 0, // end
         C.args2, // complete
-        iter,   // iter_or_predi
+        C.lambda(iter),   // iter_or_predi
         function(list, keys, i, res) { // params
           var key = keys ? keys[i] : i;
           return [res, list[key], key, list];
@@ -117,7 +127,7 @@
       JU, // end_q
       void 0, // end
       C.args1,
-      iter, // iter_or_predi
+      C.lambda(iter), // iter_or_predi
       base_loop_fn_base_args,
         base_loop_fn);
   };
@@ -132,7 +142,7 @@
       JU, // end_q
       void 0, // end
       I, // complete
-      iter,   // iter_or_predi
+      C.lambda(iter),   // iter_or_predi
       base_loop_fn_base_args,
         base_loop_fn);
   };
@@ -147,7 +157,7 @@
       JU, // end_q
       void 0, // end
       I, // complete
-      iter,
+      C.lambda(iter),
       base_loop_fn_base_args,
         base_loop_fn);
   };
@@ -160,7 +170,7 @@
         return list[keys ? keys[i - 1] : i - 1];
       }, // end
       JU, // complete
-      iter,
+      C.lambda(iter),
       base_loop_fn_base_args,
         base_loop_fn);
   };
@@ -173,7 +183,7 @@
         return keys ? keys[i - 1] : i - 1;
       }, // end
       J(-1), // complete
-      iter,
+      C.lambda(iter),
       base_loop_fn_base_args,
         base_loop_fn);
   };
@@ -184,7 +194,7 @@
       I, // end_q
       J(true), // end
       J(false), // complete
-      iter,
+      C.lambda(iter),
       base_loop_fn_base_args,
         base_loop_fn);
   };
@@ -199,13 +209,14 @@
       }, // end_q
       J(false), // end
       J(true), // complete
-      iter,
+      C.lambda(iter),
       base_loop_fn_base_args,
         base_loop_fn);
   };
 
   B.uniq = function(iter) {
-    iter = _.isString(iter) ? (function(key) { return function(val) { return val[key]; }; })(iter) : (iter || I);
+    iter = C.lambda != I ? C.lambda(iter || I) : _.isString(iter) ?
+      (function(k) { return function(v) { return v[k]; }; })(iter) : (iter || I);
     return B(
       function(result, list, keys, i, res, tmp) { // body
         if (i == 0) return;
@@ -300,7 +311,6 @@
     var args = _.toArray(arguments);
     if (!_.isArray(args[args.length - 1])) args[args.length - 1] = [args[args.length - 1]];
     var fns = _.flatten(args.pop());
-    //var fns = C.map(_.flatten(args.pop()), function(v) { return _.isFunction(v) ? v : B(v, X, _.isEqual) });
     if (args.length == 1 && isMR(args[0])) args = args[0];
 
     var i = 0, promise = null, resolve = null;
