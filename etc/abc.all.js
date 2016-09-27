@@ -175,6 +175,19 @@
       base_loop_fn);
   };
 
+  B.find_key = B.findKey = function(iter) {
+    return B(
+      C.args4, // body
+      I, // end_q
+      function(list, keys, i) {
+        return keys ? keys[i - 1] : i - 1;
+      }, // end
+      J(undefined), // complete
+      C.lambda(iter),
+      base_loop_fn_base_args,
+      base_loop_fn);
+  };
+
   B.findIndex = B.find_index = B.find_i = function(iter) {
     return B(
       C.args4, // body
@@ -255,6 +268,9 @@
     var key = keys ? keys[i] : i;
     return [list[key], key, list];
   }
+
+  B.remove = function(remove) { return B(X, remove, C.remove); };
+  B.unset = function(key) { return B(X, key, C.unset); };
 
   function base_loop_fn(body, end_q, end, complete, iter_or_predi, params) {
     var context = this;
@@ -358,6 +374,7 @@
   C.filter = B.filter(null);
   C.reject = B.reject(null);
   C.find = B.find(null);
+  C.find_key = C.findKey = B.find_key(null);
   C.findIndex = C.find_index = C.find_i = B.find_index(null);
   C.some = B.some(null);
   C.every = B.every(null);
@@ -392,6 +409,24 @@
   C.isString = _.isString;
   C.isArray = _.isArray;
   C.isArrayLike = _.isArrayLike;
+
+  C.remove = function(arr, remove) {
+    if (C.isArray(arr)) return MR(arr, removeByIndex(arr, arr.indexOf(remove)));
+    var find_key = C.find_key(arr, function(val) { return val==remove; });
+    return MR(arr, find_key !== undefined ? C.unset(arr, find_key) && remove : undefined);
+  };
+
+  C.unset = function(obj, key) { delete obj[key]; return obj; };
+
+  C.remove_by_index = C.removeByIndex = removeByIndex;
+
+  function removeByIndex(arr, from) {
+    console.log(arr, from)
+    if (from == -1) return arr.length;
+    var rest = arr.slice(from + 1 || arr.length);
+    arr.length = from;
+    return arr.push.apply(arr, rest);
+  }
 
   C.test = function(tests) {
     var fails = J([]), all = J([]), fna = J([fails(), all()]);
@@ -514,14 +549,13 @@
     return ary.concat(rest_ary);
   }
 
-  function start_tag(str, tag_stack, attrs, name, cls, is_complete_tag) {
+  function start_tag(str, tag_stack, attrs, name, cls) {
     attrs = '';
     name = str.match(/^\w+/);
 
     // name
     name = (!name || name == 'd') ? 'div' : name == 'sp' ? 'span' : name;
-    if (is_complete_tag = C.every(['input', 'img', 'br', 'area', 'base', 'col', 'embed', 'hr', 'keygen', 'link', 'meta', 'param', 'source'], //unclosed_tags
-            function(u_tag) { return name != u_tag })) tag_stack.push(name);
+    if (name != 'input' && name != 'br' ) tag_stack.push(name);
 
     // attrs
     str = str.replace(/\[(.*)\]/, function(match, inner) { return (attrs += ' ' + inner) && ''; });
@@ -536,8 +570,7 @@
     attrs = [''].concat(C.map(str.match(/#(\{\{\{.*?\}\}\}|\{\{.*?\}\}|[\w\-]+)/g),
         function(v) { return v.slice(1); })).join(' id=') + attrs;
 
-    //return '<' + name + attrs + ' >'; // 띄어쓰기 <a href=www.marpple.com/> 를 위해
-    return '<' + name + attrs + (is_complete_tag ? ' >' : ' />'); // 홀태그, 더 엄격한 xhtml 기준을 따름
+    return '<' + name + attrs + ' >'; // 띄어쓰기 <a href=www.marpple.com/> 를 위해
   }
 
   function end_tag(tag) { return '</' + tag + '>'; }
@@ -624,22 +657,18 @@ function respect_underscore(_) {
   var optimizeCb = function(func, context, argCount) {
     if (context === void 0) return func;
     switch (argCount == null ? 3 : argCount) {
-      case 1:
-        return function(value) {
-          return func.call(context, value);
-        };
-      case 2:
-        return function(value, other) {
-          return func.call(context, value, other);
-        };
-      case 3:
-        return function(value, index, collection) {
-          return func.call(context, value, index, collection);
-        };
-      case 4:
-        return function(accumulator, value, index, collection) {
-          return func.call(context, accumulator, value, index, collection);
-        };
+      case 1: return function(value) {
+        return func.call(context, value);
+      };
+      case 2: return function(value, other) {
+        return func.call(context, value, other);
+      };
+      case 3: return function(value, index, collection) {
+        return func.call(context, value, index, collection);
+      };
+      case 4: return function(accumulator, value, index, collection) {
+        return func.call(context, accumulator, value, index, collection);
+      };
     }
     return function() {
       return func.apply(context, arguments);
@@ -670,11 +699,7 @@ function respect_underscore(_) {
     };
   };
 
-  _.property = function(key) {
-    return function(obj) {
-      return obj == null ? void 0 : obj[key];
-    };
-  };
+  _.property = function(key) { return function(obj) { return obj == null ? void 0 : obj[key]; }; };
 
   var MAX_ARRAY_INDEX = Math.pow(2, 53) - 1;
   var getLength = function(obj) { return obj.length; };
@@ -695,7 +720,9 @@ function respect_underscore(_) {
     return _.values(obj);
   };
 
-  _.rest = function(array, n, guard) { return slice.call(array, n == null || guard ? 1 : n); };
+  _.rest = function(array, n, guard) {
+    return slice.call(array, n == null || guard ? 1 : n);
+  };
 
   var flatten = function(input, shallow, strict, startIndex) {
     var output = [], idx = 0;
@@ -796,9 +823,7 @@ function respect_underscore(_) {
     return _.isArray(obj) ? obj.slice() : _.extend({}, obj);
   };
 
-  _.isArray = nativeIsArray || function(obj) {
-      return toString.call(obj) === '[object Array]';
-    };
+  _.isArray = nativeIsArray || function(obj) { return toString.call(obj) === '[object Array]'; };
 
   _.isObject = function(obj) {
     var type = typeof obj;
@@ -807,19 +832,12 @@ function respect_underscore(_) {
 
   var fn_names = ['Arguments', 'Function', 'String', 'Number', 'Date', 'RegExp', 'Error'];
   for (var i = 0; i < fn_names.length; i++)
-    (function(name) {
-      _['is' + name] = function(obj) {
-        return toString.call(obj) === '[object ' + name + ']';
-      };
-    })(fn_names[i]);
+    (function(name) { _['is' + name] = function(obj) { return toString.call(obj) === '[object ' + name + ']'; }; })(fn_names[i]);
 
-  if (!_.isArguments(arguments)) _.isArguments = function(obj) {
-    return _.has(obj, 'callee');
-  };
+  if (!_.isArguments(arguments)) _.isArguments = function(obj) { return _.has(obj, 'callee'); };
 
-  if (typeof /./ != 'function' && typeof Int8Array != 'object') _.isFunction = function(obj) {
-    return typeof obj == 'function' || false;
-  };
+  if (typeof /./ != 'function' && typeof Int8Array != 'object')
+    _.isFunction = function(obj) { return typeof obj == 'function' || false; };
 
   _.has = function(obj, key) { return obj != null && hasOwnProperty.call(obj, key); };
 
@@ -842,56 +860,13 @@ function respect_underscore(_) {
 
   return _;
 }
-
-
+//-------------------------------------------
+//-------------------------------------------
 /**
  * Created by piljung on 2016. 9. 26..
  */
-!function (root, cLambda) {
-  function Box(key, value) {
-    var cache = {};
-    var is_string = C.isString(key), k;
-    var data = {};
-    if (is_string && arguments.length == 2) data[key] = value;
-    else if (!is_string && arguments.length == 1) for (k in key) data[k] = key[k];
-    this.__data__ = function () { return data; };
-    this.__cache__ = function () { return cache; };
-    this._ = data;
-  }
-
-  Box.prototype.find = function (el, is_init_cache) {
-    if (!el || C.isArrayLike(el) && !el.length) return null;
-    var str = (C.isString(el) ? el : (C.isArrayLike(el) ? el[0] : el).getAttribute('box_selector'))
-      , cache = this.__cache__(), _data = finder(str, this.__data__()), _cache_val = cache[str];
-    return (is_init_cache || !_cache_val) ? (cache[str] = _data) : _cache_val;
-  };
-
-  Box.prototype.set = function (key, value) {
-    var is_string = C.isString(key), k;
-    if (is_string && arguments.length == 2) this.__data__()[key] = value;
-    else if (!is_string && arguments.length == 1) for (k in key) this.__data__()[k] = key[k];
-    return this;
-  };
-
-  function finder(str, box_data) {
-    return C.reduce(str.replace(/\s*->\s*/g, '->').split('->'), box_data, function (mem, key) {
-      if (!key.match(/([a-z]+)?\((.+)\)/)) return mem[key];
-      return C[RegExp.$1 || 'find'](mem, cLambda(RegExp.$2));
-    });
-  }
-
-  root.Box = Box;
-
-  //Box.prototype.get = function(key) {
-  //    if (C.isString(key) && arguments.length ==1) return this.__data__()[key];
-  //    else if (C.isArray(key)) return function(box_data, keys, obj) {
-  //        for (var i = 0, len = keys.length; i < len; i++) !function(key, obj) {
-  //            obj[key] = box_data[key]
-  //        }(keys[i], obj);
-  //        return obj;
-  //    }(this.__data__(), key, {});
-  //};
-
+!function (root, cLambda, makeConstructorBox) {
+  root.Box = makeConstructorBox(root, cLambda);
 }(typeof global == 'object' && global.global == global && (global.G = global) || window, function (C) {
   var __slice = Array.prototype.slice;
 
@@ -944,7 +919,7 @@ function respect_underscore(_) {
     }
     var f = new Function(params, 'return (' + expr + ')');
     return is_ ? f : f();
-  };
+  }
 
   function functionalize(fn) {
     if (typeof fn === 'function') {
@@ -965,4 +940,59 @@ function respect_underscore(_) {
   }
 
   return C.lambda = functionalize;
-}(C));
+}(C), function makeBox(root, cLambda) {
+  var Box = function Box(key, value) {
+    var cache = {};
+    var is_string = root.C.isString(key), k;
+    var data = {};
+    if (is_string && arguments.length == 2) data[key] = value;
+    else if (!is_string && arguments.length == 1) for (k in key) data[k] = key[k];
+    this.__data__ = function () { return data; };
+    this.__cache__ = function () { return cache; };
+    this._ = data;
+  };
+
+  Box.prototype.find = function (el, is_init_cache) {
+    if (!el || root.C.isArrayLike(el) && !el.length) return ;
+    var str = (root.C.isString(el) ? el : (root.C.isArrayLike(el) ? el[0] : el).getAttribute('box_selector'))
+      , cache = this.__cache__(), _data = finder(str, this.__data__()), _cache_val = cache[str];
+    return (is_init_cache || !_cache_val) ? (cache[str] = _data) : _cache_val;
+  };
+
+  Box.prototype.set = function (key, value) {
+    var is_string = root.C.isString(key), k;
+    if (is_string && arguments.length == 2) this.__data__()[key] = value;
+    else if (!is_string && arguments.length == 1) for (k in key) this.__data__()[k] = key[k];
+    return this;
+  };
+
+  Box.prototype.unset = function(selector, key) {
+    if (!key && arguments.length == 1) return root.C.unset(this.__data__(), selector);
+    else if (root.C.isString(key)) return root.C.unset(this.find(selector, true), key);
+  };
+
+  Box.prototype.remove = function(selector) {
+    var _arr = selector.split(/\s*->\s*/);
+    return root.C.remove(this.find(_arr.slice(0, _arr.length - 1).join('->'), true), this.find(selector, true));
+  };
+
+  function finder(str, box_data) {
+    return root.C.reduce(str.split(/\s*->\s*/), box_data, function (mem, key) {
+      if (!key.match(/([a-z]+)?\((.+)\)/)) return mem[key];
+      return C[RegExp.$1 || 'find'](mem, cLambda(RegExp.$2));
+    });
+  }
+
+  return Box;
+
+  //Box.prototype.get = function(key) {
+  //    if (root.C.isString(key) && arguments.length ==1) return this.__data__()[key];
+  //    else if (root.C.isArray(key)) return function(box_data, keys, obj) {
+  //        for (var i = 0, len = keys.length; i < len; i++) !function(key, obj) {
+  //            obj[key] = box_data[key]
+  //        }(keys[i], obj);
+  //        return obj;
+  //    }(this.__data__(), key, {});
+  //};
+
+});
