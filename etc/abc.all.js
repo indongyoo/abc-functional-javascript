@@ -3,7 +3,7 @@
 //  - https://github.com/marpple/abc-box
 // Project Lead - Indong Yoo
 // Maintainers - Piljung Park, Hanah Choi
-// Contributers - Byeoungjin Kim, Joeun Ha, Hoonil Kim
+// Contributors - Byeongjin Kim, Joeun Ha, Hoonil Kim
 
 // abc.js, abc.box.js
 // (c) 2015-2016 Marpple. MIT Licensed.
