@@ -1,8 +1,14 @@
-// abc.js
-// https://github.com/marpple/abc-functional-javascript
-// (c) 2016 Marpple
-// abcjs may be freely distributed under the MIT license.
+// ABC project
+//  - https://github.com/marpple/abc-functional-javascript
+//  - https://github.com/marpple/abc-box
+// Project Lead - Indong Yoo
+// Maintainers - Piljung Park, Hanah Choi
+// Contributers - Byeoungjin Kim, Joeun Ha, Hoonil Kim
 
+// abc.js, abc.box.js
+// (c) 2015-2016 Marpple. MIT Licensed.
+
+//-------------------- abc.js -----------------------
 !function(G) {
   var _ = respect_underscore({}), window = typeof window != 'object' ? G : window;
 
