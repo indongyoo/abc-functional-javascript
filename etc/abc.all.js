@@ -875,7 +875,7 @@ function respect_underscore(_) {
 !function (root, cLambda, makeConstructorBox) {
   root.Box = makeConstructorBox(root, cLambda);
 }(typeof global == 'object' && global.global == global && (global.G = global) || window, function (C) {
-  return C.lambda = function (str) {
+  return C.lambda = function (str) { // forked raganwald/string-lambdas
     if (typeof str !== 'string') return str;
     var expr, leftSection, params, rightSection, sections, v, vars, _i, _len;
     params = [];
