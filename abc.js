@@ -68,6 +68,7 @@
 
   B.indent = function() { return base_B(arguments, true); };
   B2.indent = function() { return base_B([C.to_array(arguments)], true); };
+  B.args_pass = function(fn) { return B2(C.args, B.all(I, _.flatten([toMR, fn])), C.args, B.v('0'), toMR); };
 
   B.val = B.v = B.V = function(key) { return B(X, key, getValue); };
   B.method = B.m = B.M = function() { return B.apply(void 0, [X].concat(_.toArray(arguments)).concat(method)); };
@@ -142,7 +143,7 @@
     return B(
       function(result, list, keys, i, res) {  // body
         var key = keys ? keys[i - 1] : i - 1;
-        if (res) result.push(list[key]);
+        if (i > 0 && res) result.push(list[key]);
         return res;
       },
       JU, // end_q
@@ -157,7 +158,7 @@
     return B(
       function(result, list, keys, i, res) {   // body
         var key = keys ? keys[i - 1] : i - 1;
-        if (res == false) result.push(list[key]);
+        if (i > 0 && !res) result.push(list[key]);
         return res;
       },
       JU, // end_q
@@ -269,6 +270,13 @@
     return B2(C.arr_or_args_to_arr, B.find_i(function(v) { return a !== v;}), function(v) { return v === -1; });
   };
   B.isnt = function(a) { return B2(C.arr_or_args_to_arr, B.find_i([I, B.is(a)]), B.is(-1)); };
+  B.delay = function(time) {
+    return CB(function() {
+      var args = arguments, cb = args[args.length-1];
+      args.length = args.length - 1;
+      setTimeout(function() { cb.apply(null, args); }, time || 0);
+    });
+  };
 
   function base_loop_fn_base_args(list, keys, i) {
     var key = keys ? keys[i] : i;
@@ -411,6 +419,7 @@
 
   C.log = window.console && window.console.log ? console.log.bind(console) : I;
   C.error = window.console && window.console.error ? console.error.bind(console) : I;
+  C.hi = B.args_pass(C.log);
 
   C.isString = _.isString;
   C.isArray = _.isArray;
@@ -424,10 +433,81 @@
 
   C.unset = function(obj, key) { delete obj[key]; return obj; };
 
+  !function(B, C, notices) {
+    C.noti = C.Noti = C.notice =  {
+      on: on,
+      once: B(X,X,X, true, on),
+      off: off,
+      emit: emit,
+      emitAll: emitAll
+    };
+
+    B.noti = B.Noti = B.notice =  {
+      on: function() {
+        var args = arguments;
+        return function(func) {
+          return A(args.length === 3 ? args :  _.isFunction(func) ? _.toArray(args).concat(func) : args, on);
+        };
+      },
+      once: function(func) {
+        var args = arguments;
+        return function(func) {
+          return A(_.toArray(args.length === 3 ? args :  _.isFunction(func) ? _.toArray(args).concat(func) : args).concat([true]), on)
+        };
+      },
+      off: function() { return B.apply(null, _.toArray(arguments).concat(off)); },
+      emit: function() {
+        var args = arguments;
+        return function(args2) {
+          return A(args.length == 3 ? args : _.isArray(args2) ? _.toArray(args).concat([args2]) : args, emit)
+        };
+      },
+      emitAll: function() {
+        var args = arguments;
+        return function(args2) {
+          return A(args.length == 2 ? args : _.isArray(args2) ? _.toArray(args).concat([args2]) : args, emitAll)
+        };
+      }
+    };
+
+    function on(name1, name2, func, is_once) {
+      var _notice = notices[name1];
+      func.is_once = !!is_once;
+      if (!_notice) _notice = notices[name1] = {};
+      (_notice[name2] = _notice[name2] || []).push(func);
+      return func;
+    }
+
+    function emitAll(name1, emit_args) {
+      var key, _notice = notices[name1];
+      if (!_notice) return;
+      for(key in _notice) C(_notice, key, make_map_emit(emit_args));
+    }
+
+    function emit(name1, name2, emit_args) {
+      var _notice = notices[name1];
+      if (!_notice) return;
+      C(name2, [
+        IF(_.isFunction, [J(void 0), name2, function(name2) {
+          return _.isString(name2) ? [name2] : name2;
+        }]).ELSEIF(_.isString, J([name2])).ELSE(I),
+        B(X, B([B.all(J(_notice), I), IF([C.val, function(arr) { return arr && arr.length }], make_map_emit(emit_args))]), map)
+      ]);
+    }
+
+    function make_map_emit(args) { return [B.tap(C.val, B(X, B([I, B(args, X, A)]), map)), function (_n, k) { _n[k] = C.reject(_n[k], B.val('is_once')); }];}
+
+    function off(name1, n2_or_n2s) {
+      var _notice = notices[name1];
+      if (!_notice) return;
+      if (arguments.length == 1) C.unset(notices, name1);
+      else if (arguments.length == 2) map(_.isString(n2_or_n2s) ? [n2_or_n2s] : n2_or_n2s, B(_notice, C.unset));
+    }
+  }(B, C, {});
+
   C.remove_by_index = C.removeByIndex = removeByIndex;
 
   function removeByIndex(arr, from) {
-    console.log(arr, from)
     if (from == -1) return arr.length;
     var rest = arr.slice(from + 1 || arr.length);
     arr.length = from;
@@ -477,7 +557,9 @@
   H._ABC_func_storage = {};
 
   function s(func, obj_name, option, var_names/*, source...*/) {      // used by H and S
-    var source = C.map(_.rest(arguments, 4), function(str_or_func) {
+    var args = _.toArray(arguments);
+    if (args.length == 4) (args[4] = args[3]) && (var_names = args[3] = '$');
+    var source = C.map(_.rest(args, 4), function(str_or_func) {
       if (_.isString(str_or_func)) return str_or_func;
 
       var key = _.uniqueId("_ABC_func_storage");
@@ -486,7 +568,7 @@
     }).join("");
 
     return function() {
-      var data = var_names ? _.object(var_names.match(/\w+/g), _.toArray(arguments)) : void 0;
+      var data = var_names ? _.object(var_names.match(/[\w\$]+/g), _.toArray(arguments)) : void 0;
       return C(source, data, [remove_comment, unescaped_exec, option, insert_datas1, insert_datas2, I]);
     };
   }
@@ -733,6 +815,10 @@ function respect_underscore(_) {
 
   _.rest = function(array, n, guard) {
     return slice.call(array, n == null || guard ? 1 : n);
+  };
+
+  _.initial = function(array, n, guard){
+    return slice.call(array, 0 , Math.max(0, array.length-(null==n||guard?1:n)));
   };
 
   var flatten = function(input, shallow, strict, startIndex) {
