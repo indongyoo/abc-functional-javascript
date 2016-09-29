@@ -256,8 +256,6 @@
   };
 
   B.uniq = function(iter) {
-    iter = C.lambda != I ? C.lambda(iter || I) : _.isString(iter) ?
-      (function(k) { return function(v) { return v[k]; }; })(iter) : (iter || I);
     return B(
       function(result, list, keys, i, res, tmp) { // body
         if (i == 0) return;
@@ -269,7 +267,7 @@
       JU,   // end_q
       void 0,   // end
       I, // complete
-      iter,
+      C.lambda(iter),
       base_loop_fn_base_args,
       base_loop_fn);
   };
