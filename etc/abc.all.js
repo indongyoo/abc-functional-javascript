@@ -713,10 +713,10 @@
 
   S._ABC_func_storage = {};
 
-  function getValue(obj, key) {
-    return (function v(obj, idx, keys) {
-      return (obj = obj[keys[idx]]) ? keys.length - 1 == idx ? obj : v(obj, idx + 1, keys) : void 0;
-    })(obj, 0, key.split('.'));
+  function getValue(obj, key, keys) {
+    return (function v(obj, i, keys, li) {
+      return (obj = obj[keys[i]]) ? li == i ? obj : v(obj, i + 1, keys, li) : li == i ? obj : void 0;
+    })(obj, 0, keys = key.split('.'), keys.length - 1);
   }
 
   X.context = X.this = function() { return this; };
@@ -950,42 +950,28 @@ function respect_underscore(_) {
 }(typeof global == 'object' && global.global == global && (global.G = global) || window, function (C) {
   return C.lambda = function (str) { // forked raganwald/string-lambdas
     if (typeof str !== 'string') return str;
-    var expr, leftSection, params, rightSection, sections, v, vars, _i, _len;
-    params = [];
-    expr = str;
-    sections = expr.split(/\s*->\s*/m);
-    var is_ = false;
-    if (sections.length > 1) {
-      while (sections.length) {
-        expr = sections.pop();
-        params = sections.pop().split(/\s*,\s*|\s+/m);
-        sections.length && sections.push('(function(' + params + '){return (' + expr + ')})');
+    var expr, leftSection, params, rightSection, v, vars, _i, _len;
+    params = [], expr = str;
+    if (!expr.match(/=>/)) return new Function($, 'return (' + expr + ')');
+    leftSection = expr.match(/^\s*(?:[+*\/%&|\^\.=<>]|!=)/m);
+    rightSection = expr.match(/[+\-*\/%&|\^\.=<>!]\s*$/m);
+    if (leftSection || rightSection) {
+      if (leftSection) {
+        params.push('$1');
+        expr = '$1' + expr;
       }
-    } else if (expr.match(/\b_\b/)) {
-      is_ = true;
-      params = '_';
+      if (rightSection) {
+        params.push('$2');
+        expr = expr + '$2';
+      }
     } else {
-      leftSection = expr.match(/^\s*(?:[+*\/%&|\^\.=<>]|!=)/m);
-      rightSection = expr.match(/[+\-*\/%&|\^\.=<>!]\s*$/m);
-      if (leftSection || rightSection) {
-        if (leftSection) {
-          params.push('$1');
-          expr = '$1' + expr;
-        }
-        if (rightSection) {
-          params.push('$2');
-          expr = expr + '$2';
-        }
-      } else {
-        vars = str.replace(/(?:\b[A-Z]|\.[a-zA-Z_$])[a-zA-Z_$\d]*|[a-zA-Z_$][a-zA-Z_$\d]*\s*:|this|arguments|'(?:[^'\\]|\\.)*'|"(?:[^"\\]|\\.)*"/g, '').match(/([a-z_$][a-z_$\d]*)/gi) || [];
-        for (_i = 0, _len = vars.length; _i < _len; _i++) {
-          v = vars[_i];
-          params.indexOf(v) >= 0 || params.push(v);
-        }
+      vars = str.replace(/(?:\b[A-Z]|\.[a-zA-Z_$])[a-zA-Z_$\d]*|[a-zA-Z_$][a-zA-Z_$\d]*\s*:|this|arguments|'(?:[^'\\]|\\.)*'|"(?:[^"\\]|\\.)*"/g, '').match(/([a-z_$][a-z_$\d]*)/gi) || [];
+      for (_i = 0, _len = vars.length; _i < _len; _i++) {
+        v = vars[_i];
+        params.indexOf(v) >= 0 || params.push(v);
       }
     }
-    var f = new Function(params, 'return (' + expr + ')');
-    return is_ ? f : f();
+    return new Function(params, 'return (' + expr + ')')();
   };
 }(C), function makeBox(root, cLambda) {
   var Box = function Box(key, value) {
@@ -1009,7 +995,7 @@ function respect_underscore(_) {
   };
 
   Box.prototype.set = function (key, value) {
-    var is_string = root.C.isString(key), k;
+    var k, is_string = root.C.isString(key);
     if (is_string && arguments.length == 2) this._()[key] = value;
     else if (!is_string && arguments.length == 1) for (k in key) this._()[k] = key[k];
     return this;

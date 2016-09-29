@@ -713,10 +713,10 @@
 
   S._ABC_func_storage = {};
 
-  function getValue(obj, key) {
-    return (function v(obj, idx, keys) {
-      return (obj = obj[keys[idx]]) ? keys.length - 1 == idx ? obj : v(obj, idx + 1, keys) : void 0;
-    })(obj, 0, key.split('.'));
+  function getValue(obj, key, keys) {
+    return (function v(obj, i, keys, li) {
+      return (obj = obj[keys[i]]) ? li == i ? obj : v(obj, i + 1, keys, li) : li == i ? obj : void 0;
+    })(obj, 0, keys = key.split('.'), keys.length - 1);
   }
 
   X.context = X.this = function() { return this; };
