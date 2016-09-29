@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -11,7 +12,6 @@
 <script src="../abc.js"></script>
 
 <script>
-
 
   var a = {
     b: {
@@ -44,92 +44,6 @@
   C.v(a, 'h'); // true
   C.v(a, 'h.hi'); // undefined
   C.v(a, 'i'); // false
-
-
-
-  C.map([1,2,3], 'v => v*10'); // [10, 20, 30]
-  C.map([1,2,3], '(v, i) => v*i'); // [0, 2, 6]
-  C.map([1,2,3], '(v, i) => v + i'); // [1, 3, 5]
-  C.map([1,2,3], [B.args(0, 1), C.add]); // [1, 3, 5]
-  C.find([{id: 1}, {id: 5}, {id: 7}], 'v => v.id == 5'); // [{ id: 5 }]
-  C.filter([{id: 1}, {id: 5}, {id: 7}], '$.id > 2'); // [{ id: 5 }, { id: 7 }]
-
-  C(2, 5, [
-    '(a, b) => MR(b, a)', // (2, 5) => MR(5, 2)
-    '(a, b) => a - b', // (5, 2) => 5 - 2
-    '$==3' // 3 == 3
-  ]); // true
-
-
-  C.map([1,2,3], function(v) { return v * 10; });
-  C.map([1,2,3], (v) => v * 10);
-  C.map([1,2,3], C.lambda('(v) => v * 10'));
-  C.map([1,2,3], '(v) => v * 10');
-
-
-
-  var users = [
-    {
-      id: 1,
-      name: 'BJ',
-      post_count: 2,
-      posts: [
-        { id: 2, body: '하이2', comments: [{ id: 1, body: '코멘트1' }, { id: 2, body: '코멘트2' }] },
-        { id: 1, body: '하이', comments: [{ id: 3, body: '코멘트3' }] },
-        { id: 4, body: '하이4', comments: [{ id: 4, body: '코멘트4' }, { id: 5, body: '코멘트5' }] }
-      ]
-    },
-    {
-      id: 2,
-      name: 'PJ',
-      post_count: 1,
-      posts: [
-        { id: 3, body: '하이3', comments: [] }
-      ]
-    }
-  ];
-
-  C.sel(users, '0 -> name'); // BJ
-  C.sel(users, '($.id==2) -> name'); // PJ
-  C.sel(users, '($.id==2) -> posts -> 0 -> body'); // 하이3
-  C.sel(users, '($.post_count>1) -> posts -> filter($.comments.length > 1)');
-  // [{ id: 2, body: '하이2', comments: [{ id: 1, body: '코멘트1' }, { id: 2, body: '코멘트2' }] },
-  // { id: 4, body: '하이4', comments: [{ id: 4, body: '코멘트4' }, { id: 5, body: '코멘트5' }] }]
-
-  C.sel(users,
-    '($.id==1) -> posts -> filter($.comments.length > 1) -> ' +
-    '(p=>C.find(p.comments, "$.id == 5")) -> body');
-  // 하이4
-
-  C.sel(users,
-    '($.id==1) -> posts -> filter($.comments.length > 1) -> ' +
-    '(p=>C.find(p.comments, "$.id == 5")) -> comments -> 0 -> body');
-  // 코멘트4
-
-
-
-  C.noti.on('like count changed', 'post',
-    function(post, recent_like) {
-      console.log(post.id, recent_like.user_name); // 20, Cjamm
-    });
-
-  C.noti.emitAll('like count changed',
-    [{ id: 20, body: 'ㅋㅋ' }, { user_name: 'Cjamm' }]);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 </script>

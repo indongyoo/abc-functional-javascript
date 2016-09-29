@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title></title>
+</head>
+<body>
+
+<script src="js/underscore.js"></script>
+<script src="js/jquery.js"></script>
+<script src="../abc.js"></script>
+
+<script>
+
+  C.noti.on('like count changed', 'post',
+    function(post, recent_like) {
+      console.log(post.id, recent_like.user_name); // 20, Cjamm
+    });
+
+  C.noti.emitAll('like count changed',
+    [{ id: 20, body: 'ㅋㅋ' }, { user_name: 'Cjamm' }]);
+
+</script>
+
+</body>
+</html>
