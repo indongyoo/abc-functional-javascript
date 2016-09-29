@@ -45,18 +45,63 @@
     return function() { return toMR(C.map(idxs, arguments, function(v, i, l, args) { return args[v]; })); };
   };
   C.args0 = I, C.args1 = B.args(1), C.args2 = B.args(2), C.args3 = B.args(3), C.args4 = B.args(4);
+  C.remove = function(arr, remove) { return MR(arr, removeByIndex(arr, arr.indexOf(remove))); };
+  C.unset = function(obj, key) { delete obj[key]; return obj; };
+  C.set = function(obj, key, value) { return obj[key] = value;};
+  C.extend = _.extend;
+  C.defaults = _.defaults;
+
+  B.remove = B(X, C.remove);
+  B.unset = B(X, C.unset);
+  B.set = B(X, C.set);
+  B.extend = B(X, C.extend);
+  B.defaults = B(X, C.defaults);
 
   C.sel = C.select = function(start, selector) {
-
+    return C.reduce(selector.split(/\s*->\s*/), start, function (mem, key) {
+      return !key.match(/([a-z]+)?\((.+)\)/) ? mem[key] : C[RegExp.$1 || 'find'](mem, C.lambda(RegExp.$2));
+    });
   };
 
-  C.sel.unset = function() {
-
+  C.sel.set = function(start, selector, value) {
+    var _arr = selector.split(/\s*->\s*/), last = _arr.length - 1;
+    return C.set(_arr.length == 1 ? start : C.sel(start, _arr.slice(0, last).join('->')), _arr[last], value);
   };
 
-  C.sel.remove = function() {
-
+  C.sel.unset = function(start, selector) {
+    var _arr = selector.split(/\s*->\s*/), last = _arr.length - 1;
+    return C.unset(_arr.length == 1 ? start : C.sel(start, _arr.slice(0, last).join('->')), _arr[last]);
   };
+
+  C.sel.remove = function(start, selector) {
+    var _arr = selector.split(/\s*->\s*/);
+    return C.remove(C.sel(start, _arr.slice(0, _arr.length - 1).join('->')), C.sel(start, selector));
+  };
+
+  C.sel.extend = function(start, selector/*, objs*/) {
+    return C.extend.apply(null, [C.sel(start, selector)].concat(_.toArray(arguments).slice(2, arguments.length)));
+  };
+
+  C.sel.defaults = function(start, selector/*, objs*/) {
+    return C.defaults.apply(null, [C.sel(start, selector)].concat(_.toArray(arguments).slice(2, arguments.length)));
+  };
+
+  B.sel = B.select = B(X, C.select);
+  B.sel.set = B(X, C.sel.set);
+  B.sel.unset = B(X, C.sel.unset);
+  B.sel.remove = B(X, C.sel.remove);
+  B.sel.extend = B(X, C.sel.extend);
+  B.sel.defaults = B(X, C.sel.defaults);
+
+
+  C.sel.pop = B('pop', arr_base_method);
+  C.sel.push = B('push', arr_base_method);
+  C.sel.shift = B('shift', arr_base_method);
+  C.sel.unshift = B('unshift', arr_base_method);
+
+  function arr_base_method(method, start, selector, item) {
+    return C.sel(start, selector)[method](item);
+  }
 
   function A(args, func) { return C.apply(arguments[2] || this, _.toArray(args).concat([func])); }
 
@@ -442,15 +487,8 @@
 
   C.isString = _.isString;
   C.isArray = _.isArray;
+  C.isObject = _.isObject;
   C.isArrayLike = _.isArrayLike;
-
-  C.remove = function(arr, remove) {
-    if (C.isArray(arr)) return MR(arr, removeByIndex(arr, arr.indexOf(remove)));
-    var find_key = C.find_key(arr, function(val) { return val==remove; });
-    return MR(arr, find_key !== undefined ? C.unset(arr, find_key) && remove : undefined);
-  };
-
-  C.unset = function(obj, key) { delete obj[key]; return obj; };
 
   !function(B, C, notices) {
     C.noti = C.Noti = C.notice =  {
@@ -873,32 +911,11 @@ function respect_underscore(_) {
     };
   })(1, _.findIndex, _.sortedIndex);
 
-  var hasEnumBug = !{toString: null}.propertyIsEnumerable('toString');
-  var nonEnumerableProps = ['valueOf', 'isPrototypeOf', 'toString',
-    'propertyIsEnumerable', 'hasOwnProperty', 'toLocaleString'];
-
-  function collectNonEnumProps(obj, keys) {
-    var nonEnumIdx = nonEnumerableProps.length;
-    var constructor = obj.constructor;
-    var proto = (_.isFunction(constructor) && constructor.prototype) || ObjProto;
-
-    // Constructor is a special case.
-    var prop = 'constructor';
-    if (_.has(obj, prop) && !_.contains(keys, prop)) keys.push(prop);
-
-    while (nonEnumIdx--) {
-      prop = nonEnumerableProps[nonEnumIdx];
-      if (prop in obj && obj[prop] !== proto[prop] && !_.contains(keys, prop)) keys.push(prop);
-    }
-  }
-
   _.keys = function(obj) {
     if (!_.isObject(obj)) return [];
     if (nativeKeys) return nativeKeys(obj);
     var keys = [];
     for (var key in obj) if (_.has(obj, key)) keys.push(key);
-    // Ahem, IE < 9.
-    if (hasEnumBug) collectNonEnumProps(obj, keys);
     return keys;
   };
 
@@ -908,14 +925,23 @@ function respect_underscore(_) {
     return values;
   };
 
-  _.extend = createAssigner(function(obj) {
-    if (!_.isObject(obj)) return [];
-    var keys = [];
-    for (var key in obj) keys.push(key);
-    // Ahem, IE < 9.
-    if (hasEnumBug) collectNonEnumProps(obj, keys);
-    return keys;
-  });
+  function base_ex_de(is_de, obj1/* objs... */) {
+    if (obj1) return function ex_de_recursive(result, args, i) {
+      var shift = args[i];
+      if (!shift) return result;
+      if (!is_de) for (var key in shift) result[key] = shift[key];
+      else for (var key in shift) if (!result.hasOwnProperty(key)) result[key] = shift[key];
+      return ex_de_recursive(result, args, i+1);
+    }(obj1, arguments, 2);
+  }
+
+  _.extend = function(obj) {
+    return base_ex_de.apply(null, [false].concat(_.toArray(arguments)));
+  };
+
+  _.defaults = function(obj) {
+    return base_ex_de.apply(null, [true].concat(_.toArray(arguments)));
+  };
 
   _.clone = function(obj) {
     if (!_.isObject(obj)) return obj;
