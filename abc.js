@@ -416,11 +416,11 @@
   C.uniq = B.uniq(null);
   C.toArray = C.to_array = _.toArray;
 
-  C.add = B2(C.arr_or_args_to_arr = IF(_.isArray, I).ELSE([C.args, C.to_array]), B.reduce(function(a, b) { return a + b; }));
-  C.sub = B2(C.arr_or_args_to_arr, B.reduce(function(a, b) { return a - b; }));
-  C.mod = B2(C.arr_or_args_to_arr, B.reduce(function(a, b) { return a % b; }));
-  C.mul = B2(C.arr_or_args_to_arr, B.reduce(function(a, b) { return a * b; }));
-  C.div = B2(C.arr_or_args_to_arr, B.reduce(function(a, b) { return a / b; }));
+  C.add = B2(C.arr_or_args_to_arr = IF(_.isArray, I).ELSE([C.args, C.to_array]), B.reduce('(a, b) => a + b'));
+  C.sub = B2(C.arr_or_args_to_arr, B.reduce('(a, b) => a - b'));
+  C.mod = B2(C.arr_or_args_to_arr, B.reduce('(a, b) => a % b'));
+  C.mul = B2(C.arr_or_args_to_arr, B.reduce('(a, b) => a * b'));
+  C.div = B2(C.arr_or_args_to_arr, B.reduce('(a, b) => a / b'));
 
   C.parseInt = C.parse_int = function(v) { return parseInt(v, 10); };
   C.parseIntAll = C.parse_int_all = B2(C.arr_or_args_to_arr, B.map(C.parse_int));
@@ -433,8 +433,8 @@
   C.and = B2(C.arr_or_args_to_arr, B.find_i(C.not), B.is(-1));
   C.or = B2(C.arr_or_args_to_arr, B.find(I), C.nnot);
 
-  C.eq = B2(C.arr_or_args_to_arr, B.find_i(function(v, i, a) { return a[0] != v; }), B.is(-1));
-  C.seq = B2(C.arr_or_args_to_arr, B.find_i(function(v, i, a) { return a[0] !== v; }), B.is(-1));
+  C.eq = B2(C.arr_or_args_to_arr, B.find_i(function(v, i, l) { return l[0] != v; }), B.is(-1));
+  C.seq = B2(C.arr_or_args_to_arr, B.find_i(function(v, i, l) { return l[0] !== v; }), B.is(-1));
   C.neq = B2(C.eq, C.not);
   C.sneq = B2(C.seq, C.not);
 
@@ -463,7 +463,7 @@
       emitAll: emitAll
     };
 
-    B.noti = B.Noti = B.notice =  {
+    B.noti = B.Noti = B.notice = {
       on: function() {
         var args = arguments;
         return function(func) { return A(args.length === 3 ? args :  _.isFunction(func) ? _.toArray(args).concat(func) : args, on); };
@@ -481,7 +481,7 @@
         var args = arguments;
         return function(args2) { return A(args.length == 2 ? args : _.isArray(args2) ? _.toArray(args).concat([args2]) : args, emitAll) };
       }
-    };
+    }; B.noti.emit_all = emitAll;
 
     function on(name1, name2, func, is_once) {
       var _notice = notices[name1];
