@@ -986,7 +986,7 @@ function respect_underscore(_) {
 
   return _;
 }
-//-------------------- abc.box.js ------------------------
+//-------------------- abc.box.js -----------------------
 !function (root, makeConstructorBox) {
   root.Box = makeConstructorBox(root);
 }(typeof global == 'object' && global.global == global && (global.G = global) || window, function makeBox(root) {
@@ -999,52 +999,62 @@ function respect_underscore(_) {
     this.__cache__ = function () { return cache; };
   };
 
-  Box.prototype.find = function (el, is_init_cache) {
-    if (!el || root.C.isArrayLike(el) && !el.length) return ;
-    var str = (root.C.isString(el) ? el : (root.C.isArrayLike(el) ? el[0] : el).getAttribute('box_selector'));
-    var _data = root.C.select(this._(), str);
-    var cache = this.__cache__(), _cache_val = cache[str];
-    return (is_init_cache || !_cache_val) ? (cache[str] = _data) : _cache_val;
-  };
-
   function make_selector(el) {
     return root.C.isString(el) ? el : (root.C.isArrayLike(el) ? el[0] : el).getAttribute('box_selector');
   }
 
+  Box.prototype.select = Box.prototype.sel = function (el, is_init_cache) {
+    if (!el || root.C.isArrayLike(el) && !el.length) return ;
+    var selector = make_selector(el);
+    var _data = root.C.select(this._(), selector);
+    var cache = this.__cache__(), _cache_val = cache[selector];
+    return (is_init_cache || !_cache_val) ? (cache[selector] = _data) : _cache_val;
+  };
+
   Box.prototype.set = function (el, value) {
     if (arguments.length == 1 &&  root.C.isObject(el)) return root.C.extend(this._(), el) && this;
     var selector = make_selector(el);
-    root.C.sel.set(this._(), selector, value);
-    this.find(selector, true);
-    return this;
+    return this.__cache__()[selector] = root.C.sel.set(this._(), selector, value);
   };
 
   Box.prototype.unset = function(el) {
     var selector = make_selector(el);
-    root.C.sel.unset(this._(), selector);
-    this.find(selector, true);
-    return this;
+    return this.__cache__()[selector] = root.C.sel.unset(this._(), selector);
   };
 
   Box.prototype.remove = function(el) {
     var selector = make_selector(el);
-    root.C.sel.remove(this._(), selector);
-    this.find(selector, true);
-    return this;
+    return this.__cache__()[selector] = root.C.sel.remove(this._(), selector);
   };
 
   Box.prototype.extend = function(el) {
     var selector = make_selector(el);
-    root.C.sel.extend.apply(null, [this._(), selector].concat(root.C.toArray(arguments).slice(1, arguments.length)));
-    this.find(selector, true);
-    return this;
+    return this.__cache__()[selector] = root.C.sel.extend.apply(null, [this._(), selector].concat(root.C.toArray(arguments).slice(1, arguments.length)));
   };
 
   Box.prototype.defaults = function(el) {
     var selector = make_selector(el);
-    root.C.sel.defaults.apply(null, [this._(), selector].concat(root.C.toArray(arguments).slice(1, arguments.length)));
-    this.find(selector, true);
-    return this;
+    return this.__cache__()[selector] = root.C.sel.defaults.apply(null, [this._(), selector].concat(root.C.toArray(arguments).slice(1, arguments.length)));
+  };
+
+  Box.prototype.pop = function(el) {
+    var selector = make_selector(el);
+    return root.C.sel.pop(this._(), selector);
+  };
+
+  Box.prototype.push = function(el, item) {
+    var selector = make_selector(el);
+    return root.C.sel.push(this._(), selector, item);
+  };
+
+  Box.prototype.shift = function(el) {
+    var selector = make_selector(el);
+    return root.C.sel.shift(this._(), selector);
+  };
+
+  Box.prototype.unshift = function(el, item) {
+    var selector = make_selector(el);
+    return root.C.sel.unshift(this._(), selector, item);
   };
 
   return Box;
