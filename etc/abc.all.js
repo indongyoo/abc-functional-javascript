@@ -37,8 +37,7 @@
   };
   C.args0 = I, C.args1 = B.args(1), C.args2 = B.args(2), C.args3 = B.args(3), C.args4 = B.args(4);
 
-  var has_lambda = true;
-  try { eval('a=>a'); } catch (err) { has_lambda = false; }
+  try { var has_lambda = true; eval('a=>a'); } catch (err) { var has_lambda = false; }
   C.lambda = function (str) {
     if (typeof str !== 'string') return str;
     if (!str.match(/=>/)) return new Function('$', 'return (' + str + ')');
@@ -47,6 +46,18 @@
     return new Function(
       ex_par[0].replace(/(?:\b[A-Z]|\.[a-zA-Z_$])[a-zA-Z_$\d]*|[a-zA-Z_$][a-zA-Z_$\d]*\s*:|this|arguments|'(?:[^'\\]|\\.)*'|"(?:[^"\\]|\\.)*"/g, '').match(/([a-z_$][a-z_$\d]*)/gi) || [],
       'return (' + ex_par[1] + ')');
+  };
+
+  C.sel = C.select = function(start, selector) {
+
+  };
+
+  C.sel.unset = function() {
+
+  };
+
+  C.sel.remove = function() {
+
   };
 
   function A(args, func) { return C.apply(arguments[2] || this, _.toArray(args).concat([func])); }

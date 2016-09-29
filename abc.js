@@ -48,6 +48,18 @@
       'return (' + ex_par[1] + ')');
   };
 
+  C.sel = C.select = function(start, selector) {
+
+  };
+
+  C.sel.unset = function() {
+
+  };
+
+  C.sel.remove = function() {
+
+  };
+
   function A(args, func) { return C.apply(arguments[2] || this, _.toArray(args).concat([func])); }
 
   function map(list, iter) {
