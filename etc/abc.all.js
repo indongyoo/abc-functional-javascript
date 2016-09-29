@@ -121,7 +121,7 @@
     };
   };
 
-  B.div = function() {
+  B.spread = function() {
     var fns = _.toArray(arguments);
     return function() {
       var args = _.toArray(arguments);

@@ -25,18 +25,6 @@
   F.S = window.S = S; // String Template Engine
   F.X = window.X = new Object();
 
-  C.lambda = I;
-  C.method = C.m = method; // for method
-  C.args = function() { return arguments; };
-  C.val = C.v = getValue; // get value with string
-  C.args.trim = function(args) { return args.length == 1 && args[0] === undefined ? [] : args; };
-  B.args = function(idx) {
-    if (arguments.length == 1) return function() { return arguments[idx]; };
-    var idxs = arguments;
-    return function() { return toMR(C.map(idxs, arguments, function(v, i, l, args) { return args[v]; })); };
-  };
-  C.args0 = I, C.args1 = B.args(1), C.args2 = B.args(2), C.args3 = B.args(3), C.args4 = B.args(4);
-
   try { var has_lambda = true; eval('a=>a'); } catch (err) { var has_lambda = false; }
   C.lambda = function (str) {
     if (typeof str !== 'string') return str;
@@ -47,6 +35,16 @@
       ex_par[0].replace(/(?:\b[A-Z]|\.[a-zA-Z_$])[a-zA-Z_$\d]*|[a-zA-Z_$][a-zA-Z_$\d]*\s*:|this|arguments|'(?:[^'\\]|\\.)*'|"(?:[^"\\]|\\.)*"/g, '').match(/([a-z_$][a-z_$\d]*)/gi) || [],
       'return (' + ex_par[1] + ')');
   };
+  C.method = C.m = method; // for method
+  C.args = function() { return arguments; };
+  C.val = C.v = getValue; // get value with string
+  C.args.trim = function(args) { return args.length == 1 && args[0] === undefined ? [] : args; };
+  B.args = function(idx) {
+    if (arguments.length == 1) return function() { return arguments[idx]; };
+    var idxs = arguments;
+    return function() { return toMR(C.map(idxs, arguments, function(v, i, l, args) { return args[v]; })); };
+  };
+  C.args0 = I, C.args1 = B.args(1), C.args2 = B.args(2), C.args3 = B.args(3), C.args4 = B.args(4);
 
   C.sel = C.select = function(start, selector) {
 
@@ -112,7 +110,7 @@
 
   var arg_add_arr = function(list) { return MR(list, []); };
   var all_map = B.map(function(val_fn, k, l, args) { return A(args, val_fn, this); });
-  var div_map = B.map(function(v, k, l, fns) { return A([v], fns[k] || I, this); });
+  var spread_map = B.map(function(v, k, l, fns) { return A([v], fns[k] || I, this); });
 
   B.all = function() {
     var fns = _.toArray(arguments);
@@ -121,12 +119,12 @@
     };
   };
 
-  B.div = function() {
+  B.spread = function() {
     var fns = _.toArray(arguments);
     return function() {
       var args = _.toArray(arguments);
       while (args.length < fns.length) args.push(void 0);
-      return A([args, fns], [div_map, arg_add_arr, spread_args, toMR], this);
+      return A([args, fns], [spread_map, arg_add_arr, spread_args, toMR], this);
     };
   };
 
@@ -314,7 +312,7 @@
     var args = _.rest(arguments, 6);
     var list = args.shift();
     var keys = _.isArray(list) ? null : _.keys(list);
-    iter_or_predi = iter_or_predi || args.pop();
+    iter_or_predi = iter_or_predi || C.lambda(args.pop());
     var length = (keys || list).length;
     var result = [], tmp = [];
     var resolve = I, async = false;
@@ -374,19 +372,19 @@
       if (i == fns.length) {
         if (!promise) return res;
         // 혹시 모두 동기로 끝나버려 then_rs가 아직 안들어온 경우 안전하게 한번 기다려주고
-        return resolve ? resolve(res) : setTimeout(function() { resolve && resolve(res); }, 0);
+        return resolve ? C.lambda(resolve)(res) : setTimeout(function() { resolve && C.lambda(resolve)(res); }, 0);
       }
 
       if (!isMR(res)) res = [res];
       try { // 동기 경우
-        if (!fns[i]._ABC_is_cb && !fns[i]._ABC_just_cb) return c(fns[i++].apply(context, C.args.trim(res)));
+        if (!fns[i]._ABC_is_cb && !fns[i]._ABC_just_cb) return c(C.lambda(fns[i++]).apply(context, C.args.trim(res)));
         // 동기이고 그냥 callback, 혹시 생길 수 있는 비동기를 미리 잡기 위해서도 사용
-        if (!fns[i]._ABC_is_cb) return fns[i++].apply(context, C.args.trim(res).concat(function() { return c(toMR(arguments)); }));
+        if (!fns[i]._ABC_is_cb) return C.lambda(fns[i++]).apply(context, C.args.trim(res).concat(function() { return c(toMR(arguments)); }));
       } catch (e) { return c(ERR(e)); }
 
       // 비동기일 경우
       promise || (promise = hasPromise() ? new Promise(function(rs) { resolve = rs; }) : { then: function(rs) { resolve = rs; } });
-      try { fns[i++].apply(context, C.args.trim(res).concat(function() { arguments.length <= 1 ? c.apply(null, arguments) : c(toMR(arguments)); })); }
+      try { C.lambda(fns[i++]).apply(context, C.args.trim(res).concat(function() { arguments.length <= 1 ? c.apply(null, arguments) : c(toMR(arguments)); })); }
       catch (e) { c(ERR(e)); }
       return promise;
     })(toMR(args));

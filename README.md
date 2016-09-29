@@ -25,7 +25,7 @@ __abcjs와 함께 함수형 프로그래밍을 즐겨보세요.__
  - [each, map, find, ...](https://github.com/marpple/abc-functional-javascript/blob/master/README.md#07-eachmapfind)
  - [HTML Template](https://github.com/marpple/abc-functional-javascript/blob/master/README.md#08-html-template)
  - [IF ELSEIF ELSE](https://github.com/marpple/abc-functional-javascript/blob/master/README.md#09-if-elseif-else)
- - [B.all B.div](https://github.com/marpple/abc-functional-javascript/blob/master/README.md#10-ball-bdiv)
+ - [B.all B.spread](https://github.com/marpple/abc-functional-javascript/blob/master/README.md#10-ball-bspread)
  - [this](https://github.com/marpple/abc-functional-javascript/blob/master/README.md#11-this)
  - [ETC](https://github.com/marpple/abc-functional-javascript/blob/master/README.md#12-etc)
  - [throw, ERR, CATCH](https://github.com/marpple/abc-functional-javascript/blob/master/README.md#13-throw-err-catch)
@@ -1099,7 +1099,7 @@ abcjs를 이용하여 함수형 프로그래밍을 하면 비동기가 지원되
 
 
 
-### 10. [B.all B.div](https://github.com/marpple/abc-functional-javascript/blob/master/example/09.%20IF%20ELSEIF%20ELSE.html)
+### 10. [B.all B.spread](https://github.com/marpple/abc-functional-javascript/blob/master/example/09.%20IF%20ELSEIF%20ELSE.html)
 `B.all` 함수는 같은 인자를 모든 파이프라인 혹은 함수에게 넘겨서 multiple results로 결과를 만드는 함수를 리턴합니다.
 ```javascript
 C(1, 5, [
@@ -1117,10 +1117,10 @@ C(1, 5, [
 ```
 
 
-`B.div` 함수는 인자를 하나씩 모든 파이프라인 혹은 함수에게 나눠주고 multiple results로 결과를 만드는 함수를 리턴합니다.
+`B.spread` 함수는 인자를 하나씩 모든 파이프라인 혹은 함수에게 나눠주고 multiple results로 결과를 만드는 함수를 리턴합니다.
 ```javascript
 C(1, 2, 3, 4, [
-    B.div(
+    B.spread(
         function(a) { return a + a; }, // a
 
         [function(a) { return a + a; },
@@ -1135,7 +1135,7 @@ C(1, 2, 3, 4, [
     }]);
 
 C(1, 2, 3, 4, [
-    B.div(
+    B.spread(
         function(a) { return a + a; }, // a
 
         [function(a) { return a + a; },
@@ -1169,8 +1169,8 @@ C(1, 5, [
         console.log(a); // [6, 16, 1, 5]
     }]);
 ```
-Pipeline 패턴으로 코딩을 하다보면 `B.all`과 `B.div` 같은 일을 하고 싶을때가 많습니다.
-`B.all`과 `B.div`에게 넘겨진 함수 혹은 Pipeline들은 하나씩 차례대로 실행됩니다.
+Pipeline 패턴으로 코딩을 하다보면 `B.all`과 `B.spread` 같은 일을 하고 싶을때가 많습니다.
+`B.all`과 `B.spread`에게 넘겨진 함수 혹은 Pipeline들은 하나씩 차례대로 실행됩니다.
 비동기가 일어나더라도 위에서 부터 하나씩 차례대로 실행됩니다.
 
 ### 11. [this](https://github.com/marpple/abc-functional-javascript/blob/master/example/11.%20this.html)

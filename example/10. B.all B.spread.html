@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>abcjs - B.all B.div</title>
+  <title>abcjs - B.all B.spread</title>
 </head>
 <body>
 <script src="https://cdn.jsdelivr.net/bluebird/latest/bluebird.js"></script>
@@ -40,10 +40,10 @@
 
 
   /*
-   * B.div 함수는 인자를 하나씩 모든 파이프라인 or 함수에게 나눠주고 array로 결과를 만드는 함수를 리턴합니다.
+   * B.spread 함수는 인자를 하나씩 모든 파이프라인 or 함수에게 나눠주고 array로 결과를 만드는 함수를 리턴합니다.
    * */
   C(1, 2, 3, 4, [
-    B.div(
+    B.spread(
         function (a) {
           return a + a;
         }, // a
@@ -66,7 +66,7 @@
     }]);
 
   C(1, 2, 3, 4, [
-    B.div(
+    B.spread(
         function (a) {
           return a + a;
         }, // a
@@ -118,8 +118,8 @@
 
 
   /*
-   * Pipeline 패턴으로 코딩을 하다보면 B.all과 B.div 같은 일을 하고 싶을때가 있습니다.
-   * B.all과 B.div에게 넘겨진 함수 or Pipeline들은 하나씩 차례대로 실행됩니다.
+   * Pipeline 패턴으로 코딩을 하다보면 B.all과 B.spread 같은 일을 하고 싶을때가 있습니다.
+   * B.all과 B.spread에게 넘겨진 함수 or Pipeline들은 하나씩 차례대로 실행됩니다.
    * 비동기가 일어나더라도 위에서 부터 하나씩 차례대로 실행됩니다.
    * */
 
