@@ -8,7 +8,7 @@
 // abc.js, abc.box.js
 // (c) 2015-2016 Marpple. MIT Licensed.
 
-//-------------------- abc.js -----------------------
+//-------------------- abc.js ------------------------
 !function(G) {
   var _ = respect_underscore({}), window = typeof window != 'object' ? G : window;
 
