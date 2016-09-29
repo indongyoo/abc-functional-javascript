@@ -112,6 +112,7 @@
   }
 
   function wrap_arr(v) { return _.isArray(v) ? v : [v]; }
+  C.wrapArray = C.wrap_arr = wrap_arr;
 
   function base_B(args, is_bp2) {
     args = _.toArray(args);
