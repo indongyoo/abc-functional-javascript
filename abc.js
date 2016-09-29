@@ -37,6 +37,18 @@
   };
   C.args0 = I, C.args1 = B.args(1), C.args2 = B.args(2), C.args3 = B.args(3), C.args4 = B.args(4);
 
+  var has_lambda = true;
+  try { eval('a=>a'); } catch (err) { has_lambda = false; }
+  C.lambda = function (str) {
+    if (typeof str !== 'string') return str;
+    if (!str.match(/=>/)) return new Function('$', 'return (' + str + ')');
+    if (has_lambda) return eval(str); // es6 lambda
+    var ex_par = str.split(/\s*=>\s*/);
+    return new Function(
+      ex_par[0].replace(/(?:\b[A-Z]|\.[a-zA-Z_$])[a-zA-Z_$\d]*|[a-zA-Z_$][a-zA-Z_$\d]*\s*:|this|arguments|'(?:[^'\\]|\\.)*'|"(?:[^"\\]|\\.)*"/g, '').match(/([a-z_$][a-z_$\d]*)/gi) || [],
+      'return (' + ex_par[1] + ')');
+  };
+
   function A(args, func) { return C.apply(arguments[2] || this, _.toArray(args).concat([func])); }
 
   function map(list, iter) {
@@ -802,10 +814,6 @@ function respect_underscore(_) {
 
   _.rest = function(array, n, guard) {
     return slice.call(array, n == null || guard ? 1 : n);
-  };
-
-  _.initial = function(array, n, guard){
-    return slice.call(array, 0 , Math.max(0, array.length-(null==n||guard?1:n)));
   };
 
   var flatten = function(input, shallow, strict, startIndex) {

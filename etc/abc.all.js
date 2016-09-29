@@ -37,6 +37,18 @@
   };
   C.args0 = I, C.args1 = B.args(1), C.args2 = B.args(2), C.args3 = B.args(3), C.args4 = B.args(4);
 
+  var has_lambda = true;
+  try { eval('a=>a'); } catch (err) { has_lambda = false; }
+  C.lambda = function (str) {
+    if (typeof str !== 'string') return str;
+    if (!str.match(/=>/)) return new Function('$', 'return (' + str + ')');
+    if (has_lambda) return eval(str); // es6 lambda
+    var ex_par = str.split(/\s*=>\s*/);
+    return new Function(
+      ex_par[0].replace(/(?:\b[A-Z]|\.[a-zA-Z_$])[a-zA-Z_$\d]*|[a-zA-Z_$][a-zA-Z_$\d]*\s*:|this|arguments|'(?:[^'\\]|\\.)*'|"(?:[^"\\]|\\.)*"/g, '').match(/([a-z_$][a-z_$\d]*)/gi) || [],
+      'return (' + ex_par[1] + ')');
+  };
+
   function A(args, func) { return C.apply(arguments[2] || this, _.toArray(args).concat([func])); }
 
   function map(list, iter) {
@@ -804,10 +816,6 @@ function respect_underscore(_) {
     return slice.call(array, n == null || guard ? 1 : n);
   };
 
-  _.initial = function(array, n, guard){
-    return slice.call(array, 0 , Math.max(0, array.length-(null==n||guard?1:n)));
-  };
-
   var flatten = function(input, shallow, strict, startIndex) {
     var output = [], idx = 0;
     for (var i = startIndex || 0, length = getLength(input); i < length; i++) {
@@ -945,42 +953,12 @@ function respect_underscore(_) {
   return _;
 }
 //-------------------- abc.box.js -----------------------
-!function (root, cLambda, makeConstructorBox) {
-  root.Box = makeConstructorBox(root, cLambda);
-}(typeof global == 'object' && global.global == global && (global.G = global) || window, function (C) {
-  var has_lambda = true;
-  try { eval('a=>a'); } catch (err) { has_lambda = false; }
-  return C.lambda = function (str) { // forked raganwald/string-lambdas
-    if (typeof str !== 'string') return str;
-    var expr, leftSection, params, rightSection, v, vars, _i, _len;
-    params = [], expr = str;
-    if (!expr.match(/=>/)) return new Function('$', 'return (' + expr + ')');
-    if (has_lambda) return eval(str); // es6 lambda
-    leftSection = expr.match(/^\s*(?:[+*\/%&|\^\.=<>]|!=)/m);
-    rightSection = expr.match(/[+\-*\/%&|\^\.=<>!]\s*$/m);
-    if (leftSection || rightSection) {
-      if (leftSection) {
-        params.push('$1');
-        expr = '$1' + expr;
-      }
-      if (rightSection) {
-        params.push('$2');
-        expr = expr + '$2';
-      }
-    } else {
-      vars = str.replace(/(?:\b[A-Z]|\.[a-zA-Z_$])[a-zA-Z_$\d]*|[a-zA-Z_$][a-zA-Z_$\d]*\s*:|this|arguments|'(?:[^'\\]|\\.)*'|"(?:[^"\\]|\\.)*"/g, '').match(/([a-z_$][a-z_$\d]*)/gi) || [];
-      for (_i = 0, _len = vars.length; _i < _len; _i++) {
-        v = vars[_i];
-        params.indexOf(v) >= 0 || params.push(v);
-      }
-    }
-    return new Function(params, 'return (' + expr + ')')();
-  };
-}(C), function makeBox(root, cLambda) {
+!function (root, makeConstructorBox) {
+  root.Box = makeConstructorBox(root, C.lambda);
+}(typeof global == 'object' && global.global == global && (global.G = global) || window, function makeBox(root, cLambda) {
   var Box = function Box(key, value) {
-    var cache = {};
+    var data = {}, cache = {};
     var is_string = root.C.isString(key), k;
-    var data = {};
     if (is_string && arguments.length == 2) data[key] = value;
     else if (!is_string && arguments.length == 1) for (k in key) data[k] = key[k];
     this._ = function () { return data; }; // 괜찮은 이름 추천해주세요~
