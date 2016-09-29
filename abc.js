@@ -37,8 +37,7 @@
   };
   C.args0 = I, C.args1 = B.args(1), C.args2 = B.args(2), C.args3 = B.args(3), C.args4 = B.args(4);
 
-  var has_lambda = true;
-  try { eval('a=>a'); } catch (err) { has_lambda = false; }
+  try { var has_lambda = true; eval('a=>a'); } catch (err) { var has_lambda = false; }
   C.lambda = function (str) {
     if (typeof str !== 'string') return str;
     if (!str.match(/=>/)) return new Function('$', 'return (' + str + ')');
