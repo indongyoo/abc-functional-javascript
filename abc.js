@@ -50,6 +50,10 @@
   C.set = function(obj, key, value) { return MR(obj[key] = value, key, obj); };
   C.extend = _.extend;
   C.defaults = _.defaults;
+  C.pop = function(arr) { return MR(arr.pop(), arr.length, arr); };
+  C.shift = function(arr) { return MR(arr.shift(), 0, arr); };
+  C.push = function(arr, item) { return MR(item, arr.push(item), arr); };
+  C.unshift = function(arr, item) { return MR(item, arr.unshift(item), arr); };
 
   B.remove = B(X, C.remove);
   B.unset = B(X, C.unset);
@@ -93,15 +97,10 @@
   B.sel.extend = B(X, C.sel.extend);
   B.sel.defaults = B(X, C.sel.defaults);
 
-
-  C.sel.pop = B('pop', arr_base_method);
-  C.sel.push = B('push', arr_base_method);
-  C.sel.shift = B('shift', arr_base_method);
-  C.sel.unshift = B('unshift', arr_base_method);
-
-  function arr_base_method(method, start, selector, item) {
-    return C.sel(start, selector)[method](item);
-  }
+  C.sel.pop = function(start, selector) { return C.pop(C.sel(start, selector)) };
+  C.sel.shift = function(start, selector) { return C.shift(C.sel(start, selector)) };
+  C.sel.push = function (start, selector, item) { return C.push(C.sel(start, selector), item); };
+  C.sel.unshift = function (start, selector, item) { return C.unshift(C.sel(start, selector), item); };
 
   function A(args, func) { return C.apply(arguments[2] || this, _.toArray(args).concat([func])); }
 
