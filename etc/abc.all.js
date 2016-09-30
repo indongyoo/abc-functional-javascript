@@ -985,15 +985,17 @@ function respect_underscore(_) {
     var is_string = root.C.isString(key), k;
     if (is_string && arguments.length == 2) _box_data[key] = value;
     else if (!is_string && arguments.length == 1) for (k in key) _box_data[k] = key[k];
+    function select(el, is_init_cache) {
+      if (!el || root.C.isArrayLike(el) && !el.length) return ;
+      var selector = make_selector(el);
+      var _data = root.C.select(_box_data, selector);
+      var _cache_val = _box_cache[selector];
+      return (is_init_cache || !_cache_val) ? (_box_cache[selector] = _data) : _cache_val;
+    }
     return {
       _: function () { return _box_data; },
-      select: function (el, is_init_cache) {
-        if (!el || root.C.isArrayLike(el) && !el.length) return ;
-        var selector = make_selector(el);
-        var _data = root.C.select(_box_data, selector);
-        var _cache_val = _box_cache[selector];
-        return (is_init_cache || !_cache_val) ? (_box_cache[selector] = _data) : _cache_val;
-      },
+      select: select,
+      sel: select,
       set: function (el, value) {
         if (arguments.length == 1 &&  root.C.isObject(el)) return root.C.extend(_box_data, el);
         var selector = make_selector(el);
