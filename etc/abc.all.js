@@ -8,7 +8,7 @@
 // abc.js, abc.box.js
 // (c) 2015-2016 Marpple. MIT Licensed.
 
-//-------------------- abc.js -----------------------
+//-------------------- abc.js ------------------------
 !function(G) {
   var _ = respect_underscore({}), window = typeof window != 'object' ? G : window;
 
@@ -45,9 +45,9 @@
     return function() { return toMR(C.map(idxs, arguments, function(v, i, l, args) { return args[v]; })); };
   };
   C.args0 = I, C.args1 = B.args(1), C.args2 = B.args(2), C.args3 = B.args(3), C.args4 = B.args(4);
-  C.remove = function(arr, remove) { return MR(arr, removeByIndex(arr, arr.indexOf(remove))); };
-  C.unset = function(obj, key) { delete obj[key]; return obj; };
-  C.set = function(obj, key, value) { return obj[key] = value;};
+  C.remove = function(arr, remove) { return MR(remove, removeByIndex(arr, arr.indexOf(remove)), arr); };
+  C.unset = function(obj, key) { var val = obj[key]; delete obj[key]; return MR(val, key, obj); };
+  C.set = function(obj, key, value) { return MR(obj[key] = value, key, obj); };
   C.extend = _.extend;
   C.defaults = _.defaults;
 
@@ -104,6 +104,11 @@
   }
 
   function A(args, func) { return C.apply(arguments[2] || this, _.toArray(args).concat([func])); }
+
+  function each(list, iter) {
+    for (var i = 0, length = list.length; i < length ;i++) iter(list[i], i, list);
+    return list;
+  }
 
   function map(list, iter) {
     var list2 = [];
@@ -531,7 +536,7 @@
     function off(name1, n2_or_n2s) {
       var _notice = notices[name1];
       if (arguments.length == 1) C.unset(notices, name1);
-      else if (_notice && arguments.length == 2) map(_.isString(n2_or_n2s) ? [n2_or_n2s] : n2_or_n2s, B(_notice, C.unset));
+      else if (_notice && arguments.length == 2) each(_.isString(n2_or_n2s) ? [n2_or_n2s] : n2_or_n2s, B(_notice, C.unset));
     }
 
     function emitAll(name1, emit_args) {
@@ -543,11 +548,11 @@
       var _notice = notices[name1];
       if (_notice) C(name2, [
         IF(_.isFunction, [J(void 0), name2, function(name2) { return _.isString(name2) ? [name2] : name2; }]).ELSEIF(_.isString, J([name2])).ELSE(I),
-        B(X, B([B.all(J(_notice), I), IF([C.val, function(arr) { return arr && arr.length }], make_map_emit(emit_args))]), map)
+        B(X, B([B.all(J(_notice), I), IF([C.val, function(arr) { return arr && arr.length }], make_map_emit(emit_args))]), each)
       ]);
     }
 
-    function make_map_emit(args) { return [B.tap(C.val, B(X, B([I, B(args, X, A)]), map)), function (_n, k) { _n[k] = C.reject(_n[k], B.val('is_once')); }];}
+    function make_map_emit(args) { return [B.tap(C.val, B(X, B([I, B(args, X, A)]), each)), function (_n, k) { _n[k] = C.reject(_n[k], B.val('is_once')); }];}
   }(B, C, {});
 
   C.remove_by_index = C.removeByIndex = removeByIndex;
