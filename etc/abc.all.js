@@ -37,6 +37,7 @@
   };
   C.method = C.m = method; // for method
   C.args = function() { return arguments; };
+  C.arr_or_args_to_arr = IF(_.isArray, I).ELSE([C.args, _.toArray]);
   C.val = C.v = getValue; // get value with string
   C.args.trim = function(args) { return args.length == 1 && args[0] === undefined ? [] : args; };
   B.args = function(idx) {
@@ -135,10 +136,10 @@
 
   function B() { return base_B(arguments); }
 
-  function B2() { return base_B([C.to_array(arguments)]); }
+  function B2() { return base_B([_.toArray(arguments)]); }
 
   B.indent = function() { return base_B(arguments, true); };
-  B2.indent = function() { return base_B([C.to_array(arguments)], true); };
+  B2.indent = function() { return base_B([_.toArray(arguments)], true); };
   B.args_pass = function(fn) { return B2(C.args, B.all(I, _.flatten([toMR, fn])), C.args, B.v('0'), toMR); };
 
   B.val = B.v = B.V = function(key) { return B(X, key, getValue); };
@@ -178,8 +179,8 @@
     };
   };
 
-  var c_if = IF(function() { return arguments.length == 3; }, MR).ELSE(B.all(_.rest, B.V('0'), C.args1));
-  var b_if = IF(function() { return arguments.length > 1; }, MR).ELSE(B.all(_.rest, B.V('0')));
+  var c_if = IF(function() { return arguments.length == 3; }, MR).ELSE(B.all(_.rest, B.v('0'), C.args1));
+  var b_if = IF(function() { return arguments.length > 1; }, MR).ELSE(B.all(_.rest, B.v('0')));
 
   B.reduce = function(iter) {
     return B([iter == null ? c_if : b_if,
@@ -376,7 +377,7 @@
     })(0);
   }
 
-  F.CB = window.CB = B([C.args, B.map([I, B(X, {_ABC_is_cb: true}, _.extend)])]);
+  F.CB = window.CB = B2(C.arr_or_args_to_arr, B.map([I, B(X, {_ABC_is_cb: true}, _.extend)]), B);
   F.JCB = window.JCB = B(X, {_ABC_just_cb: true}, _.extend);
 
   function isMR(arg) { return _.isArray(arg) && arg._ABC_is_returns; }
@@ -464,7 +465,7 @@
   C.uniq = B.uniq(null);
   C.toArray = C.to_array = _.toArray;
 
-  C.add = B2(C.arr_or_args_to_arr = IF(_.isArray, I).ELSE([C.args, C.to_array]), B.reduce('(a, b) => a + b'));
+  C.add = B2(C.arr_or_args_to_arr, B.reduce('(a, b) => a + b'));
   C.sub = B2(C.arr_or_args_to_arr, B.reduce('(a, b) => a - b'));
   C.mod = B2(C.arr_or_args_to_arr, B.reduce('(a, b) => a % b'));
   C.mul = B2(C.arr_or_args_to_arr, B.reduce('(a, b) => a * b'));
@@ -821,7 +822,7 @@ function respect_underscore(_) {
     if (value == null) return I;
     if (_.isFunction(value)) return optimizeCb(value, context, argCount);
     if (_.isObject(value)) return _.matcher(value);
-    return B.V(value);
+    return B.v(value);
   };
 
   _.property = function(key) { return function(obj) { return obj == null ? void 0 : obj[key]; }; };
