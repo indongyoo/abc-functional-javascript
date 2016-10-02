@@ -700,18 +700,18 @@ var users = [
 ];
 
 C(users, [
-    B.filter(B.V('activated')),
+    B.filter(B.v('activated')),
     B.reject(function(user) {
         return user.age > 30;
     }),
-    B.map(B.V('age')),
+    B.map(B.v('age')),
     function(r8) {
         console.log(r8); // [20, 17]
     }]);
 
 C(users, [
-    B.uniq('age'),
-    B.map(B.V('id')),
+    B.uniq('$.age'),
+    B.map(B.v('id')),
     function(r9) {
         console.log(r9); // [1, 3, 4, 5]
     }]);
@@ -720,14 +720,14 @@ C(users, [
     G[":reject :age > 30"] = B.reject(function(user) {
         return user.age > 30;
     }),
-    B.every(B.V('activated')),
+    B.every(B.v('activated')),
     function(r10) {
         console.log(r10); // false
     }]);
 
 C(users, [
     G[":reject :age > 30"],
-    B.some(B.V('activated')),
+    B.some(B.v('activated')),
     function(r11) {
         console.log(r11); // true
     }]);
