@@ -158,7 +158,7 @@ promisify와 같은 일을 미리 해두면 되지 않겠는가라고 생각할 
 
 ```
 
-abcjs는 Promise에 대한 의존성이 없지만 Promise를 지원한다. Pipeline 내부의 함수 결과가 Promise나 jQuery Deffered Object 와 같은 then 메소드를 가진 객체일 경우 결과를 꺼내 Pipeline의 다음 함수에게 전달한다.
+abcjs는 Promise에 대한 의존성이 없지만 Promise를 지원한다. Pipeline 내부의 함수 결과가 Promise나 jQuery Deferred Object 와 같은 then 메소드를 가진 객체일 경우 결과를 꺼내 Pipeline의 다음 함수에게 전달한다.
 
 abcjs의 Pipeline은 Promise와 달리 함수들을 실행하다 비동기 상황을 만났을때만 then 메소드를 가진 약식 Promise 객체를 생성하여 즉시 리턴하고 재귀를 통해서만 비동기를 제어한다. 이 약식 Promise는 중첩 Pipeline 등을 위해 사용된다. ES6 이상이거나 Promise 생성자가 있을 경우에는 약식 Promise가 아닌 정식 Promise를 리턴하기 때문에 Promise나 ES7의 async await 등과도 연동 된다.
 
