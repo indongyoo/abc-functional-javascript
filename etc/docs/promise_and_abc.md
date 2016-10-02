@@ -187,11 +187,10 @@ Promise와 abcjs를 비교해보았다. 물론 Promise를 이용해서도 B, C, 
 | line                 | 5,598                                                        | 976                                                                            |
 
 
-[A (apply)](https://github.com/marpple/abc-functional-javascript/blob/master/README.md#01-a)
 참고 링크
 - [자바스크립트의 약속(Promise): 1부 의문점] (https://gamecodingschool.org/2015/05/23/%EC%9E%90%EB%B0%94%EC%8A%A4%ED%81%AC%EB%A6%BD%ED%8A%B8%EC%9D%98-%EC%95%BD%EC%86%8Dpromise-1%EB%B6%80-%EC%9D%98%EB%AC%B8%EC%A0%90/)
 - [자바스크립트의 약속(Promise): 2부 비교] (https://gamecodingschool.org/2015/05/28/%EC%9E%90%EB%B0%94%EC%8A%A4%ED%81%AC%EB%A6%BD%ED%8A%B8%EC%9D%98-%EC%95%BD%EC%86%8Dpromise-2%EB%B6%80-%EB%B9%84%EA%B5%90/)
-- [JavaScript 모나드] (http://www.haruair.com/blog/2986
-- [abcjs 콜백] https://github.com/marpple/abc-functional-javascript/blob/master/example/05.%20Async%20(callback).html)
+- [JavaScript 모나드] (http://www.haruair.com/blog/2986)
+- [abcjs 콜백] (https://github.com/marpple/abc-functional-javascript/blob/master/example/05.%20Async%20(callback).html)
 - [abcjs Promise] (https://github.com/marpple/abc-functional-javascript/blob/master/example/06.%20Async-2%20(Promise).html)
 - [bluebirdjs] (http://bluebirdjs.com/docs/getting-started.html)
