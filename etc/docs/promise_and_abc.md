@@ -181,11 +181,11 @@ Promise와 abcjs를 비교해보았다. 물론 Promise를 이용해서도 B, C, 
 
 |                      | bluebirdjs                                                   | abcjs                                                                          |
 |----------------------|--------------------------------------------------------------|--------------------------------------------------------------------------------|
-| multiple results     | all, spread                                                  | MR, spread, div, all, auto multiple results(callback)                          |
-| functional, control statement | race, props, any, some, map, reduce, filter, each, mapSeries | each, map, reduce, filter, reject, find, findIndex, findKey, some, every, uniq |
-| error handling       | throw, catch, reject                                         | throw, CATCH, ERR                                                              |
+| Multiple Results     | all, spread                                                  | MR, spread, div, all, auto multiple results(callback)                          |
+| Functional, Control Statement | race, props, any, some, map, reduce, filter, each, mapSeries | each, map, reduce, filter, reject, find, findIndex, findKey, some, every, uniq |
+| Error Handling       | throw, catch, reject                                         | throw, CATCH, ERR                                                              |
 | etc                  | tap, delay, promisify, promisifyAll ...                      | tap, delay, bfy, CB, async jade template, async string template ...            |
-| line                 | 5,598                                                        | 976                                                                            |
+| Line                 | 5,598                                                        | 976                                                                            |
 
 
 참고 링크
