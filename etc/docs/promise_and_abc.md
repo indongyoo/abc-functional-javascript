@@ -175,7 +175,7 @@ bfy를 하면 비동기 함수임에도 불구하고 아래와 같은 코드가 
   blog(bmul(bsub(badd(5, 10))));
 ```
 
-Promise와 abcjs를 비교해보았다. 물론 Promise를 이용해서도 B, C, CB와 같은 함수들을 모두 구현할 수 있다. 그렇지만 abcjs는 Promise 없이 구현 되었으며 재귀만으로 비동기를 제어한다. Promise는 현재 모든 브라우저에서 동작하지 않는다. ES6의 Promise 역시 bluebirdjs 등과 비교하면 스펙이 빈약하다. bluebirdjs는 6,000 줄이지만 abcjs는 1,000 줄이며 비동기 제어외에도 HTML 템플릿 엔진, 깊은 값 변경 등 많은 기능을 지원한다. 비동기 제어와 관련 기능만 놓고 비교해도 abcjs가 더욱 많은 기능을 제공한다. 다음은 비동기 제어와 관련한 API 비교표.
+Promise와 abcjs를 비교해보았다. 물론 Promise를 이용해서도 B, C, CB와 같은 함수들을 모두 구현할 수 있다. 그렇지만 abcjs는 Promise 없이 구현 되었으며 재귀만으로 비동기를 제어한다. Promise는 현재 모든 브라우저에서 동작하지 않는다. ES6의 Promise 역시 bluebirdjs 등과 비교하면 스펙이 빈약하다. abcjs는 bluebirdjs가 지원하는 많은 비동기 관련 기능 외에 HTML 템플릿 엔진, 깊은 값 변경 등 많은 기능도 지원한다. 다음은 비동기 제어와 관련한 API 비교표이다.
 
 
 |                      | bluebirdjs                                                   | abcjs                                                                          |
