@@ -39,7 +39,7 @@ Promise는 충분한 해결책이고 아름답지만 다음과 같은 작은 단
     console.log(msg);
   }
 
-  /* Promise */
+  /* Promise 1 */
   new Promise(
     function(resolve) {
       add(5, 10, resolve);
