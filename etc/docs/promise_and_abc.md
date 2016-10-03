@@ -208,7 +208,7 @@ Promise와 abcjs를 비교해보았다. 물론 Promise를 이용해서도 B, C, 
 | Functional, Control Statement | race, props, any, some, map, reduce, filter, each, mapSeries | each, map, reduce, filter, reject, find, findIndex, findKey, some, every, uniq, IF, ELSEIF, ELSE |
 | Error Handling       | throw, catch, reject                                         | throw, CATCH, ERR                                                              |
 | etc                  | tap, delay, promisify, promisifyAll ...                      | tap, delay, bfy, CB, async jade template, async string template ...            |
-| Line                 | 5,598                                                        | 976                                                                            |
+| Line                 | 5,598                                                        | 961                                                                            |
 
 
 참고 링크
