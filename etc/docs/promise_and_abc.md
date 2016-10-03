@@ -16,25 +16,25 @@ Promise는 충분한 해결책이지만 다음과 같은 작은 단점들이 있
 ```javascript
 
   function add(a, b, next) {
-    setTimeout(function () {
+    setTimeout(function() {
       next(a + b);
     }, 1000);
   }
 
   function sub(a, b, next) {
-    setTimeout(function () {
+    setTimeout(function() {
       next(a - b);
     }, 1000);
   }
 
   function mul(a, b, next) {
-    setTimeout(function () {
+    setTimeout(function() {
       next(a * b);
     }, 1000);
   }
 
   function log(msg, next) {
-    setTimeout(function () {
+    setTimeout(function() {
       console.log(msg);
       next(msg);
     }, 1000);
@@ -42,21 +42,21 @@ Promise는 충분한 해결책이지만 다음과 같은 작은 단점들이 있
 
   /* Promise 1 */
   new Promise(
-    function (resolve) {
+    function(resolve) {
       add(5, 10, resolve);
     })
-    .then(function (result) {
-      return new Promise(function (resolve) {
+    .then(function(result) {
+      return new Promise(function(resolve) {
         sub(result, 10, resolve);
       });
     })
-    .then(function (result) {
-      return new Promise(function (resolve) {
+    .then(function(result) {
+      return new Promise(function(resolve) {
         mul(result, 1, resolve);
       });
     })
-    .then(function (result) {
-      return new Promise(function (resolve) {
+    .then(function(result) {
+      return new Promise(function(resolve) {
         log(result, resolve);
       });
     });
@@ -64,16 +64,16 @@ Promise는 충분한 해결책이지만 다음과 같은 작은 단점들이 있
 
   /* abcjs 1 */
   C(5, 10, CB(
-    function (a, b, next) {
+    function(a, b, next) {
       add(a, b, next);
     },
-    function (result, next) {
+    function(result, next) {
       sub(result, 10, next);
     },
-    function (result, next) {
+    function(result, next) {
       mul(result, 10, next);
     },
-    function (result, next) {
+    function(result, next) {
       log(result, next);
     }));
   // 50
@@ -88,16 +88,19 @@ Promise는 wrapper 역할을 하고 있는 익명 함수가 반드시 하나의 
 
   /* not working */
   new Promise(
-    function (resolve) {
+    function(resolve) {
       add(5, 10, function(result) {
         resolve(result, 10);
       });
     })
-    .then(function (a, b) { // b is undefined
-      return new Promise(function (resolve) {
+    .then(function(a, b) { // b is undefined
+      return new Promise(function(resolve) {
         sub(a, b, resolve);
       });
     });
+
+  // ES6 Promise에는 없지만 bluebirdjs에서는 array로 값을 넘긴 후 spread로 인자로 나눠 받을 수 있다.
+  // ex) resolve([result, 10]); -> .spread(function(a, b) {})
 
 ```
 
@@ -135,10 +138,10 @@ abcjs에서 wrapper 역할을 하는 함수는 여러 개의 인자를 받을 �
 ```javascript
 
   function promisify(func) {
-    return function () {
+    return function() {
       var args = _.toArray(arguments);
       var self = this;
-      return new Promise(function (resolve) {
+      return new Promise(function(resolve) {
         func.apply(self, args.concat(resolve));
       });
     }
@@ -186,23 +189,23 @@ abcjs에서 wrapper 역할을 하는 함수는 여러 개의 인자를 받을 �
 
   /* abcjs 7 (with Promise)*/
   C([
-    function () {
-      return new Promise(function (resolve) {
+    function() {
+      return new Promise(function(resolve) {
         add(5, 10, resolve);
       });
     },
-    function (result) {
-      return new Promise(function (resolve) {
+    function(result) {
+      return new Promise(function(resolve) {
         sub(result, 10, resolve);
       });
     },
-    function (result) {
-      return new Promise(function (resolve) {
+    function(result) {
+      return new Promise(function(resolve) {
         mul(result, 100, resolve);
       });
     },
-    function (result) {
-      return new Promise(function (resolve) {
+    function(result) {
+      return new Promise(function(resolve) {
         log(result, resolve);
       });
     }]);
