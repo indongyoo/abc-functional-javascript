@@ -2,16 +2,14 @@
 
 Promise는 비동기 상황에서 동기적으로 코드를 작성할 수 있게 하는 해결책 중 하나이며 ES6에 채택되었다. Promise는 "값이 만들어지기로 약속된 Promise 객체를 즉시 리턴하는 함수"들을 만들고 이것들을 내부에서 순차적으로 실행하며 비동기 상황을 제어한다. 결과 값은 아니지만 Promise 객체를 즉시 리턴한다는 특징 덕분에 비동기 상황을 if, else, for 등으로 어느 정도 제어할 수 있게 된다. 그리고 try catch와 유사한 에러 핸들링이 가능해진다. 콜백 지옥 해결을 넘어 동기적인 코드 작성을 할 수 있게 하고 ES7의 async await 키워드의 사용을 가능하게 한다. 이러한 이유로 Promise는 더 많은 javascript 개발자들에게 선택되어지고 있다.
 
-Promise는 충분한 해결책이고 아름답지만 다음과 같은 작은 단점들이 있다고 생각한다.
+Promise는 충분한 해결책이지만 다음과 같은 작은 단점들이 있다고 생각한다.
 
 1. 반드시 비동기가 일어난다.
 2. Promise로 감싸진 의미 없는 익명 함수가 많아진다.
-3. 익명 함수에서 인자를 2개 이상 받을 수 없다.
-4. Promise 함수는 즉시 Promise 객체를 리턴해야하므로 Promise 객체가 아닌 리턴 값을 만들 수 없다.
-5. 3번과 4번 때문에 동기로 동작하는 일반적인 함수, 고차 함수, 타 라이브러리 등과 함께 사용하기 어렵다.
-6. Promise 객체를 리턴하는 함수를 사용하는건 쉽지만 만드는 것은 약간 어렵다.
-7. 콜백 함수를 필요로 하는 고차 함수를 Promise로 제어하려면 제법 많은 Promise 관련 코드가 필요하다.
-
+3. 익명 함수에서 인자를 2개 이상 받을 수 없어 일반 함수나 타 라이브러리 등과 조합하기 어렵다.
+4. resolve가 값을 1개만 전달하므로 결과가 2개 이상인 콜백 패턴의 함수와 조합하기 어렵다.
+5. Promise 객체를 리턴하는 함수를 사용하는건 쉽지만 직접 만드는 것은 약간 어렵다.
+6. 콜백 함수를 받는 고차 함수를 Promise로 제어하려면 제법 많은 Promise 관련 코드가 필요하다.
 
 다음 예제들은 abcjs의 Pipeline과 Promise와의 차이점을 보여준다.
 
@@ -54,7 +52,7 @@ Promise는 충분한 해결책이고 아름답지만 다음과 같은 작은 단
     })
     .then(function (result) {
       return new Promise(function (resolve) {
-        mul(result, 10, resolve);
+        mul(result, 1, resolve);
       });
     })
     .then(function (result) {
@@ -62,7 +60,7 @@ Promise는 충분한 해결책이고 아름답지만 다음과 같은 작은 단
         log(result, resolve);
       });
     });
-  // 50
+  // 5
 
   /* abcjs 1 */
   C(5, 10, CB(
@@ -73,21 +71,52 @@ Promise는 충분한 해결책이고 아름답지만 다음과 같은 작은 단
       sub(result, 10, next);
     },
     function (result, next) {
-      mul(result, 20, next);
+      mul(result, 10, next);
     },
     function (result, next) {
       log(result, next);
     }));
-  // 100
+  // 50
 
 ```
 
-Promise는 다음 .then에게 결과를 넘겨주기 위해 새로운 Promise 객체를 생성해야 한다. 이와 달리 abcjs의 Pipeline은 next를 받을 함수들을 CB로 감싸주기만 하면 된다.
+Promise는 다음 .then에게 결과를 넘겨주기 위해 새로운 Promise 객체를 생성해야 한다. 이와 달리 abcjs의 Pipeline은 next를 받을 함수들에 CB를 감싸주기만 하면 된다.
 
-Promise는 wrapper 역할을 하고 있는 익명 함수가 반드시 하나의 인자만 받을 수 있지만 abcjs의 Pipeline은 여러 개의 인자를 받을 수 있으며 마지막 인자로 next가 들어온다. 이 덕분에 wrapper 함수 선언 부분에서 일반적인 함수 선언이나 함수 참조가 가능하게 되고 이와 같은 특징과 대부분의 콜백 패턴이 콜백 함수를 마지막 인자로 받는다는 점을 활용하면 _.partial이나 abcjs의 B 등을 통해 다음과 같은 코드를 작성할 수 있다.
+Promise는 wrapper 역할을 하고 있는 익명 함수가 반드시 하나의 인자만 받을 수 있다. resolve 함수에게도 여러개의 인자를 넘길 수 없다. 문제점이라기보단 그렇게 의도된 것이다. Promise의 최종 값은 마지막 익명 함수의 return으로 결정 될 수 있기 때문에 일관성을 위해 그렇게 선택했을 것이다.
+
+```javascript
+
+  /* not working */
+  new Promise(
+    function (resolve) {
+      add(5, 10, function(result) {
+        resolve(result, 10);
+      });
+    })
+    .then(function (a, b) { // b is undefined
+      return new Promise(function (resolve) {
+        sub(a, b, resolve);
+      });
+    });
+
+```
+
+abcjs에서 wrapper 역할을 하는 함수는 여러 개의 인자를 받을 수 있으며 next는 마지막 인자로 들어온다. 그 역시 일반적인 콜백 패턴의 함수가 된다. 이 덕분에 wrapper 함수를 선언하는 부분에서 일반적인 함수 선언이나 함수 참조가 가능해진다. 이와 같은 특징과 대부분의 콜백 패턴이 콜백 함수를 마지막 인자로 받는다는 점을 활용하면 next, _.partial, abcjs의 B 등을 통해 다음과 같은 코드를 작성할 수 있다.
 
 ```javascript
   /* abcjs 2 */
+    C(5, 10, CB(
+      add,
+      function(result, next) {
+        sub(result, 10, function(result) {
+            next(result, 20);  // multiple results
+        });
+      },
+      mul,
+      log));
+  // 100
+
+  /* abcjs 3 */
   C(5, 10, CB(
     add,
     _.partial(sub, _, 10),
@@ -95,7 +124,7 @@ Promise는 wrapper 역할을 하고 있는 익명 함수가 반드시 하나의 
     log));
   // 150
 
-  /* abcjs 3 */
+  /* abcjs 4 */
   C(5, 10, CB(
     add, B(X, 10, sub), B(40, mul), log));
   // 200
@@ -146,16 +175,16 @@ Promise는 wrapper 역할을 하고 있는 익명 함수가 반드시 하나의 
   add2(5, 10).then(B(X, 10, sub2)).then(B(X, 70, mul2)).then(log2);
   // 350
 
-  /* abcjs 4 */
+  /* abcjs 5 */
   CB(add, sub, mul);
   C(5, 10, [add, B(X, 10, sub), B(80, mul), log]);
   // 400
 
-  /* abcjs 5 (with promisify) */
+  /* abcjs 6 (with promisify) */
   C(5, 10, [add2, B(X, 10, sub2), B(90, mul2), log2]);
   // 500
 
-  /* abcjs 6 (with Promise)*/
+  /* abcjs 7 (with Promise)*/
   C([
     function () {
       return new Promise(function (resolve) {
@@ -189,7 +218,7 @@ abcjs의 Pipeline은 Promise와 달리 함수들을 실행하다 비동기 상�
 B로 감싸주기만 하면 add, sub, mul 모두 비동기 함수임에도 아래와 같은 코드가 동작한다.
 
 ```javascript
-  /* abcjs 7 (bfy) */
+  /* abcjs 8 (bfy) */
   var badd = B(add);
   var bsub10 = B(X, 10, sub);
   var bmul110 = B(110, mul);

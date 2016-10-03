@@ -50,7 +50,7 @@
     })
     .then(function (result) {
       return new Promise(function (resolve) {
-        mul(result, 10, resolve);
+        mul(result, 1, resolve);
       });
     })
     .then(function (result) {
@@ -58,7 +58,7 @@
         log(result, resolve);
       });
     });
-  // 50
+  // 5
 
   /* abcjs 1 */
   C(5, 10, CB(
@@ -69,17 +69,44 @@
       sub(result, 10, next);
     },
     function (result, next) {
-      mul(result, 20, next);
+      mul(result, 10, next);
     },
     function (result, next) {
       log(result, next);
     }));
-  // 100
+  // 50
 
 </script>
 
 <script>
+  /* not working */
+  new Promise(
+    function (resolve) {
+      add(5, 10, function(result) {
+        resolve(result, 10);
+      });
+    })
+    .then(function (a, b) { // b is undefined
+      return new Promise(function (resolve) {
+        sub(a, b, resolve);
+      });
+    });
+</script>
+
+<script>
   /* abcjs 2 */
+  C(5, 10, CB(
+    add,
+    function(result, next) {
+      sub(result, 10, function(result) {
+        next(result, 20); // multiple results
+      });
+    },
+    mul,
+    log));
+  // 100
+
+  /* abcjs 3 */
   C(5, 10, CB(
     add,
     _.partial(sub, _, 10),
@@ -87,7 +114,7 @@
     log));
   // 150
 
-  /* abcjs 3 */
+  /* abcjs 4 */
   C(5, 10, CB(
     add, B(X, 10, sub), B(40, mul), log));
   // 200
@@ -133,16 +160,16 @@
   add2(5, 10).then(B(X, 10, sub2)).then(B(X, 70, mul2)).then(log2);
   // 350
 
-  /* abcjs 4 */
+  /* abcjs 5 */
   CB(add, sub, mul);
   C(5, 10, [add, B(X, 10, sub), B(80, mul), log]);
   // 400
 
-  /* abcjs 5 (with promisify) */
+  /* abcjs 6 (with promisify) */
   C(5, 10, [add2, B(X, 10, sub2), B(90, mul2), log2]);
   // 500
 
-  /* abcjs 6 (with Promise)*/
+  /* abcjs 7 (with Promise)*/
   C([
     function () {
       return new Promise(function (resolve) {
@@ -169,7 +196,7 @@
 
 
 <script>
-  /* abcjs 7 (bfy) */
+  /* abcjs 8 (bfy) */
   var badd = B(add);
   var bsub10 = B(X, 10, sub);
   var bmul110 = B(110, mul);
