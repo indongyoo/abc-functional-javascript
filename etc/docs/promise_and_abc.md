@@ -186,7 +186,7 @@ abcjs는 Promise에 대한 의존성이 없지만 Promise와 함께 사용이 �
 abcjs의 Pipeline은 Promise와 달리 함수들을 실행하다 비동기 상황을 만났을때만 then 메소드를 가진 약식 Promise 객체를 생성하여 즉시 리턴하고 재귀를 통해서만 비동기를 제어한다. 이 약식 Promise는 중첩 Pipeline 등을 위해 사용된다. ES6 이상이거나 Promise 생성자가 있을 경우에는 약식 Promise가 아닌 정식 Promise를 리턴하기 때문에 Promise나 ES7의 async await 등과도 연동 된다.
 
 잠깐 쉬어가는 의미로 아래 코드를 보자. 필자가 실무에서 사용하지는 않지만 재밌는 코드가 있다.
-B로 감싸주기만 하면 add, sub, mul 모두 비동기 함수임에 아래와 같은 코드가 동작한다.
+B로 감싸주기만 하면 add, sub, mul 모두 비동기 함수임에도 아래와 같은 코드가 동작한다.
 
 ```javascript
   /* abcjs 7 (bfy) */
