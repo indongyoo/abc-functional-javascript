@@ -34,16 +34,16 @@
   }
 
   // C.val == C.v
-  C.val(a, 'b.d.g.h'); // undefined
-  C.val(a, 'e.1'); // 2
-  C.val(a, 'e.2'); // 4
-  C.val(a, 'e.length'); // 3
-  C.val(a, 'e.3.g'); // 5
-  C.v(a, 'f'); // null
-  C.v(a, 'f.hoho.hi'); // undefined
-  C.v(a, 'h'); // true
-  C.v(a, 'h.hi'); // undefined
-  C.v(a, 'i'); // false
+  console.log(C.val(a, 'b.d.g.h')); // undefined
+  console.log(C.val(a, 'e.1')); // 2
+  console.log(C.val(a, 'e.2')); // 4
+  console.log(C.val(a, 'e.length')); // 3
+  console.log(C.val(a, 'e.3.g')); // 5
+  console.log(C.v(a, 'f')); // null
+  console.log(C.v(a, 'f.hoho.hi')); // undefined
+  console.log(C.v(a, 'h')); // true
+  console.log(C.v(a, 'h.hi')); // undefined
+  console.log(C.v(a, 'i')); // false
 
 
 </script>

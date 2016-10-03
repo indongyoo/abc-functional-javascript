@@ -19,20 +19,20 @@
    * */
   C(1, 5, [
     B.all(
-        function (a, b) {
-          return a + b;
-        }, // a
+      function (a, b) {
+        return a + b;
+      }, // a
 
-        [function (a, b) {
-          return a - b;
-        },
-          function (a) {
-            return a * a;
-          }],  // b
+      [function (a, b) {
+        return a - b;
+      },
+      function (a) {
+        return a * a;
+      }],  // b
 
-        function (a, b) {
-          return MR(a, b);
-        }  // c, d (multiple results)
+      function (a, b) {
+        return MR(a, b);
+      }  // c, d (multiple results)
     ),
     function (a, b, c, d) {
       console.log(a, b, c, d); // 6, 16, 1, 5
@@ -44,22 +44,22 @@
    * */
   C(1, 2, 3, 4, [
     B.spread(
-        function (a) {
-          return a + a;
-        }, // a
+      function (a) {
+        return a + a;
+      }, // a
 
-        [function (a) {
-          return a + a;
-        },
-          function (a) {
-            return a * a;
-          }], // b
+      [function (a) {
+        return a + a;
+      },
+      function (a) {
+        return a * a;
+      }], // b
 
-        function (a) {
-          return MR(a, a - a);
-        }  // c, d (multiple results)
+      function (a) {
+        return MR(a, a - a);
+      }  // c, d (multiple results)
 
-        // e ** 인자수보다 function의 갯수가 적을 경우 I로 채웁니다. function I(v) { return v }
+      // e ** 인자수보다 function의 갯수가 적을 경우 I로 채웁니다. function I(v) { return v }
     ),
     function (a, b, c, d, e) {
       console.log(a, b, c, d, e); // 2, 16, 3, 0, 4
@@ -67,23 +67,23 @@
 
   C(1, 2, 3, 4, [
     B.spread(
-        function (a) {
-          return a + a;
-        }, // a
+      function (a) {
+        return a + a;
+      }, // a
 
-        [function (a) {
-          return a + a;
-        },
-          function (a) {
-            return a * a;
-          }], // b
+      [function (a) {
+        return a + a;
+      },
+      function (a) {
+        return a * a;
+      }], // b
 
-        function (a) {
-          return MR(a, a - a);
-        }, // c, d
+      function (a) {
+        return MR(a, a - a);
+      }, // c, d
 
-        I, // e
-        I  // f  ** 인자수보다 function의 갯수가 많을 경우 인자는 undefined로 들어옵니다.
+      I, // e
+      I  // f  ** 인자수보다 function의 갯수가 많을 경우 인자는 undefined로 들어옵니다.
     ),
     function (a, b, c, d, e, f) {
       console.log(a, b, c, d, e, f); // 2, 16, 3, 0, 4, undefined
@@ -95,20 +95,20 @@
    * */
   C(1, 5, [
     B.all(
-        function (a, b) {
-          return a + b;
-        }, // a
+      function (a, b) {
+        return a + b;
+      }, // a
 
-        [function (a, b) {
-          return a - b;
-        },
-          function (a) {
-            return a * a;
-          }],  // b
+      [function (a, b) {
+        return a - b;
+      },
+      function (a) {
+        return a * a;
+      }],  // b
 
-        function (a, b) {
-          return MR(a, b);
-        }  // c, d (multiple results)
+      function (a, b) {
+        return MR(a, b);
+      }  // c, d (multiple results)
     ),
     C.args,
     C.toArray,
@@ -125,20 +125,20 @@
 
   C(1, 5, [
     B.all(
-        function (a, b) {
-          return a + b;
-        }, // a
+      function (a, b) {
+        return a + b;
+      }, // a
 
-        [function (a, b) {
-          return a - b;
-        },
-          function (a) {
-            return a * a;
-          }],  // b
+      [function (a, b) {
+        return a - b;
+      },
+      function (a) {
+        return a * a;
+      }],  // b
 
-        CB(function (a, b, cb) {
-          return cb(a, 1);
-        })  // c, d (multiple results)
+      CB(function (a, b, cb) {
+        return cb(a, 1);
+      })  // c, d (multiple results)
     ),
     function () {
       console.log(arguments); // [6, 16, 1, 5]
