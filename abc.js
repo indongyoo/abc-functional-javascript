@@ -121,7 +121,7 @@
 
   function base_B(args, is_bp2) {
     args = _.toArray(args);
-    var fns = C.lambda == I ? args.pop() : map(_.flatten(wrap_arr(args.pop())), C.lambda);
+    var fns = C.lambda == I ? args.pop() : map(I2(wrap_arr(args.pop())), C.lambda);
 
     return function() {
       var args3 = _.clone(args);
@@ -140,7 +140,7 @@
 
   B.indent = function() { return base_B(arguments, true); };
   B2.indent = function() { return base_B([_.toArray(arguments)], true); };
-  B.args_pass = function(fn) { return B2(C.args, B.all(I, _.flatten([toMR, fn])), C.args, B.v('0'), toMR); };
+  B.args_pass = function(fn) { return B2(C.args, B.all(I, [toMR].concat(fn)), C.args, B.v('0'), toMR); };
 
   B.val = B.v = B.V = function(key) { return B(X, key, getValue); };
   B.method = B.m = B.M = function() { return B.apply(void 0, [X].concat(_.toArray(arguments)).concat(method)); };
@@ -324,8 +324,8 @@
   };
 
   B.tap = function() {
-    var fns = arguments;
-    return function() { return A(arguments, [fns, J(arguments), toMR], this); };
+    var fns = _.toArray(arguments);
+    return function() { return A(arguments, fns.concat([J(arguments), toMR]), this); };
   };
 
   B.boomerang = function() { // fork
@@ -410,7 +410,7 @@
     var context = this;
     var args = _.toArray(arguments);
     if (!_.isArray(args[args.length - 1])) args[args.length - 1] = [args[args.length - 1]];
-    var fns = _.flatten(args.pop());
+    var fns = I2(args.pop());
     if (args.length == 1 && isMR(args[0])) args = args[0];
 
     var i = 0, promise = null, resolve = null;
@@ -725,6 +725,7 @@
   /* H end */
 
   function I(v) { return v; }
+  function I2(v) { return v; }
 
   function IF(predicate, fn) {
     var store = [fn ? [predicate, fn] : [I, predicate]];
@@ -849,22 +850,6 @@ function respect_underscore(_) {
   _.rest = function(array, n, guard) {
     return slice.call(array, n == null || guard ? 1 : n);
   };
-
-  var flatten = function(input, shallow, strict, startIndex) {
-    var output = [], idx = 0;
-    for (var i = startIndex || 0, length = getLength(input); i < length; i++) {
-      var value = input[i];
-      if (_.isArrayLike(value) && (_.isArray(value) || _.isArguments(value))) {
-        if (!shallow) value = flatten(value, shallow, strict);
-        var j = 0, len = value.length;
-        output.length += len;
-        while (j < len) output[idx++] = value[j++];
-      } else if (!strict) output[idx++] = value;
-    }
-    return output;
-  };
-
-  _.flatten = function(array, shallow) { return flatten(array, shallow, false); };
 
   _.object = function(list, values) {
     var result = {};
