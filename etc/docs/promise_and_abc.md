@@ -100,7 +100,7 @@ Promise는 wrapper 역할을 하고 있는 익명 함수가 반드시 하나의 
     });
 
   // ES6 Promise에는 없지만 bluebirdjs에서는 array로 값을 넘긴 후 spread로 인자로 나눠 받을 수 있다.
-  // ex) resolve([result, 10]); -> .spread(function(a, b) {})
+  // resolve([result, 10]); -> .spread(function(a, b) {})
 
 ```
 
