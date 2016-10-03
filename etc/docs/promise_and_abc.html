@@ -31,8 +31,11 @@
     }, 1000);
   }
 
-  function log(msg) {
-    console.log(msg);
+  function log(msg, next) {
+    setTimeout(function () {
+      console.log(msg);
+      next(msg);
+    }, 1000);
   }
 
   /* Promise 1 */
@@ -50,7 +53,11 @@
         mul(result, 10, resolve);
       });
     })
-    .then(log);
+    .then(function (result) {
+      return new Promise(function (resolve) {
+        log(result, resolve);
+      });
+    });
   // 50
 
   /* abcjs 1 */
@@ -64,7 +71,9 @@
     function (result, next) {
       mul(result, 20, next);
     },
-    log));
+    function (result, next) {
+      log(result, next);
+    }));
   // 100
 
 </script>
@@ -101,14 +110,14 @@
   promisify(add)(5, 10)
     .then(_.partial(promisify(sub), _, 10))
     .then(_.partial(promisify(mul), 50))
-    .then(log);
+    .then(promisify(log));
   // 250
 
   /* Promise 3 */
   promisify(add)(5, 10)
     .then(B(X, 10, promisify(sub)))
     .then(B(60, promisify(mul)))
-    .then(log);
+    .then(promisify(log));
   // 300
 
 </script>
@@ -119,8 +128,9 @@
   var add2 = promisify(add);
   var sub2 = promisify(sub);
   var mul2 = promisify(mul);
+  var log2 = promisify(log);
 
-  add2(5, 10).then(B(X, 10, sub2)).then(B(X, 70, mul2)).then(log);
+  add2(5, 10).then(B(X, 10, sub2)).then(B(X, 70, mul2)).then(log2);
   // 350
 
   /* abcjs 4 */
@@ -129,7 +139,7 @@
   // 400
 
   /* abcjs 5 (with promisify) */
-  C(5, 10, [add2, B(X, 10, sub2), B(90, mul2), log]);
+  C(5, 10, [add2, B(X, 10, sub2), B(90, mul2), log2]);
   // 500
 
   /* abcjs 6 (with Promise)*/
@@ -149,7 +159,11 @@
         mul(result, 100, resolve);
       });
     },
-    log]);
+    function (result) {
+      return new Promise(function (resolve) {
+        log(result, resolve);
+      });
+    }]);
   // 550
 </script>
 
