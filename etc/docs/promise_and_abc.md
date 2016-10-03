@@ -101,7 +101,7 @@ Promise는 wrapper 역할을 하고 있는 익명 함수가 반드시 하나의 
 
 ```
 
-abcjs에서 wrapper 역할을 하는 함수는 여러 개의 인자를 받을 수 있으며 next는 마지막 인자로 들어온다. 그 역시 일반적인 콜백 패턴의 함수가 된다. 이 덕분에 wrapper 함수를 선언하는 부분에서 일반적인 함수 선언이나 함수 참조가 가능해진다. 이와 같은 특징과 대부분의 콜백 패턴이 콜백 함수를 마지막 인자로 받는다는 점을 활용하면 next, _.partial, abcjs의 B 등을 통해 다음과 같은 코드를 작성할 수 있다.
+abcjs에서 wrapper 역할을 하는 함수는 여러 개의 인자를 받을 수 있으며 next는 마지막 인자로 들어온다. 그 역시 일반적인 콜백 패턴의 함수가 된다. 이 덕분에 wrapper 함수를 선언하는 부분에서 일반적인 함수 선언이나 함수 참조가 가능해진다. 이와 같은 특징과 대부분의 콜백 패턴이 콜백 함수를 마지막 인자로 받는다는 점등을 활용하면 next, _.partial, abcjs의 B 등을 통해 다음과 같은 코드를 작성할 수 있다.
 
 ```javascript
   /* abcjs 2 */
@@ -130,7 +130,7 @@ abcjs에서 wrapper 역할을 하는 함수는 여러 개의 인자를 받을 �
   // 200
 ```
 
-물론 Promise를 이용하더라도 아래의 promisify 같은 함수 구현을 통해 비슷한 코드셋을 만들 수 있다. 하지만 then은 제거할 수 없다. then을 내부에서 풀어주는 함수를 만들면 then도 제거할 수 있겠지만 그렇게 되면 then이 드러나지 않게 되므로 pipeline과 같아 진다.
+물론 Promise를 이용하더라도 아래의 promisify 같은 함수 구현을 통해 비슷한 코드셋을 만들 수 있다. 하지만 then까지 제거되진 않는다. then을 내부에서 풀어주는 함수를 만들면 then도 숨길 수 있겠지만 abcjs와 같은 코드모양이 되어야한다. abcjs와 같은 모양이 되면 Promise처럼 모나드 패턴으로 비동기를 제어하지 않아도 되므로 함수마다 Promise 객체를 품도록 구현 되는건 오버스펙이 되는게 아닐까 생각된다.
 
 ```javascript
 
@@ -214,7 +214,7 @@ abcjs는 Promise에 대한 의존성이 없지만 Promise와 함께 사용이 �
 
 abcjs의 Pipeline은 Promise와 달리 함수들을 실행하다 비동기 상황을 만났을때만 then 메소드를 가진 약식 Promise 객체를 생성하여 즉시 리턴하고 재귀를 통해서만 비동기를 제어한다. 이 약식 Promise는 중첩 Pipeline 등을 위해 사용된다. ES6 이상이거나 Promise 생성자가 있을 경우에는 약식 Promise가 아닌 정식 Promise를 리턴하기 때문에 Promise나 ES7의 async await 등과도 연동 된다.
 
-잠깐 쉬어가는 의미로 아래 코드를 보자. 필자가 실무에서 사용하지는 않지만 재밌는 코드가 있다.
+잠깐 쉬어가는 의미로 아래 코드를 보자. 내가 실무에서 사용하지는 않지만 재밌는 코드가 있다.
 B로 감싸주기만 하면 add, sub, mul 모두 비동기 함수임에도 아래와 같은 코드가 동작한다.
 
 ```javascript
@@ -228,7 +228,7 @@ B로 감싸주기만 하면 add, sub, mul 모두 비동기 함수임에도 아�
   // 550
 ```
 
-Promise와 abcjs를 비교해보았다. 물론 Promise를 이용해서도 B, C, CB와 같은 함수들을 모두 구현할 수 있다. 그렇지만 abcjs는 Promise 없이 구현되었으며 재귀만으로 비동기를 제어한다. Promise는 현재 모든 브라우저에서 동작하지 않아 bluebirdjs 등의 라이브러리가 필요하다. ES6의 Promise보다 bluebirdjs가 기능적으로 좀더 풍성하여 ES6이 지원되는 NodeJS 환경에서도 bluebirdjs를 많이 사용한다. abcjs는 bluebirdjs 보다 좀 더 많은 비동기 제어 기능을 가지고 있다. 비동기 관련 기능 외에도 HTML 템플릿 엔진, 깊은 값 변경 등의 다양한 기능이 있다. 다음은 bluebirdjs와 abcjs의 비동기 제어와 관련된 API 비교 표이다.
+물론 Promise를 이용해서도 B, C, CB와 같은 함수들을 모두 구현할 수 있다. 그렇지만 abcjs는 Promise 없이 구현되었으며 재귀만으로 비동기를 제어한다. Promise는 현재 모든 브라우저에서 동작하지 않아 bluebirdjs 등의 라이브러리가 필요하다. ES6의 Promise보다 bluebirdjs가 기능적으로 좀더 풍성하여 ES6이 지원되는 NodeJS 환경에서도 bluebirdjs를 많이 사용한다. abcjs는 bluebirdjs 보다 좀 더 많은 비동기 제어 기능을 가지고 있다. 비동기 관련 기능 외에도 HTML 템플릿 엔진, 깊은 값 변경 등의 다양한 기능이 있다. 다음은 bluebirdjs와 abcjs의 비동기 제어와 관련된 API 비교 표다.
 
 
 |                      | bluebirdjs                                                   | abcjs                                                                          |
@@ -238,6 +238,10 @@ Promise와 abcjs를 비교해보았다. 물론 Promise를 이용해서도 B, C, 
 | Error Handling       | throw, catch, reject                                         | throw, CATCH, ERR                                                              |
 | etc                  | tap, delay, promisify, promisifyAll ...                      | tap, delay, bfy, CB, async jade template, async string template ...            |
 | Line                 | 5,598                                                        | 961                                                                            |
+
+abcjs는 실행될 모든 함수를 미리 받아 재귀만으로 함수들을 제어한다. 이 특징을 활용하여 abcjs의 모든 함수들은 동기와 비동기 지원 함수를 별도로 나누지 않을 수 있었다. C, B, C.map, C.each 등의 모든 함수들은 동기로도 동작하고 비동기로도 동작한다. 그러므로 _.map 처럼 즉시 값을 리턴할 수도 있고 Promise.map 처럼 비동기를 제어할 수도 있다. 이 특징은 타 라이브러리와의 편리한 조합을 가능하게 한다.
+
+Promise와 abcjs의 대표적인 부분들을 비교해보았다. abcjs는 Promise를 대체하기 위해 만들어진 라이브러리가 아니다. abcjs는 앞서 설명한 것처럼 Promise를 파이프라인 내부에서도 지원하고 결과 값으로 약식 then을, 정식 Promise가 있다면 정식 then을 리턴한다. 나는 abcjs가 때로는 Promise, 때로는 Deferred Object, 때로는 callback, 때로는 즉시 값을 리턴하는 Browser API, NodeJS API, gm, AWS API, jQuery, React, Backbone, Angular, underscore, async, await 등의 다양한 환경과 패턴들을 좀더 효과적으로 연결하고 제어하기 위해 사용되어지길 바란다.
 
 
 참고 링크
