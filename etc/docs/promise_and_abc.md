@@ -241,7 +241,7 @@ B로 감싸주기만 하면 add, sub, mul 모두 비동기 함수임에도 아�
 
 abcjs는 실행될 모든 함수를 미리 받아 재귀만으로 함수들을 제어한다. 이 특징을 활용하여 abcjs의 모든 함수들은 동기와 비동기 지원 함수를 별도로 나누지 않을 수 있었다. C, B, C.map, C.each 등의 모든 함수들은 동기로도 동작하고 비동기로도 동작한다. 그러므로 _.map 처럼 즉시 값을 리턴할 수도 있고 Promise.map 처럼 비동기를 제어할 수도 있다. 이 특징은 타 라이브러리와의 편리한 조합을 가능하게 한다.
 
-Promise와 abcjs의 대표적인 부분들을 비교해보았다. abcjs는 Promise를 대체하기 위해 만들어진 라이브러리가 아니다. abcjs는 앞서 설명한 것처럼 Promise를 파이프라인 내부에서도 지원하고 결과 값으로 약식 then을, 정식 Promise가 있다면 정식 then을 리턴한다. 나는 abcjs가 때로는 Promise, 때로는 Deferred Object, 때로는 callback, 때로는 즉시 값을 리턴하는 Browser API, NodeJS API, gm, AWS API, jQuery, React, Backbone, Angular, underscore, async, await 등의 다양한 환경과 패턴들을 좀 더 효과적으로 연결하고 제어하기 위해 사용되길 바란다.
+Promise와 abcjs의 대표적인 부분들을 비교해보았다. abcjs는 Promise를 대체하기 위해 만들어진 라이브러리가 아니다. abcjs는 앞서 설명한 것처럼 Promise를 파이프라인 내부에서도 지원하고 결과 값으로 약식 then을, 정식 Promise가 있다면 정식 then을 리턴한다. 나는 abcjs가 때로는 Promise, 때로는 Deferred Object, 때로는 callback, 때로는 즉시 값을 리턴하는 다양한 API를 가진 Browser, NodeJS, gm, AWS, jQuery, React, Backbone, Angular, underscore, async, await 등의 기술들을 좀 더 효과적으로 연결하고 제어하기 위해 사용되어지길 바란다.
 
 
 참고 링크
