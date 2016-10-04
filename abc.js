@@ -117,10 +117,12 @@
       return toMR([im.start].concat(C.remove(C.sel(im.start, _arr.slice(0, _arr.length - 1).join('->')), im.selected)));
     },
     extend: function(start, selector/*, objs*/) {
-      return C.extend.apply(null, [C.sel.im(start, selector).selected].concat(_.toArray(arguments).slice(2, arguments.length)));
+      var im = C.sel.im(start, selector);
+      return toMR([im.start].concat(C.extend.apply(null, [im.selected].concat(_.toArray(arguments).slice(2, arguments.length)))));
     },
     defaults: function(start, selector/*, objs*/) {
-      return C.defaults.apply(null, [C.sel.im(start, selector).selected].concat(_.toArray(arguments).slice(2, arguments.length)));
+      var im = C.sel.im(start, selector);
+      return toMR([im.start].concat(C.defaults.apply(null, [im.selected].concat(_.toArray(arguments).slice(2, arguments.length)))));
     },
     pop: function(start, selector) {
       var im = C.sel.im(start, selector);
