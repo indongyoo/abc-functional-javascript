@@ -1,4 +1,4 @@
-/// ABC project
+// ABC project
 //  - https://github.com/marpple/abc-functional-javascript
 //  - https://github.com/marpple/abc-box
 // Project Lead - Indong Yoo
@@ -46,62 +46,119 @@
     return function() { return toMR(C.map(idxs, arguments, function(v, i, l, args) { return args[v]; })); };
   };
   C.args0 = I, C.args1 = B.args(1), C.args2 = B.args(2), C.args3 = B.args(3), C.args4 = B.args(4);
-  C.remove = function(arr, remove) { return MR(remove, removeByIndex(arr, arr.indexOf(remove)), arr); };
-  C.unset = function(obj, key) { var val = obj[key]; delete obj[key]; return MR(val, key, obj); };
+
   C.set = function(obj, key, value) { return MR(obj[key] = value, key, obj); };
+  C.unset = function(obj, key) { var val = obj[key]; delete obj[key]; return MR(val, key, obj); };
+  C.remove = function(arr, remove) { return MR(remove, removeByIndex(arr, arr.indexOf(remove)), arr); };
   C.extend = _.extend;
   C.defaults = _.defaults;
   C.pop = function(arr) { return MR(arr.pop(), arr.length, arr); };
   C.shift = function(arr) { return MR(arr.shift(), 0, arr); };
   C.push = function(arr, item) { return MR(item, arr.push(item), arr); };
   C.unshift = function(arr, item) { return MR(item, arr.unshift(item), arr); };
-
-  B.remove = B(X, C.remove);
-  B.unset = B(X, C.unset);
-  B.set = B(X, C.set);
-  B.extend = B(X, C.extend);
-  B.defaults = B(X, C.defaults);
-
-  C.sel = C.select = function(start, selector) {
+  C.sel = C.select = C.extend(function(start, selector) {
     return C.reduce(selector.split(/\s*->\s*/), start, function (mem, key) {
-      return !key.match(/([a-z]+)?\((.+)\)/) ? mem[key] : C[RegExp.$1 || 'find'](mem, C.lambda(RegExp.$2));
+      return !key.match(/^\((.+)\)/) ? !key.match(/\[(.*)\]/) ? mem[key] : function(mem, numbers) {
+        if (numbers.length > 2 || numbers.length < 1 || C.filter(numbers, [I, isNaN]).length) return ERR('[] selector in [num] or [num ~ num]');
+        var s = numbers[0], e = numbers[1];
+        return !e ? mem[s<0 ? mem.length+s : s] : Array.prototype.slice.call(mem, s<0 ? mem.length+s : s, e<0 ? mem.length+e : e + 1);
+      }(mem, C.map(RegExp.$1.replace(/\s/g, '').split('~'), [I, parseInt])) : C.find(mem, C.lambda(RegExp.$1));
     });
-  };
+  }, {
+    set: function(start, selector, value) {
+      var _arr = selector.split(/\s*->\s*/), last = _arr.length - 1;
+      return C.set(_arr.length == 1 ? start : C.sel(start, _arr.slice(0, last).join('->')), _arr[last], value);
+    },
+    unset: function(start, selector) {
+      var _arr = selector.split(/\s*->\s*/), last = _arr.length - 1;
+      return C.unset(_arr.length == 1 ? start : C.sel(start, _arr.slice(0, last).join('->')), _arr[last]);
+    },
+    remove: function(start, selector) {
+      var _arr = selector.split(/\s*->\s*/);
+      return C.remove(C.sel(start, _arr.slice(0, _arr.length - 1).join('->')), C.sel(start, selector));
+    },
+    extend: function(start, selector/*, objs*/) {
+      return C.extend.apply(null, [C.sel(start, selector)].concat(_.toArray(arguments).slice(2, arguments.length)));
+    },
+    defaults: function(start, selector/*, objs*/) {
+      return C.defaults.apply(null, [C.sel(start, selector)].concat(_.toArray(arguments).slice(2, arguments.length)));
+    },
+    pop: function(start, selector) { return C.pop(C.sel(start, selector)) },
+    shift: function(start, selector) { return C.shift(C.sel(start, selector)) },
+    push: function (start, selector, item) { return C.push(C.sel(start, selector), item); },
+    unshift: function (start, selector, item) { return C.unshift(C.sel(start, selector), item); }
+  });
+  C.sel.im = C.select.im =C.extend(function (start, selector) {
+    var im_start = _.clone(start);
+    return {
+      start: im_start,
+      selected: C.reduce(selector.split(/\s*->\s*/), im_start, function(clone, key) {
+        return !key.match(/^\((.+)\)/) ? !key.match(/\[(.*)\]/) ? clone[key] = _.clone(clone[key]) : function(clone, numbers) {
+          if (numbers.length > 2 || numbers.length < 1 || C.filter(numbers, [I, isNaN]).length) return ERR('[] selector in [num] or [num ~ num]');
+          var s = numbers[0], e = numbers[1];
+          return !e ? clone[s] = _.clone(clone[s<0 ? clone.length+s : s]) : function(clone, oris) {
+            return _.each(oris, function(ori) { clone[clone.indexOf(ori)] = _.clone(ori); });
+          }(clone, Array.prototype.slice.call(clone, s<0 ? clone.length+s : s, e<0 ? clone.length+e : e + 1));
+        }(clone, C.map(RegExp.$1.replace(/\s/g, '').split('~'), [I, parseInt])) :
+          function(clone, ori) { return clone[clone.indexOf(ori)] = _.clone(ori); } (clone, C.find(clone, C.lambda(RegExp.$1)))
+      })
+    };
+  }, {
+    set: function(start, selector, value) {
+      var _arr = selector.split(/\s*->\s*/), last = _arr.length - 1, im = C.sel.im(start, _arr.slice(0, last).join('->'));
+      return toMR([im.start].concat(C.set(_arr.length == 1 ? im.start : im.selected, _arr[last], value)));
+    },
+    unset: function(start, selector) {
+      var _arr = selector.split(/\s*->\s*/), last = _arr.length - 1, im = C.sel.im(start, _arr.slice(0, last).join('->'));
+      return toMR([im.start].concat(C.unset(_arr.length == 1 ? im.start : im.selected, _arr[last])));
+    },
+    remove: function(start, selector) {
+      var _arr = selector.split(/\s*->\s*/), im = C.sel.im(start, selector);
+      return toMR([im.start].concat(C.remove(C.sel(im.start, _arr.slice(0, _arr.length - 1).join('->')), im.selected)));
+    },
+    extend: function(start, selector/*, objs*/) {
+      var im = C.sel.im(start, selector);
+      return toMR([im.start].concat(C.extend.apply(null, [im.selected].concat(_.toArray(arguments).slice(2, arguments.length)))));
+    },
+    defaults: function(start, selector/*, objs*/) {
+      var im = C.sel.im(start, selector);
+      return toMR([im.start].concat(C.defaults.apply(null, [im.selected].concat(_.toArray(arguments).slice(2, arguments.length)))));
+    },
+    pop: function(start, selector) {
+      var im = C.sel.im(start, selector);
+      return toMR([im.start].concat(C.pop(im.selected)));
+    },
+    shift: function(start, selector) {
+      var im = C.sel.im(start, selector);
+      return toMR([im.start].concat(C.shift(im.selected)));
+    },
+    push: function (start, selector, item) {
+      var im = C.sel.im(start, selector);
+      return toMR([im.start].concat(C.push(im.selected, item)));
+    },
+    unshift: function (start, selector, item) {
+      var im = C.sel.im(start, selector);
+      return toMR([im.start].concat(C.unshift(im.selected, item)));
+    }
+  });
 
-  C.sel.set = function(start, selector, value) {
-    var _arr = selector.split(/\s*->\s*/), last = _arr.length - 1;
-    return C.set(_arr.length == 1 ? start : C.sel(start, _arr.slice(0, last).join('->')), _arr[last], value);
-  };
+  B.remove = function(remove) { return B(X, remove, C.remove); };
+  B.unset = function(key) { return B(X, key, C.unset); };
+  B.set = function(key, value) { return B(X, key, value, C.set); };
+  B.extend = function() { var args = _.toArray(arguments); return B.apply(null, [X].concat(args).concat(C.extend)); };
+  B.defaults = function() { var args = _.toArray(arguments); return B.apply(null, [X].concat(args).concat(C.defaults)); };
 
-  C.sel.unset = function(start, selector) {
-    var _arr = selector.split(/\s*->\s*/), last = _arr.length - 1;
-    return C.unset(_arr.length == 1 ? start : C.sel(start, _arr.slice(0, last).join('->')), _arr[last]);
-  };
+  B.sel = B.select = function(selector) { return B(X, selector, C.sel) };
+  B.sel.set = function(selector) { return B(X, selector, C.sel.set); };
+  B.sel.unset = function(selector) { return B(X, selector, C.sel.unset); };
+  B.sel.remove = function(selector) { return B(X, selector, C.sel.remove); };
+  B.sel.extend = function(selector) { var args = _.rest(arguments); return B.apply(null, [X, selector].concat(args).concat(C.sel.extend)); };
+  B.sel.defaults = function(selector) { var args = _.rest(arguments); return B.apply(null, [X, selector].concat(args).concat(C.sel.defaults)); };
 
-  C.sel.remove = function(start, selector) {
-    var _arr = selector.split(/\s*->\s*/);
-    return C.remove(C.sel(start, _arr.slice(0, _arr.length - 1).join('->')), C.sel(start, selector));
-  };
-
-  C.sel.extend = function(start, selector/*, objs*/) {
-    return C.extend.apply(null, [C.sel(start, selector)].concat(_.toArray(arguments).slice(2, arguments.length)));
-  };
-
-  C.sel.defaults = function(start, selector/*, objs*/) {
-    return C.defaults.apply(null, [C.sel(start, selector)].concat(_.toArray(arguments).slice(2, arguments.length)));
-  };
-
-  B.sel = B.select = B(X, C.select);
-  B.sel.set = B(X, C.sel.set);
-  B.sel.unset = B(X, C.sel.unset);
-  B.sel.remove = B(X, C.sel.remove);
-  B.sel.extend = B(X, C.sel.extend);
-  B.sel.defaults = B(X, C.sel.defaults);
-
-  C.sel.pop = function(start, selector) { return C.pop(C.sel(start, selector)) };
-  C.sel.shift = function(start, selector) { return C.shift(C.sel(start, selector)) };
-  C.sel.push = function (start, selector, item) { return C.push(C.sel(start, selector), item); };
-  C.sel.unshift = function (start, selector, item) { return C.unshift(C.sel(start, selector), item); };
+  B.sel.im = B.select.im = function(selector) { return B(X, selector, C.sel.im) };
+  B.sel.im.set = function(selector) { return B(X, selector, C.sel.im.set); };
+  B.sel.im.unset = function(selector) { return B(X, selector, C.sel.im.unset); };
+  B.sel.im.remove = function(selector) { return B(X, selector, C.sel.im.remove); };
 
   function A(args, func) { return C.apply(arguments[2] || this, _.toArray(args).concat([func])); }
 
@@ -350,9 +407,6 @@
     var key = keys ? keys[i] : i;
     return [list[key], key, list];
   }
-
-  B.remove = function(remove) { return B(X, remove, C.remove); };
-  B.unset = function(key) { return B(X, key, C.unset); };
 
   function base_loop_fn(body, end_q, end, complete, iter_or_predi, params) {
     var context = this;
@@ -935,6 +989,7 @@ function respect_underscore(_) {
     _.isFunction = function(obj) { return typeof obj == 'function' || false; };
 
   _.has = function(obj, key) { return obj != null && hasOwnProperty.call(obj, key); };
+  _.isNaN = function (obj) { return _.isNumber(obj) && obj !== +obj; };
 
   _.escape = (function(map) {
     var escaper = function(match) { return map[match]; };
