@@ -336,9 +336,7 @@
     });
   };
 
-  B.is = function(a) {
-    return B2(C.arr_or_args_to_arr, B.find_i(function(v) { return a !== v;}), function(v) { return v === -1; });
-  };
+  B.is = function(a) { return B2(C.arr_or_args_to_arr, B.find_i(function(v) { return a !== v;}), function(v) { return v === -1; }); };
   B.isnt = function(a) { return B2(C.arr_or_args_to_arr, B.find_i([I, B.is(a)]), B.is(-1)); };
   B.delay = function(time) {
     return CB(function() {
@@ -600,9 +598,7 @@
     return s.apply(null, [H, 'H', convert_to_html].concat(_.toArray(arguments)));
   }
 
-  H.each = function(var_names/*, source...*/) {
-    return s_each.apply(null, [H].concat(_.toArray(arguments)));
-  };
+  H.each = function(var_names/*, source...*/) { return s_each.apply(null, [H].concat(_.toArray(arguments))); };
 
   H._ABC_func_storage = {};
 
