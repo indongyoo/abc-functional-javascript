@@ -465,31 +465,27 @@
     var fns = I2(args.pop());
     if (args.length == 1 && isMR(args[0])) args = args[0];
 
-    var i = 0, promise = null, resolve = null;
+    var i = 0, promise = null, resolve = null, fns_len = fns.length;
+    function cp() { return hasPromise() ? new Promise(function(rs) { resolve = rs; }) : { then: function(rs) { resolve = rs; } } }
     return (function c(res) {
-      if (fns[i] && ((isERR(res) && !fns[i]._ABC_is_catch) || (!isERR(res) && fns[i]._ABC_is_catch)) && i++) return c(res);
-      if (unpack_promise(res, c)) return promise || (promise = hasPromise() ? new Promise(function(rs) { resolve = rs; }) : { then: function(rs) { resolve = rs; } });
+      do {
+        if (i === fns_len) return !promise ? res : resolve ? C.lambda(resolve)(res) : setTimeout(function() { resolve && C.lambda(resolve)(res); }, 0);
+        if (fns[i] && ((isERR(res) && !fns[i]._ABC_is_catch) || (!isERR(res) && fns[i]._ABC_is_catch)) && i++) continue;
+        if (unpack_promise(res, c)) return promise || (promise = cp());
+        try {
+          if (!fns[i]._ABC_is_cb && !fns[i]._ABC_just_cb) res = C.lambda(fns[i++]).apply(context, C.args.trim(MRI(res)));
+          else if (!fns[i]._ABC_is_cb) C.lambda(fns[i++]).apply(context, C.args.trim(MRI(res)).concat(function() { res = toMR(arguments); }));
+        } catch (e) { res = ERR(e); }
+      } while (i == fns_len || i < fns_len && !fns[i]._ABC_is_cb);
 
-      if (i == fns.length) {
-        if (!promise) return res;
-        // 혹시 모두 동기로 끝나버려 then_rs가 아직 안들어온 경우 안전하게 한번 기다려주고
-        return resolve ? C.lambda(resolve)(res) : setTimeout(function() { resolve && C.lambda(resolve)(res); }, 0);
-      }
-
-      if (!isMR(res)) res = [res];
-      try { // 동기 경우
-        if (!fns[i]._ABC_is_cb && !fns[i]._ABC_just_cb) return c(C.lambda(fns[i++]).apply(context, C.args.trim(res)));
-        // 동기이고 그냥 callback, 혹시 생길 수 있는 비동기를 미리 잡기 위해서도 사용
-        if (!fns[i]._ABC_is_cb) return C.lambda(fns[i++]).apply(context, C.args.trim(res).concat(function() { return c(toMR(arguments)); }));
-      } catch (e) { return c(ERR(e)); }
-
-      // 비동기일 경우
-      promise || (promise = hasPromise() ? new Promise(function(rs) { resolve = rs; }) : { then: function(rs) { resolve = rs; } });
-      try { C.lambda(fns[i++]).apply(context, C.args.trim(res).concat(function() { arguments.length <= 1 ? c.apply(null, arguments) : c(toMR(arguments)); })); }
+      if ((promise || (promise = cp())) && unpack_promise(res, c)) return promise;
+      try { C.lambda(fns[i++]).apply(context, C.args.trim(MRI(res)).concat(function() { arguments.length <= 1 ? c.apply(null, arguments) : c(toMR(arguments)); })); }
       catch (e) { c(ERR(e)); }
       return promise;
     })(toMR(args));
   }
+
+  function MRI(res) { return isMR(res) ? res : [res]; }
 
   function ERR(err, data) {
     setTimeout(function() { err._ABC_caught || C.error(err); }, 500);
