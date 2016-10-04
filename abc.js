@@ -418,14 +418,13 @@
     var result = [], tmp = [];
     var resolve = I, async = false;
     return (function f(i, res) {
-      res = body(result, list, keys, i, res, tmp, args);
-      if (end_q(res)) return resolve(end(list, keys, i));
-      if (i == length) return resolve(complete(result, list, res));
-
-      var res2 = A(params(list, keys, i, res).concat(args), iter_or_predi, context);
-      if (!maybe_promise(res2)) return f(i + 1, res2);
-      res2.then(function(res3) { f(i + 1, res3); });
-      return async || C(CB(function(cb) { resolve = cb; async = true; }));
+      do {
+        if (end_q(res = body(result, list, keys, i, res, tmp, args))) return resolve(end(list, keys, i));
+        if (i == length) return resolve(complete(result, list, res));
+        res = A(params(list, keys, i++, res).concat(args), iter_or_predi, context);
+      } while (!maybe_promise(res));
+      res.then(function(res) { f(i, res); });
+      return async || C(CB(function(cb) { resolve = cb, async = true; }));
     })(0);
   }
 
