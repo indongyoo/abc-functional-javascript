@@ -730,7 +730,7 @@
   }
 
   function line(source, tag_stack) {
-    source = source.replace(new RegExp("^" + TABS() + "\\|"), "\n").replace(/^\s*/, "");
+    source = source.replace(new RegExp("^" + TABS() + "\\|"), "\n").replace(/^ */, "");
     return source.match(/^[\[.#\w\-]/) ? source.replace(/^(\[.*\]|\{.*?\}|\S)+ ?/, function(str) {
       return start_tag(str, tag_stack);
     }) : source;
