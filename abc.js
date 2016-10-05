@@ -111,7 +111,7 @@
       };
     }, {
       set: function(start, selector, value) {
-        var _arr = selector.split(/\s*->\s*/), last = _arr.length - 1, im = C.sel.im(start, _arr.slice(0, last).join('->'));
+        var _arr = selector.split(/\s*->\s*/), last = _arr.length - 1, im = C.sel.im(start, _arr.slice(0, _arr.length == 1 ? void 0 : last).join('->'));
         return toMR([im.start].concat(C.set(_arr.length == 1 ? im.start : im.selected, _arr[last], value)));
       },
       unset: function(start, selector) {
