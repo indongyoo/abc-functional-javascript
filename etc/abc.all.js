@@ -1047,22 +1047,10 @@ function respect_underscore(_) {
         _box_cache[selector] = result[1];
         return result;
       },
-      pop: function(el) {
-        var selector = make_selector(el);
-        return root.C.sel.pop(_box_data, selector);
-      },
-      push: function(el, item) {
-        var selector = make_selector(el);
-        return root.C.sel.push(_box_data, selector, item);
-      },
-      shift: function(el) {
-        var selector = make_selector(el);
-        return root.C.sel.shift(_box_data, selector);
-      },
-      unshift: function(el, item) {
-        var selector = make_selector(el);
-        return root.C.sel.unshift(_box_data, selector, item);
-      },
+      pop: function(el) { return root.C.sel.pop(_box_data, make_selector(el)); },
+      push: function(el, item) { return root.C.sel.push(_box_data, make_selector(el), item); },
+      shift: function(el) { return root.C.sel.shift(_box_data, make_selector(el)); },
+      unshift: function(el, item) { return root.C.sel.unshift(_box_data, make_selector(el), item); },
       im: {
         set: function (el, value) {
           if (arguments.length > 1 || !root.C.isObject(el)) return root.create_box(root.C.sel.im.set(_box_data, make_selector(el), value)[0]);
