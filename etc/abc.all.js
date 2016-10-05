@@ -157,20 +157,20 @@
   B.defaults = function() { var args = _.toArray(arguments); return B.apply(null, [X].concat(args).concat(C.defaults)); };
 
   B.sel = B.select = function(selector) { return B(X, selector, C.sel) };
-  B.sel.set = B_sel_func('set');
-  B.sel.unset = B_sel_func('unset');
-  B.sel.remove = B_sel_func('remove');
-  B.sel.extend = B_sel_func('extend');
-  B.sel.defaults = B_sel_func('defaults');
+  B.sel.set = B('set', B_sel_func);
+  B.sel.unset = B('unset', B_sel_func);
+  B.sel.remove = B('remove', B_sel_func);
+  B.sel.extend = B('extend', B_sel_func);
+  B.sel.defaults = B('defaults', B_sel_func);
 
   B.sel.im = B.select.im = function(selector) { return B(X, selector, C.sel.im) };
-  B.sel.im.set = B_sel_func('im.set');
-  B.sel.im.unset = B_sel_func('im.unset');
-  B.sel.im.remove = B_sel_func('im.remove');
-  B.sel.im.extend = B_sel_func('im.extend');
-  B.sel.im.defaults = B_sel_func('im.defaults');
+  B.sel.im.set = B('im.set', B_sel_func);
+  B.sel.im.unset = B('im.unset', B_sel_func);
+  B.sel.im.remove = B('im.remove', B_sel_func);
+  B.sel.im.extend = B('im.extend', B_sel_func);
+  B.sel.im.defaults = B('im.defaults', B_sel_func);
 
-  function B_sel_func(what) { return function (selector) { var args = _.rest(arguments); return B.apply(null, [X, selector].concat(args).concat(C.val(C.sel, what))); };}
+  function B_sel_func(what, selector) { var args = _.rest(arguments); return B.apply(null, [X].concat(args).concat(C.val(C.sel, what))); }
 
   function A(args, func) { return C.apply(arguments[2] || this, _.toArray(args).concat([func])); }
 
@@ -209,10 +209,8 @@
   B.indent = function() { return base_B(arguments, true); };
   B2.indent = function() { return base_B([_.toArray(arguments)], true); };
   B.args_pass = function(fn) { return B2(C.args, B.all(I, [toMR].concat(fn)), C.args, B.v('0'), toMR); };
-
   B.val = B.v = B.V = function(key) { return B(X, key, getValue); };
   B.method = B.m = B.M = function() { return B.apply(void 0, [X].concat(_.toArray(arguments)).concat(method)); };
-
   B.map = function(iter) {
     return B(
       function(result, list, keys, i, res) {  // body
@@ -226,18 +224,15 @@
       base_loop_fn_base_args,
       base_loop_fn);
   };
-
   var arg_add_arr = function(list) { return MR(list, []); };
   var all_map = B.map(function(val_fn, k, l, args) { return A(args, val_fn, this); });
   var spread_map = B.map(function(v, k, l, fns) { return A([v], fns[k] || I, this); });
-
   B.all = function() {
     var fns = _.toArray(arguments);
     return function() {
       return A([fns, _.toArray(arguments)], [all_map, arg_add_arr, spread_args, toMR], this);
     };
   };
-
   B.spread = function() {
     var fns = _.toArray(arguments);
     return function() {
@@ -246,10 +241,8 @@
       return A([args, fns], [spread_map, arg_add_arr, spread_args, toMR], this);
     };
   };
-
   var c_if = IF(function() { return arguments.length > 2; }, MR).ELSE(B.all([I, _.rest], B.v('0'), C.args1));
   var b_if = IF(function() { return arguments.length > 1; }, MR).ELSE(B.all([I, _.rest], B.v('0')));
-
   B.reduce = function(iter) {
     return B([iter == null ? c_if : b_if,
       B(function(result, list, keys, i, res, tmp, args) {
@@ -265,9 +258,7 @@
         },
         base_loop_fn)]);
   };
-
   var spread_args = B.reduce(function(memo, arg) { return memo.concat(isMR(arg) ? arg : [arg]); });
-
   B.each = function(iter) {
     return B(
       C.args4, // body
@@ -278,7 +269,6 @@
       base_loop_fn_base_args,
       base_loop_fn);
   };
-
   B.filter = function(iter) {
     return B(
       function(result, list, keys, i, res) {  // body
@@ -293,7 +283,6 @@
       base_loop_fn_base_args,
       base_loop_fn);
   };
-
   B.reject = function(iter) {
     return B(
       function(result, list, keys, i, res) {   // body
@@ -308,7 +297,6 @@
       base_loop_fn_base_args,
       base_loop_fn);
   };
-
   B.find = function(iter) {
     return B(
       C.args4,
@@ -321,7 +309,6 @@
       base_loop_fn_base_args,
       base_loop_fn);
   };
-
   B.find_key = B.findKey = function(iter) {
     return B(
       C.args4, // body
@@ -334,7 +321,6 @@
       base_loop_fn_base_args,
       base_loop_fn);
   };
-
   B.findIndex = B.find_index = B.find_i = function(iter) {
     return B(
       C.args4, // body
@@ -347,7 +333,6 @@
       base_loop_fn_base_args,
       base_loop_fn);
   };
-
   B.some = function(iter) {
     return B(
       C.args4,
@@ -358,7 +343,6 @@
       base_loop_fn_base_args,
       base_loop_fn);
   };
-
   B.every = function(iter) {
     return B(
       function(result, list, keys, i, res) {
@@ -373,7 +357,6 @@
       base_loop_fn_base_args,
       base_loop_fn);
   };
-
   B.uniq = function(iter) {
     return B(
       function(result, list, keys, i, res, tmp) { // body
@@ -390,12 +373,10 @@
       base_loop_fn_base_args,
       base_loop_fn);
   };
-
   B.tap = function() {
     var fns = _.toArray(arguments);
     return function() { return A(arguments, fns.concat([J(arguments), toMR]), this); };
   };
-
   B.boomerang = function() { // fork
     var fns = arguments;
     return JCB(function(res, cb) {
@@ -403,7 +384,6 @@
       A([res], fns, this);
     });
   };
-
   B.is = function(a) { return B2(C.arr_or_args_to_arr, B.find_i(function(v) { return a !== v;}), function(v) { return v === -1; }); };
   B.isnt = function(a) { return B2(C.arr_or_args_to_arr, B.find_i([I, B.is(a)]), B.is(-1)); };
   B.delay = function(time) {
@@ -413,12 +393,10 @@
       setTimeout(function() { cb.apply(null, args); }, time || 0);
     });
   };
-
   function base_loop_fn_base_args(list, keys, i, res, args) {
     var key = keys ? keys[i] : i;
     return [list[key], key, list].concat(args);
   }
-
   function base_loop_fn(body, end_q, end, complete, iter_or_predi, params) {
     var context = this;
     var args = _.rest(arguments, 6);
@@ -443,14 +421,11 @@
   F.JCB = window.JCB = B(X, {_ABC_just_cb: true}, _.extend);
 
   function isMR(arg) { return _.isArray(arg) && arg._ABC_is_returns; }
-
   function isERR(err) {
     err = isMR(err) ? err[0] : err;
     return err && err.constructor == Error && err._ABC_is_err;
   }
-
   function maybe_promise(res) { return _.isObject(res) && res.then && _.isFunction(res.then); }
-
   function unpack_promise(res, callback) {
     var is_r = isMR(res);
     return (function u(i, res, length, has_promise) {
@@ -496,7 +471,6 @@
   }
 
   function MRI(res) { return isMR(res) ? res : [res]; }
-
   function ERR(err, data) {
     setTimeout(function() { err._ABC_caught || C.error(err); }, 500);
     return err = _.extend(err.constructor == Error ? err : new Error(err), data, {_ABC_is_err: true});
@@ -599,18 +573,18 @@
 
     function emitAll(name1, emit_args) {
       var key, _notice = notices[name1];
-      if (_notice) for(key in _notice) C(_notice, key, make_map_emit(emit_args));
+      if (_notice) for(key in _notice) C(_notice, key, emit_loop(emit_args));
     }
 
     function emit(name1, name2, emit_args) {
       var _notice = notices[name1];
       if (_notice) C(name2, [
         IF(_.isFunction, [J(void 0), name2, function(name2) { return _.isString(name2) ? [name2] : name2; }]).ELSEIF(_.isString, J([name2])).ELSE(I),
-        B(X, B([B.all(J(_notice), I), IF([C.val, function(arr) { return arr && arr.length }], make_map_emit(emit_args))]), each)
+        B(X, B([B.all(J(_notice), I), IF([C.val, function(arr) { return arr && arr.length }], emit_loop(emit_args))]), each)
       ]);
     }
 
-    function make_map_emit(args) { return [B.tap(C.val, B(X, B([I, B(args, X, A)]), each)), function (_n, k) { _n[k] = C.reject(_n[k], B.val('is_once')); }];}
+    function emit_loop(args) { return [B.tap(C.val, B(X, B([I, B(args, X, A)]), each)), function (_n, k) { _n[k] = C.reject(_n[k], B.val('is_once')); }];}
   }(B, C, {});
 
   C.remove_by_index = C.removeByIndex = removeByIndex;
