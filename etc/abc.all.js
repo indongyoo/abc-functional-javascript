@@ -68,8 +68,7 @@
     return C.reduce(selector.split(/\s*->\s*/), start, function (mem, key) {
       return !key.match(/^\((.+)\)/) ? !key.match(/\[(.*)\]/) ? mem[key] : function(mem, numbers) {
         if (numbers.length > 2 || numbers.length < 1 || C.filter(numbers, [I, isNaN]).length) return ERR('[] selector in [num] or [num ~ num]');
-        var s = numbers[0], e = numbers[1];
-        return !e ? mem[s<0 ? mem.length+s : s] : Array.prototype.slice.call(mem, s<0 ? mem.length+s : s, e<0 ? mem.length+e : e + 1);
+        var s = numbers[0], e = numbers[1]; return !e ? mem[s<0 ? mem.length+s : s] : Array.prototype.slice.call(mem, s<0 ? mem.length+s : s, e<0 ? mem.length+e : e + 1);
       }(mem, C.map(RegExp.$1.replace(/\s/g, '').split('~'), [I, parseInt])) : C.find(mem, C.lambda(RegExp.$1));
     });
   }, {
@@ -81,7 +80,8 @@
       var _arr = selector.split(/\s*->\s*/), last = _arr.length - 1;
       return toMR([start].concat(C.unset(_arr.length == 1 ? start : C.sel(start, _arr.slice(0, last).join('->')), _arr[last])));
     },
-    remove: function(start, selector) {
+    remove: function(start, selector, remove) {
+      if (remove) return toMR([start].concat(C.remove(C.sel(start, selector), remove)));
       var _arr = selector.split(/\s*->\s*/);
       return toMR([start].concat(C.remove(C.sel(start, _arr.slice(0, _arr.length - 1).join('->')), C.sel(start, selector))));
     },
@@ -94,60 +94,60 @@
     pop: function(start, selector) { return toMR([start].concat(C.pop(C.sel(start, selector)))); },
     shift: function(start, selector) { return toMR([start].concat(C.shift(C.sel(start, selector)))); },
     push: function (start, selector, item) { return toMR([start].concat(C.push(C.sel(start, selector), item))); },
-    unshift: function (start, selector, item) { return toMR([start].concat(C.unshift(C.sel(start, selector), item))); }
-  });
-  C.sel.im = C.select.im =C.extend(function (start, selector) {
-    var im_start = _.clone(start);
-    return {
-      start: im_start,
-      selected: C.reduce(selector.split(/\s*->\s*/), im_start, function(clone, key) {
-        return !key.match(/^\((.+)\)/) ? !key.match(/\[(.*)\]/) ? clone[key] = _.clone(clone[key]) : function(clone, numbers) {
-          if (numbers.length > 2 || numbers.length < 1 || C.filter(numbers, [I, isNaN]).length) return ERR('[] selector in [num] or [num ~ num]');
-          var s = numbers[0], e = numbers[1];
-          return !e ? clone[s] = _.clone(clone[s<0 ? clone.length+s : s]) : function(clone, oris) {
-            return _.each(oris, function(ori) { clone[clone.indexOf(ori)] = _.clone(ori); });
-          }(clone, Array.prototype.slice.call(clone, s<0 ? clone.length+s : s, e<0 ? clone.length+e : e + 1));
-        }(clone, C.map(RegExp.$1.replace(/\s/g, '').split('~'), [I, parseInt])) :
-          function(clone, ori) { return clone[clone.indexOf(ori)] = _.clone(ori); } (clone, C.find(clone, C.lambda(RegExp.$1)))
-      })
-    };
-  }, {
-    set: function(start, selector, value) {
-      var _arr = selector.split(/\s*->\s*/), last = _arr.length - 1, im = C.sel.im(start, _arr.slice(0, last).join('->'));
-      return toMR([im.start].concat(C.set(_arr.length == 1 ? im.start : im.selected, _arr[last], value)));
-    },
-    unset: function(start, selector) {
-      var _arr = selector.split(/\s*->\s*/), last = _arr.length - 1, im = C.sel.im(start, _arr.slice(0, last).join('->'));
-      return toMR([im.start].concat(C.unset(_arr.length == 1 ? im.start : im.selected, _arr[last])));
-    },
-    remove: function(start, selector) {
-      var _arr = selector.split(/\s*->\s*/), im = C.sel.im(start, selector);
-      return toMR([im.start].concat(C.remove(C.sel(im.start, _arr.slice(0, _arr.length - 1).join('->')), im.selected)));
-    },
-    extend: function(start, selector/*, objs*/) {
-      var im = C.sel.im(start, selector);
-      return toMR([im.start].concat(C.extend.apply(null, [im.selected].concat(_.toArray(arguments).slice(2, arguments.length)))));
-    },
-    defaults: function(start, selector/*, objs*/) {
-      var im = C.sel.im(start, selector);
-      return toMR([im.start].concat(C.defaults.apply(null, [im.selected].concat(_.toArray(arguments).slice(2, arguments.length)))));
-    },
-    pop: function(start, selector) {
-      var im = C.sel.im(start, selector);
-      return toMR([im.start].concat(C.pop(im.selected)));
-    },
-    shift: function(start, selector) {
-      var im = C.sel.im(start, selector);
-      return toMR([im.start].concat(C.shift(im.selected)));
-    },
-    push: function (start, selector, item) {
-      var im = C.sel.im(start, selector);
-      return toMR([im.start].concat(C.push(im.selected, item)));
-    },
-    unshift: function (start, selector, item) {
-      var im = C.sel.im(start, selector);
-      return toMR([im.start].concat(C.unshift(im.selected, item)));
-    }
+    unshift: function (start, selector, item) { return toMR([start].concat(C.unshift(C.sel(start, selector), item))); },
+    im: C.extend(function (start, selector) {
+      var im_start = _.clone(start);
+      return {
+        start: im_start,
+        selected: C.reduce(selector.split(/\s*->\s*/), im_start, function(clone, key) {
+          return !key.match(/^\((.+)\)/) ? /*start*/(!key.match(/\[(.*)\]/) ? clone[key] = _.clone(clone[key]) : function(clone, numbers) {
+            if (numbers.length > 2 || numbers.length < 1 || C.filter(numbers, [I, isNaN]).length) return ERR('[] selector in [num] or [num ~ num]');
+            var s = numbers[0], e = numbers[1]; return !e ? clone[s] = _.clone(clone[s<0 ? clone.length+s : s]) : function(clone, oris) {
+              return _.each(oris, function(ori) { clone[clone.indexOf(ori)] = _.clone(ori); });
+            }(clone, Array.prototype.slice.call(clone, s<0 ? clone.length+s : s, e<0 ? clone.length+e : e + 1));
+          }(clone, C.map(RegExp.$1.replace(/\s/g, '').split('~'), [I, parseInt])))/*end*/ :
+            function(clone, ori) { return clone[clone.indexOf(ori)] = _.clone(ori); } (clone, C.find(clone, C.lambda(RegExp.$1)))
+        })
+      };
+    }, {
+      set: function(start, selector, value) {
+        var _arr = selector.split(/\s*->\s*/), last = _arr.length - 1, im = C.sel.im(start, _arr.slice(0, last).join('->'));
+        return toMR([im.start].concat(C.set(_arr.length == 1 ? im.start : im.selected, _arr[last], value)));
+      },
+      unset: function(start, selector) {
+        var _arr = selector.split(/\s*->\s*/), last = _arr.length - 1, im = C.sel.im(start, _arr.slice(0, last).join('->'));
+        return toMR([im.start].concat(C.unset(_arr.length == 1 ? im.start : im.selected, _arr[last])));
+      },
+      remove: function(start, selector, remove) {
+        var _arr = selector.split(/\s*->\s*/), im = C.sel.im(start, selector);
+        if (remove) return toMR([start].concat(C.remove(im.selected, remove)));
+        return toMR([im.start].concat(C.remove(C.sel(im.start, _arr.slice(0, _arr.length - 1).join('->')), im.selected)));
+      },
+      extend: function(start, selector/*, objs*/) {
+        var im = C.sel.im(start, selector);
+        return toMR([im.start].concat(C.extend.apply(null, [im.selected].concat(_.toArray(arguments).slice(2, arguments.length)))));
+      },
+      defaults: function(start, selector/*, objs*/) {
+        var im = C.sel.im(start, selector);
+        return toMR([im.start].concat(C.defaults.apply(null, [im.selected].concat(_.toArray(arguments).slice(2, arguments.length)))));
+      },
+      pop: function(start, selector) {
+        var im = C.sel.im(start, selector);
+        return toMR([im.start].concat(C.pop(im.selected)));
+      },
+      shift: function(start, selector) {
+        var im = C.sel.im(start, selector);
+        return toMR([im.start].concat(C.shift(im.selected)));
+      },
+      push: function (start, selector, item) {
+        var im = C.sel.im(start, selector);
+        return toMR([im.start].concat(C.push(im.selected, item)));
+      },
+      unshift: function (start, selector, item) {
+        var im = C.sel.im(start, selector);
+        return toMR([im.start].concat(C.unshift(im.selected, item)));
+      }
+    })
   });
 
   B.remove = function(remove) { return B(X, remove, C.remove); };
@@ -157,16 +157,20 @@
   B.defaults = function() { var args = _.toArray(arguments); return B.apply(null, [X].concat(args).concat(C.defaults)); };
 
   B.sel = B.select = function(selector) { return B(X, selector, C.sel) };
-  B.sel.set = function(selector) { return B(X, selector, C.sel.set); };
-  B.sel.unset = function(selector) { return B(X, selector, C.sel.unset); };
-  B.sel.remove = function(selector) { return B(X, selector, C.sel.remove); };
-  B.sel.extend = function(selector) { var args = _.rest(arguments); return B.apply(null, [X, selector].concat(args).concat(C.sel.extend)); };
-  B.sel.defaults = function(selector) { var args = _.rest(arguments); return B.apply(null, [X, selector].concat(args).concat(C.sel.defaults)); };
+  B.sel.set = B_sel_func('set');
+  B.sel.unset = B_sel_func('unset');
+  B.sel.remove = B_sel_func('remove');
+  B.sel.extend = B_sel_func('extend');
+  B.sel.defaults = B_sel_func('defaults');
 
   B.sel.im = B.select.im = function(selector) { return B(X, selector, C.sel.im) };
-  B.sel.im.set = function(selector) { return B(X, selector, C.sel.im.set); };
-  B.sel.im.unset = function(selector) { return B(X, selector, C.sel.im.unset); };
-  B.sel.im.remove = function(selector) { return B(X, selector, C.sel.im.remove); };
+  B.sel.im.set = B_sel_func('im.set');
+  B.sel.im.unset = B_sel_func('im.unset');
+  B.sel.im.remove = B_sel_func('im.remove');
+  B.sel.im.extend = B_sel_func('im.extend');
+  B.sel.im.defaults = B_sel_func('im.defaults');
+
+  function B_sel_func(what) { return function (selector) { var args = _.rest(arguments); return B.apply(null, [X, selector].concat(args).concat(C.val(C.sel, what))); };}
 
   function A(args, func) { return C.apply(arguments[2] || this, _.toArray(args).concat([func])); }
 
@@ -187,7 +191,6 @@
   function base_B(args, is_bp2) {
     args = _.toArray(args);
     var fns = C.lambda == I ? args.pop() : map(I2(wrap_arr(args.pop())), C.lambda);
-
     return function() {
       var args3 = _.clone(args);
       for (var i = 0, length = arguments.length; i < length; i++) {
@@ -244,8 +247,8 @@
     };
   };
 
-  var c_if = IF(function() { return arguments.length == 3; }, MR).ELSE(B.all(_.rest, B.v('0'), C.args1));
-  var b_if = IF(function() { return arguments.length > 1; }, MR).ELSE(B.all(_.rest, B.v('0')));
+  var c_if = IF(function() { return arguments.length > 2; }, MR).ELSE(B.all([I, _.rest], B.v('0'), C.args1));
+  var b_if = IF(function() { return arguments.length > 1; }, MR).ELSE(B.all([I, _.rest], B.v('0')));
 
   B.reduce = function(iter) {
     return B([iter == null ? c_if : b_if,
@@ -256,9 +259,9 @@
         void 0, // end
         C.args2, // complete
         C.lambda(iter),   // iter_or_predi
-        function(list, keys, i, res) { // params
+        function(list, keys, i, res, args) { // params
           var key = keys ? keys[i] : i;
-          return [res, list[key], key, list];
+          return [res, list[key], key, list].concat(_.rest(args));
         },
         base_loop_fn)]);
   };
@@ -411,9 +414,9 @@
     });
   };
 
-  function base_loop_fn_base_args(list, keys, i) {
+  function base_loop_fn_base_args(list, keys, i, res, args) {
     var key = keys ? keys[i] : i;
-    return [list[key], key, list];
+    return [list[key], key, list].concat(args);
   }
 
   function base_loop_fn(body, end_q, end, complete, iter_or_predi, params) {
@@ -429,7 +432,7 @@
       do {
         if (end_q(res = body(result, list, keys, i, res, tmp, args))) return resolve(end(list, keys, i));
         if (i == length) return resolve(complete(result, list, res));
-        res = A(params(list, keys, i++, res).concat(args), iter_or_predi, context);
+        res = A(params(list, keys, i++, res, args), iter_or_predi, context);
       } while (!maybe_promise(res));
       res.then(function(res) { f(i, res); });
       return async || C(CB(function(cb) { resolve = cb, async = true; }));
@@ -509,7 +512,7 @@
   C.each = B.each(null);
   C.map = B.map(null);
   var _reduce = B.reduce(null);
-  C.reduce = function(arr, memo, func) { return func ? _reduce(arr, memo, func) : _reduce(arr, memo); };
+  C.reduce = B.reduce(null);
   C.filter = B.filter(null);
   C.reject = B.reject(null);
   C.find = B.find(null);
