@@ -1070,30 +1070,14 @@ function respect_underscore(_) {
             root.C.extend(clone_create_box._(), el); return clone_create_box;
           } (root.create_box(_box_data));
         },
-        unset: function(el) {
-          return root.create_box(root.C.sel.im.unset(_box_data, make_selector(el))[0]);
-        },
-        remove: function(el) {
-          return root.create_box(root.C.sel.im.remove(_box_data, make_selector(el))[0]);
-        },
-        extend: function(el) {
-          return root.create_box(root.C.sel.im.extend.apply(null, [_box_data, make_selector(el)].concat(root.C.toArray(arguments).slice(1, arguments.length)))[0]);
-        },
-        defaults: function(el) {
-          return root.create_box(root.C.sel.im.defaults.apply(null, [_box_data, make_selector(el)].concat(root.C.toArray(arguments).slice(1, arguments.length)))[0]);
-        },
-        pop: function(el) {
-          return root.create_box(root.C.sel.im.pop(_box_data, make_selector(el))[0]);
-        },
-        push: function(el, item) {
-          return root.create_box(root.C.sel.im.push(_box_data, make_selector(el), item)[0]);
-        },
-        shift: function(el) {
-          return root.create_box(root.C.sel.im.shift(_box_data, make_selector(el))[0]);
-        },
-        unshift: function(el, item) {
-          return root.create_box(root.C.sel.im.unshift(_box_data, make_selector(el), item)[0]);
-        }
+        unset: function(el) { return root.create_box(root.C.sel.im.unset(_box_data, make_selector(el))[0]); },
+        remove: function(el) {  return root.create_box(root.C.sel.im.remove(_box_data, make_selector(el))[0]); },
+        extend: function(el) { return root.create_box(root.C.sel.im.extend.apply(null, [_box_data, make_selector(el)].concat(root.C.toArray(arguments).slice(1, arguments.length)))[0]); },
+        defaults: function(el) { return root.create_box(root.C.sel.im.defaults.apply(null, [_box_data, make_selector(el)].concat(root.C.toArray(arguments).slice(1, arguments.length)))[0]); },
+        pop: function(el) { return root.create_box(root.C.sel.im.pop(_box_data, make_selector(el))[0]); },
+        push: function(el, item) { return root.create_box(root.C.sel.im.push(_box_data, make_selector(el), item)[0]); },
+        shift: function(el) { return root.create_box(root.C.sel.im.shift(_box_data, make_selector(el))[0]); },
+        unshift: function(el, item) { return root.create_box(root.C.sel.im.unshift(_box_data, make_selector(el), item)[0]); }
       }
     };
   };
