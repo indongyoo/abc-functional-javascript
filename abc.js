@@ -16,6 +16,7 @@
   F.B = window.B = B; // thisless bind, similar to _.partial
   F.B2 = window.B2 = B2; // only pipeline
   F.C = window.C = C; // thisless call
+  F.C = window.C2 = C2; // only pipeline
   F.F = window.F = F; // find function
   F.G = window.G = G; // window or global
   F.H = window.H = H; // HTML Template Engine
@@ -469,6 +470,7 @@
       return promise;
     })(toMR(args));
   }
+  function C2() { return C(_.toArray(arguments)); }
 
   function MRI(res) { return isMR(res) ? res : [res]; }
   function ERR(err, data) {
