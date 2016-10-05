@@ -46,16 +46,24 @@
     return function() { return toMR(C.map(idxs, arguments, function(v, i, l, args) { return args[v]; })); };
   };
   C.args0 = I, C.args1 = B.args(1), C.args2 = B.args(2), C.args3 = B.args(3), C.args4 = B.args(4);
-
-  C.set = function(obj, key, value) { return MR(obj[key] = value, key, obj); };
+  C.set = function(obj, key, valueOrFunc) {
+    if (!_.isFunction(valueOrFunc)) return MR(obj[key] = valueOrFunc, key, obj);
+    return C(obj, key, [ valueOrFunc, function(_value) { return MR(obj[key] = _value, key, obj) }]);
+  };
   C.unset = function(obj, key) { var val = obj[key]; delete obj[key]; return MR(val, key, obj); };
   C.remove = function(arr, remove) { return MR(remove, removeByIndex(arr, arr.indexOf(remove)), arr); };
   C.extend = _.extend;
   C.defaults = _.defaults;
   C.pop = function(arr) { return MR(arr.pop(), arr.length, arr); };
   C.shift = function(arr) { return MR(arr.shift(), 0, arr); };
-  C.push = function(arr, item) { return MR(item, arr.push(item), arr); };
-  C.unshift = function(arr, item) { return MR(item, arr.unshift(item), arr); };
+  C.push = function(arr, itemOrFunc) {
+    if (!_.isFunction(itemOrFunc)) return MR(itemOrFunc, arr.push(itemOrFunc), arr);
+    return C(arr, [itemOrFunc, function(_item) { return MR(_item, arr.push(_item), arr); }]);
+  };
+  C.unshift = function(arr, itemOrFunc) {
+    if (!_.isFunction(itemOrFunc)) return MR(itemOrFunc, arr.unshift(itemOrFunc), arr);
+    return C(arr, [itemOrFunc, function(_item) { return MR(_item, arr.unshift(_item), arr); }]);
+  };
   C.sel = C.select = C.extend(function(start, selector) {
     return C.reduce(selector.split(/\s*->\s*/), start, function (mem, key) {
       return !key.match(/^\((.+)\)/) ? !key.match(/\[(.*)\]/) ? mem[key] : function(mem, numbers) {
@@ -67,26 +75,26 @@
   }, {
     set: function(start, selector, value) {
       var _arr = selector.split(/\s*->\s*/), last = _arr.length - 1;
-      return C.set(_arr.length == 1 ? start : C.sel(start, _arr.slice(0, last).join('->')), _arr[last], value);
+      return toMR([start].concat(C.set(_arr.length == 1 ? start : C.sel(start, _arr.slice(0, last).join('->')), _arr[last], value)));
     },
     unset: function(start, selector) {
       var _arr = selector.split(/\s*->\s*/), last = _arr.length - 1;
-      return C.unset(_arr.length == 1 ? start : C.sel(start, _arr.slice(0, last).join('->')), _arr[last]);
+      return toMR([start].concat(C.unset(_arr.length == 1 ? start : C.sel(start, _arr.slice(0, last).join('->')), _arr[last])));
     },
     remove: function(start, selector) {
       var _arr = selector.split(/\s*->\s*/);
-      return C.remove(C.sel(start, _arr.slice(0, _arr.length - 1).join('->')), C.sel(start, selector));
+      return toMR([start].concat(C.remove(C.sel(start, _arr.slice(0, _arr.length - 1).join('->')), C.sel(start, selector))));
     },
     extend: function(start, selector/*, objs*/) {
-      return C.extend.apply(null, [C.sel(start, selector)].concat(_.toArray(arguments).slice(2, arguments.length)));
+      return toMR([start].concat(C.extend.apply(null, [C.sel(start, selector)].concat(_.toArray(arguments).slice(2, arguments.length)))));
     },
     defaults: function(start, selector/*, objs*/) {
-      return C.defaults.apply(null, [C.sel(start, selector)].concat(_.toArray(arguments).slice(2, arguments.length)));
+      return toMR([start].concat(C.defaults.apply(null, [C.sel(start, selector)].concat(_.toArray(arguments).slice(2, arguments.length)))));
     },
-    pop: function(start, selector) { return C.pop(C.sel(start, selector)) },
-    shift: function(start, selector) { return C.shift(C.sel(start, selector)) },
-    push: function (start, selector, item) { return C.push(C.sel(start, selector), item); },
-    unshift: function (start, selector, item) { return C.unshift(C.sel(start, selector), item); }
+    pop: function(start, selector) { return toMR([start].concat(C.pop(C.sel(start, selector)))); },
+    shift: function(start, selector) { return toMR([start].concat(C.shift(C.sel(start, selector)))); },
+    push: function (start, selector, item) { return toMR([start].concat(C.push(C.sel(start, selector), item))); },
+    unshift: function (start, selector, item) { return toMR([start].concat(C.unshift(C.sel(start, selector), item))); }
   });
   C.sel.im = C.select.im =C.extend(function (start, selector) {
     var im_start = _.clone(start);
@@ -605,10 +613,12 @@
   C.remove_by_index = C.removeByIndex = removeByIndex;
 
   function removeByIndex(arr, from) {
-    if (from == -1) return arr.length;
-    var rest = arr.slice(from + 1 || arr.length);
-    arr.length = from;
-    return arr.push.apply(arr, rest);
+    if (from !== -1) {
+      var rest = arr.slice(from + 1 || arr.length);
+      arr.length = from;
+      arr.push.apply(arr, rest);
+    }
+    return from;
   }
 
   C.test = function(tests) {
