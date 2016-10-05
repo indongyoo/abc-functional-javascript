@@ -1066,9 +1066,7 @@ function respect_underscore(_) {
       im: {
         set: function (el, value) {
           if (arguments.length > 1 || !root.C.isObject(el)) return root.create_box(root.C.sel.im.set(_box_data, make_selector(el), value)[0]);
-          return function(clone_create_box) {
-            root.C.extend(clone_create_box._(), el); return clone_create_box;
-          } (root.create_box(_box_data));
+          return function(clone_create_box) { root.C.extend(clone_create_box._(), el); return clone_create_box; } (root.create_box(_box_data));
         },
         unset: function(el) { return root.create_box(root.C.sel.im.unset(_box_data, make_selector(el))[0]); },
         remove: function(el) {  return root.create_box(root.C.sel.im.remove(_box_data, make_selector(el))[0]); },
