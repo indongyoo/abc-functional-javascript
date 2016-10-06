@@ -617,7 +617,7 @@
   function F(nodes) {
     var f = getValue(G, nodes);
     var err = Error('warning: ' + nodes + ' is not defined');
-    return f || setTimeout(function() { (f = f || getValue(G, nodes)) || C.error(err) }, 0)
+    return f || setTimeout(function() { (f = f || getValue(G, nodes)) || C.error(err) }, 500)
       && function() { return A(arguments, f || (f = getValue(G, nodes)), this); }
   }
 
