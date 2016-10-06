@@ -521,8 +521,8 @@
   C.neq = B2(C.eq, C.not);
   C.sneq = B2(C.seq, C.not);
 
-  C.log = window.console && window.console.log ? console.log.bind(console) : I;
-  C.error = window.console && window.console.error ? console.error.bind(console) : I;
+  C.log = window.console && window.console.log ? console.log.bind ? console.log.bind(console) : function() { console.log.apply(console, arguments); } : I;
+  C.error = window.console && window.console.error ? console.error.bind ? console.error.bind(console) : function() { console.error.apply(console, arguments); } : I;
   C.hi = B.args_pass(C.log);
 
   C.isString = _.isString;
