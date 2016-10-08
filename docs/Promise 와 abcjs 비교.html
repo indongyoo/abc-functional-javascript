@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Promise와 abcjs의 Pipeline 비교</title>
+</head>
+<body>
+
+<script src="https://cdn.jsdelivr.net/bluebird/latest/bluebird.js"></script>
+
+<script src="../../example/js/underscore.js"></script>
+<script src="../../abc.js"></script>
+
+<script>
+
+  function add(a, b, next) {
+    setTimeout(function () {
+      next(a + b);
+    }, 1000);
+  }
+
+  function sub(a, b, next) {
+    setTimeout(function () {
+      next(a - b);
+    }, 1000);
+  }
+
+  function mul(a, b, next) {
+    setTimeout(function () {
+      next(a * b);
+    }, 1000);
+  }
+
+  function log(msg, next) {
+    setTimeout(function () {
+      console.log(msg);
+      next(msg);
+    }, 1000);
+  }
+
+  /* Promise 1 */
+  new Promise(
+    function (resolve) {
+      add(5, 10, resolve);
+    })
+    .then(function (result) {
+      return new Promise(function (resolve) {
+        sub(result, 10, resolve);
+      });
+    })
+    .then(function (result) {
+      return new Promise(function (resolve) {
+        mul(result, 1, resolve);
+      });
+    })
+    .then(function (result) {
+      return new Promise(function (resolve) {
+        log(result, resolve);
+      });
+    });
+  // 5
+
+  /* abcjs 1 */
+  C(5, 10, CB(
+    function (a, b, next) {
+      add(a, b, next);
+    },
+    function (result, next) {
+      sub(result, 10, next);
+    },
+    function (result, next) {
+      mul(result, 10, next);
+    },
+    function (result, next) {
+      log(result, next);
+    }));
+  // 50
+
+</script>
+
+<script>
+  /* not working */
+  new Promise(
+    function (resolve) {
+      add(5, 10, function(result) {
+        resolve(result, 10);
+      });
+    })
+    .then(function (a, b) { // b is undefined
+      return new Promise(function (resolve) {
+        sub(a, b, resolve);
+      });
+    });
+</script>
+
+<script>
+  /* abcjs 2 */
+  C(5, 10, CB(
+    add,
+    function(result, next) {
+      sub(result, 10, function(result) {
+        next(result, 20); // multiple results
+      });
+    },
+    mul,
+    log));
+  // 100
+
+  /* abcjs 3 */
+  C(5, 10, CB(
+    add,
+    _.partial(sub, _, 10),
+    _.partial(mul, 30),
+    log));
+  // 150
+
+  /* abcjs 4 */
+  C(5, 10, CB(
+    add, B(X, 10, sub), B(40, mul), log));
+  // 200
+</script>
+
+
+<script>
+
+  function promisify(func) {
+    return function () {
+      var args = _.toArray(arguments);
+      var self = this;
+      return new Promise(function (resolve) {
+        func.apply(self, args.concat(resolve));
+      });
+    }
+  }
+
+  /* Promise 2 */
+  promisify(add)(5, 10)
+    .then(_.partial(promisify(sub), _, 10))
+    .then(_.partial(promisify(mul), 50))
+    .then(promisify(log));
+  // 250
+
+  /* Promise 3 */
+  promisify(add)(5, 10)
+    .then(B(X, 10, promisify(sub)))
+    .then(B(60, promisify(mul)))
+    .then(promisify(log));
+  // 300
+
+</script>
+
+<script>
+
+  /* Promise 4 (with promisify) */
+  var add2 = promisify(add);
+  var sub2 = promisify(sub);
+  var mul2 = promisify(mul);
+  var log2 = promisify(log);
+
+  add2(5, 10).then(B(X, 10, sub2)).then(B(X, 70, mul2)).then(log2);
+  // 350
+
+  /* abcjs 5 */
+  CB(add, sub, mul);
+  C(5, 10, [add, B(X, 10, sub), B(80, mul), log]);
+  // 400
+
+  /* abcjs 6 (with promisify) */
+  C(5, 10, [add2, B(X, 10, sub2), B(90, mul2), log2]);
+  // 500
+
+  /* abcjs 7 (with Promise)*/
+  C([
+    function () {
+      return new Promise(function (resolve) {
+        add(5, 10, resolve);
+      });
+    },
+    function (result) {
+      return new Promise(function (resolve) {
+        sub(result, 10, resolve);
+      });
+    },
+    function (result) {
+      return new Promise(function (resolve) {
+        mul(result, 100, resolve);
+      });
+    },
+    function (result) {
+      return new Promise(function (resolve) {
+        log(result, resolve);
+      });
+    }]);
+  // 550
+</script>
+
+
+<script>
+  /* abcjs 8 (bfy) */
+  var badd = B(add);
+  var bsub10 = B(X, 10, sub);
+  var bmul110 = B(110, mul);
+  var blog = B(log);
+
+  blog(bmul110(bsub10(badd(5, 10))));
+  // 550
+</script>
+
+
+</body>
+</html>
