@@ -290,6 +290,7 @@ badd(5)를 실행하여 add5라고 이름을 지어주었다. 그리고는 3도 
 </script>
 
 <script>
+  // 이후
   log(log_length(
     map(
       filter(users, function(user) { return user.age < 30 }),
@@ -302,6 +303,12 @@ badd(5)를 실행하여 add5라고 이름을 지어주었다. 그리고는 3도 
 </script>
 
 badd 와 같은 패턴의 함수도 위와 같이 실용적이었다. 함수형 프로그래밍의 실용성에 대해 다뤄보았다. '함수형 자바스크립트' 꽤 실용적일 것 같은 예감이 들지 않는가?
+
+<script>
+  // ES6
+  log(log_length(map(filter(users, u => u.age < 30), u => u.age)));
+  log(log_length(map(filter(users, u => u.age >= 30), u => u.name)));
+</script>
 
 </body>
 </html>
