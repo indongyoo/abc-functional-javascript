@@ -78,7 +78,7 @@ javascript는 객체를 자유롭게 만들 수 있고 객체의 `key`도 자유
   // hi
 ```
 
-`d2, d3, d4, d5, d6`은 Underscorejs의 `_.each` 등의 함수에게 그저 `arrayLike`다. 다음 `isArrayLike`의 값이 `true`면 `_.each`등은 `i++`을 이용한 `for` 문을 돌린다. `d1`은 `Array`가 아닐 것이라고 생각하고 모든 `keys`를 뽑아낸 뒤에 `keys`를 이용해 `for` 문을 돌린다.
+`d2, d3, d4, d5, d6`은 Underscorejs의 `_.each` 등의 함수에게 그저 `arrayLike`다. 다음 `isArrayLike`의 값이 `true`면 `_.each`등은 `i++`을 이용한 `for` 문을 돌린다. `d1`이 들어오면 `Array`가 아닐 것이라고 생각하고 모든 `keys`를 뽑아낸 뒤에 `keys`를 이용해 `for` 문을 돌린다.
 
 ```javascript
   var MAX_ARRAY_INDEX = Math.pow(2, 53) - 1;
