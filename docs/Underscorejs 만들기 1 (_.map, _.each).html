@@ -239,7 +239,7 @@ Underscorejs를 보면 `try catch`가 단 한번 나온다. 심지어 그 `try c
         len = (keys || list).length;
 
     for (var currentKey = bcurrentKey(keys), key, i = 0; i < len; i++)
-      iteratee(list[key = currentKey(i)], key, list)
+      iteratee(list[key = currentKey(i)], key, list);
     return list;
   };
 
