@@ -258,4 +258,4 @@ Promise와 abcjs의 대표적인 부분들을 비교해보았다. abcjs는 Promi
 
 --------------
 
-[다른글 보기] (https://github.com/marpple/abc-functional-javascript/tree/master/docs)
+[다른 글 보기] (https://github.com/marpple/abc-functional-javascript/tree/master/docs)
