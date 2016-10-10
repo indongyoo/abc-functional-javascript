@@ -440,7 +440,7 @@
     var context = this;
     var args = C.rest(arguments, 6);
     var list = args.shift();
-    var keys = C.isArray(list) ? null : _.keys(list);
+    var keys = C.isArrayLike(list) ? null : _.keys(list);
     iter_or_predi = iter_or_predi || C.lambda(args.pop());
     var length = (keys || list).length;
     var result = [], tmp = [];
