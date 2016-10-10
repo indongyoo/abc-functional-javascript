@@ -42,7 +42,7 @@
   C.is_object = C.isObject = _.isObject;
   var MAX_ARRAY_INDEX = Math.pow(2, 53) - 1;
   C.is_array_like = C.isArrayLike = function(collection) {
-    var length = collection.length;
+    var length = collection && collection.length;
     return typeof length == 'number' && length >= 0 && length <= MAX_ARRAY_INDEX;
   };
   C.wrapArray = C.wrap_arr = function(v) { return C.isArray(v) ? v : [v]; };
@@ -440,7 +440,7 @@
     var context = this;
     var args = C.rest(arguments, 6);
     var list = args.shift();
-    var keys = C.isArray(list) ? null : _.keys(list);
+    var keys = C.isArrayLike(list) ? null : _.keys(list);
     iter_or_predi = iter_or_predi || C.lambda(args.pop());
     var length = (keys || list).length;
     var result = [], tmp = [];
