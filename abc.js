@@ -42,7 +42,7 @@
   C.is_object = C.isObject = _.isObject;
   var MAX_ARRAY_INDEX = Math.pow(2, 53) - 1;
   C.is_array_like = C.isArrayLike = function(collection) {
-    var length = collection.length;
+    var length = collection && collection.length;
     return typeof length == 'number' && length >= 0 && length <= MAX_ARRAY_INDEX;
   };
   C.wrapArray = C.wrap_arr = function(v) { return C.isArray(v) ? v : [v]; };
