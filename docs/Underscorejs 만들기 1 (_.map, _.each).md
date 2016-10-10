@@ -83,7 +83,7 @@ javascript는 객체를 자유롭게 만들 수 있고 객체의 `key`도 자유
 ```javascript
   var MAX_ARRAY_INDEX = Math.pow(2, 53) - 1;
   var isArrayLike = function (list) {
-    var length = list.length;
+    var length = list && list.length;
     return typeof length == 'number' && length >= 0 && length <= MAX_ARRAY_INDEX;
   };
 ```
@@ -112,7 +112,7 @@ Underscorejs를 보면 `try catch`가 단 한번 나온다. 심지어 그 `try c
 
 ### _.map 만들기
 
-이야기가 길었지만 Underscorejs에 담긴 컨셉과 생각을 이해하려면 꼭 필요한 검토였다고 생각한다. 자 이제 `_.map`을 구현해보자. `_.map`을 구현하기에 앞서 얘기해두자면 Underscorejs처럼 낙후한 브라우저까지 커버하지는 않겠다. 본 글은 함수형 자바스크립트에 대해 알아보기 위한 글이고 예제이므로 이해를 위해 최신 Native Helpers를 사용하기도 하고 안 하기도 하겠고 Chrome과 Nodejs에서만 테스트를 하겠다.
+이야기가 길었지만 Underscorejs에 담긴 컨셉과 생각을 이해하려면 꼭 필요한 검토였다고 생각한다. 자 이제 `_.map`을 구현해보자. `_.map`을 구현하기에 앞서 얘기해두자면 Underscorejs처럼 오래된 브라우저까지 커버하지는 않겠다. 본 글은 함수형 자바스크립트에 대해 알아보기 위한 글이고 예제이므로 이해를 위해 최신 Native Helpers를 사용하기도 하고 안 하기도 하겠고 Chrome과 Nodejs에서만 테스트를 하겠다.
 
 ```javascript
   _.map = function(list, iteratee) {
@@ -151,7 +151,7 @@ Underscorejs를 보면 `try catch`가 단 한번 나온다. 심지어 그 `try c
 
   var MAX_ARRAY_INDEX = Math.pow(2, 53) - 1;
   var isArrayLike = function (list) {
-    var length = list.length;
+    var length = list && list.length;
     return typeof length == 'number' && length >= 0 && length <= MAX_ARRAY_INDEX;
   };
 

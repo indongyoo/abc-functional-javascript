@@ -104,7 +104,7 @@ javascript는 객체를 자유롭게 만들 수 있고 객체의 `key`도 자유
 <script>
   var MAX_ARRAY_INDEX = Math.pow(2, 53) - 1;
   var isArrayLike = function (list) {
-    var length = list.length;
+    var length = list && list.length;
     return typeof length == 'number' && length >= 0 && length <= MAX_ARRAY_INDEX;
   };
 </script>
@@ -172,7 +172,7 @@ Underscorejs를 보면 `try catch`가 단 한번 나온다. 심지어 그 `try c
 
   var MAX_ARRAY_INDEX = Math.pow(2, 53) - 1;
   var isArrayLike = function (list) {
-    var length = list.length;
+    var length = list && list.length;
     return typeof length == 'number' && length >= 0 && length <= MAX_ARRAY_INDEX;
   };
 
