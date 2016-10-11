@@ -479,7 +479,9 @@
     })(0);
   }
 
-  F.CB = window.CB = B2(C.arr_or_args_to_arr, B.map([I, B(X, {_ABC_is_cb: true}, C.extend)]), B);
+
+  function unpack_arr(arr) { return arr.length == 1 ? arr[0] : arr }
+  F.CB = window.CB = B2(C.arr_or_args_to_arr, B.map([I, B(X, {_ABC_is_cb: true}, C.extend)]), unpack_arr);
   F.JCB = window.JCB = B(X, {_ABC_just_cb: true}, C.extend);
 
   function isMR(arg) { return C.isArray(arg) && arg._ABC_is_returns; }
@@ -505,11 +507,26 @@
     })(0, (res = is_r ? res : [res]), res.length, false);
   }
 
+  C.flatten = function(arr, noDeep) {
+    var new_arr = [], cur_arr = arr, cur_dep = { i: 0, len: arr.length, arr: cur_arr }, depth = [cur_dep];
+    while (cur_dep && cur_dep.i <= cur_dep.len) {
+      if (cur_dep.i == cur_dep.len) {
+        depth.pop();
+        cur_dep = depth[depth.length-1], cur_arr = cur_dep && cur_dep.arr;
+        continue;
+      }
+      var item = cur_arr[cur_dep.i++];
+      if (!C.isArray(item) || (noDeep && depth.length != 1)) new_arr.push(item);
+      else depth.push(cur_dep = { i: 0, len: item.length, arr: cur_arr = item });
+    }
+    return new_arr;
+  };
+
   function C() {
     var context = this;
     var args = C.toArray(arguments);
     if (!C.isArray(args[args.length - 1])) args[args.length - 1] = [args[args.length - 1]];
-    var fns = args.pop();
+    var fns = C.flatten(args.pop());
     if (args.length == 1 && isMR(args[0])) args = args[0];
 
     var i = 0, promise = null, resolve = null, fns_len = fns.length;
