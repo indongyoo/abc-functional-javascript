@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>함수형 자바스크립트의 실용성 1</title>
+
+</head>
+<body>
+
+'함수형 프로그래밍 그거 먹는건가요?'
+
+커링, 부분 실행등의 함수형 자바스크립트 관련 예제들을 보거나 대표적인 함수형 자바스크립트 라이브러리인 Underscorejs를 보면서도 each, map, reduce 등이 어떻게 동작하는 함수인지는 눈치챘지만 감탄스럽다기보단 그냥 '아 그렇구나' 혹은 다음과 같은 느낌이었다. '어떻게 돌아가는지는 알겠는데 저걸 어떤 상황에서 쓰는거지?'
+
+<script>
+  function badd(a) {
+    return function(b) {
+      return a + b;
+    }
+  }
+  badd(10)(5); // 15
+</script>
+
+구글에서 함수형 자바스크립트를 검색해보면 위와 같은 예제를 많이 만나게 된다. 커링 혹은 부분 실행과 관련된 코드들이다. 생소할뿐 조금 들여다보면 어렵지는 않다. 결론부터 얘기하면 전혀 실용적이지 않은 것 같은 badd 같은 패턴이 사실은 굉장히 많이 사용된다. badd는 함수를 값으로 다루는 함수다. badd의 리턴 값은 함수다. 그러므로 badd(10)의 결과가 함수다. 결과가 함수이므로 (5) 실행을 할 수 있다. 두개의 함수가 한번씩 실행되었고 실행 결과는 15 다.
+
+<script>
+  var add5 = badd(5);
+  add5(3); // 8
+  add5(4); // 9
+</script>
+
+badd(5)를 실행하여 add5라고 이름을 지어주었다. 그리고는 3도 더하고 4도 더했다. 이 예제들은 간단하지만 많은 이야기를 담고 있다. 그렇지만 지금은 짧게 얘기하겠다. 자바스크립트에서는 다음처럼 함수를 값으로 다룰 수 있고 함수안에서 정의된 값은 리턴할 수 있다.
+
+<script>
+  var v1 = 100;
+  var v2 = function() {};
+  function f1() { return 100; }
+  function f2() { return function() {}; }
+</script>
+
+다시 돌아와 badd 예제를 보자.
+
+<script>
+  function badd(a) {
+    return function(b) {
+      return a + b;
+    }
+  }
+  badd(10)(5); // 15
+
+  var add5 = badd(5);
+  add5(3); // 8
+  add5(4); // 9
+
+  var add3 = badd(3);
+  add3(3); // 6
+  add3(4); // 7
+</script>
+
+함수는 값을 리턴할 수 있고 함수는 값이 될 수 있다. badd는 함수를 정의하면서 리턴했다. badd가 리턴한 익명함수는 클로저가 되었다. 클로저가 무엇인지 정확히 설명하려면 많은 예제와 설명이 필요하다. 지금 당장은 정확한 클로저에 대해 모르더라도 a가 한번은 5이고 한번은 3이여서 8, 9, 6, 7 의 결과가 나오는 것은 충분히 유추할 수 있다. 지금은 그냥 함수 내부에 정의된적 없는 a 가 부모 스코프에 있어 그 값을 참조하여 결과를 만들었다고만 생각하자.
+
+위 예제에서는 badd라는 함수안에서 a는 익명함수가 리턴되기전과 익명함수내부에서 값을 변경하고 있지 않기 때문에 리턴된 익명함수에서의 a는 항상 동일한 값을 가지고 있게 된다. 모든 상황에서 클로저가 된 함수가 가르키고 있는 변수의 값이 불변하지는 않는다. 클로저에 대한 자세한 설명은 나중에 하겠다. 지금은 그저 위와 같은 코드가 값으로서의 함수와 클로저를 이용한 함수형 자바스크립트 스타일 중 하나라는 것을 기억해두고 다음을 보자.
+
+<script>
+  var log = console.log.bind(console);
+
+  var users = [
+    { id: 1, name: "CJ", age: 32 },
+    { id: 2, name: "HA", age: 25 },
+    { id: 3, name: "BJ", age: 32 },
+    { id: 4, name: "PJ", age: 28 },
+    { id: 5, name: "JE", age: 27 },
+    { id: 6, name: "JM", age: 32 },
+    { id: 7, name: "HI", age: 24 }
+  ];
+
+  var temp_users = [];
+  for (var i = 0, len = users.length; i < len; i++) {
+    if (users[i].age < 30) temp_users.push(users[i]);
+  }
+  log(temp_users.length); // 4
+
+  var ages = [];
+  for (var i = 0, len = temp_users.length; i < len; i++) {
+    ages.push(temp_users[i].age);
+  }
+  log(ages); // [25, 28, 27, 24]
+
+  var temp_users = [];
+  for (var i = 0, len = users.length; i < len; i++) {
+    if (users[i].age >= 30) temp_users.push(users[i]);
+  }
+  log(temp_users.length); // 3
+
+  var names = [];
+  for (var i = 0, len = temp_users.length; i < len; i++) {
+    names.push(temp_users[i].name);
+  }
+  log(names); // ["CJ", "BJ", "JM"]
+</script>
+
+위 코드는 실무에서 자주 다뤄질법한 익숙한 예제다.
+ users 중에 age 가 30 이하인 user 만 모아서 몇명인지를 출력하고 그들의 나이만 다시 모아서 출력했다. 그 밑에는 나이가 30 이상인 user 가 몇명인지와 이름들을 출력하고 있다. 위 코드를 리팩토링 하면서 함수형 자바스크립트의 실용성을 알아보자.
+
+중복되는 부분을 찾아보자. 첫번째로는 users 를 돌면서 특정 조건의 user를 새로운 array에 담고 있다. if 문의 조건절 부분을 제외하고는 모두 동일한 코드를 가지고 있다. 한번은 .age < 30 한번은 .age >= 30 만 다를뿐 다른 부분은 모두 동일하다. 어떻게 중복을 제거해야할까. 30 은 변수로 바꿔볼 수 있겠다 싶지만 .age, <, >= 등은 쉽지 않아 보인다. 어떻게 하면 가능할까? 함수를 활용하면 가능하다. 다음을 보자.
+
+<script>
+  /*
+  var temp_users = [];
+  for (var i = 0, len = users.length; i < len; i++) {
+    if (users[i].age < 30) temp_users.push(users[i]);
+  }
+  log(temp_users.length); // 4
+  */
+  function filter(list, predicate) {
+    var new_list = [];
+    for (var i = 0, len = list.length; i < len; i++) {
+      if (predicate(list[i])) new_list.push(list[i]);
+    }
+    return new_list;
+  }
+</script>
+
+기존의 코드를 활용해 filter 함수를 만들었다. 실행해보기 전에 filter 함수를 들여다보면 list 를 받아 loop 를 돌면서 if 문의 조건절에서 인자로 받았던 predicate 함수를 실행한다. predicate 함수의 결과가 true 면 new_list.push 가 실행될 것이다.  new_list.push 실행될지의 여부를 predicate 함수에게 위임했다. 마지막엔 new_list 를 리턴했다. 이름을 new 라고 붙였는데 이는 함수형 프로그래밍에서 굉장히 상징적이다. 이전 값의 상태를 변경하지 않고 새로운 값을 만들어 리턴하는것은 함수형 프로그래밍적 관점에서 매우 중요한 방식이다.
+
+<script>
+  var users1 = filter(users, function(user) { return user.age < 30 });
+  log(users1.length); // 4
+
+  var ages = [];
+  for (var i = 0, len = users1.length; i < len; i++) {
+    ages.push(users1[i].age);
+  }
+  log(ages); // [25, 28, 27, 24]
+
+  var users2 = filter(users, function(user) { return user.age >= 30 });
+  log(users2.length); // 3
+
+  var names = [];
+  for (var i = 0, len = users2.length; i < len; i++) {
+    names.push(users2[i].name);
+  }
+  log(names); // ["CJ", "BJ", "JM"]
+</script>
+
+꽤 코드가 짧아졌다. 그리고 filter 라는 재사용 가능한 함수가 생겼다. 이번에도 기존 코드를 활용해 map 이라는 함수를 만들어보자.
+
+<script>
+  /*
+  var ages = [];
+  for (var i = 0, len = users1.length; i < len; i++) {
+    ages.push(users1[i].age);
+  }
+  log(ages); // [25, 28, 27, 24]
+  */
+  function map(list, iteratee) {
+    var new_list = [];
+    for (var i = 0, len = list.length; i < len; i++) {
+      new_list.push(iteratee(list[i]));
+    }
+    return new_list;
+  }
+</script>
+
+이번에도 로직은 기존과 같다. 단지 무엇을 new_list에 push 할지에 대해 iteratee 함수에게 위임했다. 바로 실행해보자.
+
+<script>
+  var users1 = filter(users, function(user) { return user.age < 30 });
+  log(users1.length); // 4
+
+  var ages = map(users1, function(user) { return user.age; });
+  log(ages); // [25, 28, 27, 24]
+
+  var users2 = filter(users, function(user) { return user.age >= 30 });
+  log(users2.length); // 3
+
+  var names = map(users2, function(user) { return user.name; });
+  log(names); // ["CJ", "BJ", "JM"]
+</script>
+
+위 상황에서는 함수의 리턴 값을 바로 다시 함수의 인자로 사용하면 변수할당을 줄일 수 있다.
+
+<script>
+  var ages = map(
+    filter(users, function(user) { return user.age < 30 }),
+    function(user) { return user.age; });
+
+  log(ages.length); // 4
+  log(ages); // [25, 28, 27, 24]
+
+  var names = map(
+    filter(users, function(user) { return user.age >= 30 }),
+    function(user) { return user.name; });
+
+  log(names.length); // 3
+  log(names); // ["CJ", "BJ", "JM"]
+</script>
+
+작은 함수를 하나 더 만들면 변수 할당을 모두 없앨 수 있다.
+
+<script>
+  function log_length(value) {
+    log(value.length);
+    return value;
+  }
+</script>
+
+<script>
+  log(log_length(
+    map(
+      filter(users, function(user) { return user.age < 30 }),
+      function(user) { return user.age; })));
+
+  log(log_length(
+    map(
+      filter(users, function(user) { return user.age >= 30 }),
+      function(user) { return user.name; })));
+</script>
+
+만들어진 모든 코드를 모아 이전 코드와 확인해보자.
+
+<script>
+  // 이전
+  var temp_users = [];
+  for (var i = 0, len = users.length; i < len; i++) {
+    if (users[i].age < 30) temp_users.push(users[i]);
+  }
+  log(temp_users.length); // 4
+
+  var ages = [];
+  for (var i = 0, len = temp_users.length; i < len; i++) {
+    ages.push(temp_users[i].age);
+  }
+  log(ages); // [25, 28, 27, 24]
+
+  var temp_users = [];
+  for (var i = 0, len = users.length; i < len; i++) {
+    if (users[i].age >= 30) temp_users.push(users[i]);
+  }
+  log(temp_users.length); // 3
+
+  var names = [];
+  for (var i = 0, len = temp_users.length; i < len; i++) {
+    names.push(temp_users[i].name);
+  }
+  log(names); // ["CJ", "BJ", "JM"]
+
+
+  // 이후
+  function filter(list, predicate) {
+    var new_list = [];
+    for (var i = 0, len = list.length; i < len; i++) {
+      if (predicate(list[i])) new_list.push(list[i]);
+    }
+    return new_list;
+  }
+
+  function map(list, iteratee) {
+    var new_list = [];
+    for (var i = 0, len = list.length; i < len; i++) {
+      new_list.push(iteratee(list[i]));
+    }
+    return new_list;
+  }
+
+  log(log_length(
+    map(
+      filter(users, function(user) { return user.age < 30 }),
+      function(user) { return user.age; })));
+
+  log(log_length(
+    map(
+      filter(users, function(user) { return user.age >= 30 }),
+      function(user) { return user.name; })));
+</script>
+
+마지막으로 badd와 비슷한 패턴의 함수를 하나 만들어 코드를 더욱 줄여보자.
+
+<script>
+  function badd(a) {
+    return function(b) {
+      return a + b;
+    }
+  }
+  function bvalue(key) {
+    return function(obj) {
+      return obj[key];
+    }
+  }
+  bvalue('a')({ a: 'hi' }); // hi
+</script>
+
+<script>
+  // 이후
+  log(log_length(
+    map(
+      filter(users, function(user) { return user.age < 30 }),
+      bvalue('age'))));
+
+  log(log_length(
+    map(
+      filter(users, function(user) { return user.age >= 30 }),
+      bvalue('name'))));
+</script>
+
+badd 와 같은 패턴의 함수도 위와 같이 실용적이었다. 함수형 프로그래밍의 실용성에 대해 다뤄보았다. '함수형 자바스크립트' 꽤 실용적일 것 같은 예감이 들지 않는가?
+
+<script>
+  // ES6
+  log(log_length(map(filter(users, u => u.age < 30), u => u.age)));
+  log(log_length(map(filter(users, u => u.age >= 30), u => u.name)));
+</script>
+
+</body>
+</html>

@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>함수형 자바스크립트의 실용성 2</title>
+  <script>
+    var log = console.log.bind(console);
+    function filter(list, predicate) {
+      var new_list = [];
+      for (var i = 0, len = list.length; i < len; i++) {
+        if (predicate(list[i])) new_list.push(list[i]);
+      }
+      return new_list;
+    }
+    function map(list, iteratee) {
+      var new_list = [];
+      for (var i = 0, len = list.length; i < len; i++) {
+        new_list.push(iteratee(list[i]));
+      }
+      return new_list;
+    }
+  </script>
+</head>
+<body>
+
+[함수형 자바스크립트의 실용성 1] (https://github.com/marpple/abc-functional-javascript/tree/master/docs)
+
+--------------
+
+# 함수형 자바스크립트의 실용성 2
+
+## 값 대신 함수
+
+<script>
+  var users = [
+    { id: 1, name: "CJ", age: 32 },
+    { id: 2, name: "HA", age: 25 },
+    { id: 3, name: "BJ", age: 32 },
+    { id: 4, name: "PJ", age: 28 },
+    { id: 5, name: "JE", age: 27 },
+    { id: 6, name: "JM", age: 32 },
+    { id: 7, name: "HI", age: 24 }
+  ];
+</script>
+
+`id`를 통해 한명의 `user`를 찾고 싶다.
+
+<script>
+  console.log(filter(users, function(user) { return user.id == 3 })[0]);
+  // { id: 3, name: "BJ", age: 32 }
+</script>
+
+만들었던 `filter`를 이용해 찾을 수 있다. 하지만 `filter` 함수는 `list.length` 만큼 `predicate`가 실행되기 때문에 효율적이지 못하다. 다음과 같은 코드가 효율적일 것이다.
+
+<script>
+  var user;
+  for (var i = 0, len = users.length; i < len; i++) {
+    if (users[i].id == 3) {
+      user = users[i];
+      break;
+    }
+  }
+  log(user); // { id: 3, name: "BJ", age: 32 }
+</script>
+
+위 로직을 함수로 만들면 재사용이 가능해진다.
+
+<script>
+  function find_by_id(list, id) {
+    for (var i = 0, len = list.length; i < len; i++)
+      if (list[i].id == id) return list[i];
+  }
+  log( find_by_id(users, 3) ); // { id: 3, name: "BJ", age: 32 }
+  log( find_by_id(users, 5) ); // { id: 5, name: "JE", age: 27 }
+</script>
+
+이번엔 이름으로도 찾고 싶다.
+
+<script>
+  function find_by_name(list, name) {
+    for (var i = 0, len = list.length; i < len; i++)
+      if (list[i].name == name) return list[i];
+  }
+  log( find_by_name(users, 'BJ') ); // { id: 3, name: "BJ", age: 32 }
+  log( find_by_name(users, 'JE') ); // { id: 5, name: "JE", age: 27 }
+</script>
+
+나이로 찾는 함수도 만들어 두고 싶어진다.
+
+<script>
+  function find_by_age(list, age) {
+    for (var i = 0, len = list.length; i < len; i++)
+      if (list[i].age == age) return list[i];
+  }
+  log( find_by_age(users, 28) ); // { id: 4, name: "PJ", age: 28 }
+  log( find_by_age(users, 25) ); // { id: 2, name: "HA", age: 25 }
+</script>
+
+함수로 만들어 `for` 와 `if` 등의 로직을 숨기고 코드도 줄였지만 뭔가 아쉽다. `find_by_id, find_by_name, find_by_age` 사이에 중복이 있기 때문이다. 결론 부터 얘기하면 위 함수는 함수형적이지 않다. 중복을 제거한 다음 코드도 역시 한계가 있다.
+
+<script>
+  function find_by(key, list, val) {
+    for (var i = 0, len = list.length; i < len; i++)
+      if (list[i][key] == val) return list[i];
+  }
+  log( find_by('name', users, 'BJ') ); // { id: 3, name: "BJ", age: 32 }
+  log( find_by('id', users, 2) ); // { id: 2, name: "HA", age: 25 }
+  log( find_by('age', users, 28) ); // { id: 4, name: "PJ", age: 28 }
+</script>
+
+코드가 거의 3분의 1로 줄었다. 아니 데이터가 `users, posts, comments, products` 등 앞으로 데이터의 key 값이 무엇이든지 간에 찾을 수 있는 함수이므로 훨씬 많은 경우를 대응할 수 있는 함수가 되었다. 하지만 다음과 같은 상황은 지원하지 못한다. 하지만 값을 메소드를 통해 얻어야하거나 두가지 이상의 조건이 필요하다면, 혹은 `==` 이 아니라면.
+
+<script>
+  function User(id, name, age) {
+    this.getId = function() {
+      return id;
+    };
+    this.getName = function() {
+      return name;
+    };
+    this.getAge = function() {
+      return age;
+    };
+  }
+
+  var users2 = [
+    new User(1, "CJ", 32),
+    new User(2, "HA", 25),
+    new User(3, "BJ", 32),
+    new User(4, "PJ", 28),
+    new User(5, "JE", 27),
+    new User(6, "JM", 32),
+    new User(7, "HI", 24)
+  ];
+
+  function find_by(key, list, val) {
+    for (var i = 0, len = list.length; i < len; i++)
+      if (list[i][key] == val) return list[i];
+  }
+
+  log( find_by('age', users2, 25) ); // undefined
+</script>
+
+getAge() 로 값을 얻어야하기 때문에 `find_by` 함수는 위 상황을 대응 할 수 없다. 또한 이름에 P가 포함되었다거나 나이가 32이면서 이름이 JM인 `user`를 찾고 싶다거나 하는것도 불가능하다. 나이가 30세 미만인 사람을 찾는 것도 `find_by`로는 할 수 없다. 보다 함수적인 프로그래밍을 해보자. `filter, map`과 같은 고차 함수로 만들면 거의 모든 상황에 대응 가능한 `find` 함수가 될 수 있다.
+
+<script>
+  function find(list, predicate) {
+    for (var i = 0, len = list.length; i < len; i++)
+      if (predicate(list[i])) return list[i];
+  }
+
+  log( find(users2, function(u) { return u.getAge('25') == 25 }).getName() );
+  // HA
+  log( find(users, function(u) { return u.name.indexOf('P') != -1 }) );
+  // { id: 4, name: "PJ", age: 28 }
+  log( find(users, function(u) { return u.age == 32 && u.name == 'JM' }) );
+  // { id: 6, name: "JM", age: 32 }
+  log( find(users2, function(u) { return u.getAge() < 30 }).getName() );
+  // HA
+</script>
+
+
+인자로 `string, number` 대신 `function`을 받도록 한 이 작은 차이는 실용적인 관점에서 비교할 수 없는 차이를 만들었다. `filter`와 `map` 역시 마찬가지이다. 단순히 함수형 자바스크립트의 실용성1의 예제 상황만을 줄인 코드가 아니다. `users`나 key/value 객체만을 위한 함수가 아닌 것이다. 함수형 프로그래밍은 다형성을 높이는 기법을 많이 사용하고 이는 실용성을 매우 높인다. 다형성을 높이면 안정성이 떨어질까? 함수형 프로그래밍은 상태를 변경하지 않음으로 안정성을 높인다. 또한 개발자는 데이터를 고차함수에게 넘길때 그 데이터의 형을 이미 알고 있다. 그리고 `predicate` 등의 보조 함수 역시 개발자가 넘기기 때문에 안정성을 보장하는데 문제가 없다.
+
+<script>
+
+  log(map(
+      filter(users2, function(u) { return u.getAge() > 30 }),
+      function (u) { return u.getName(); }));
+  // ["CJ", "BJ", "JM"];
+
+</script>
+
+`find`로 다시 돌아와 `badd` 같은 함수를 만들어 코드를 더 줄여보자.
+
+<script>
+  function bmatch1(key, val) {
+    return function(obj) {
+      return obj[key] == val;
+    }
+  }
+
+  log( find(users, bmatch1('id', 1)) ); // {id: 1, name: "CJ", age: 32}
+  log( find(users, bmatch1('name', 'HI')) ); // {id: 7, name: "HI", age: 24}
+  log( find(users, bmatch1('age', 27)) ); // {id: 5, name: "JE", age: 27}
+</script>
+
+`bmatch`의 실행결과는 함수이므로 `filter`나 `map`과도 조합이 가능하다.
+
+<script>
+  log( filter(users, bmatch1('age', 32)) );
+  // [{ id: 1, name: "CJ", age: 32}, { id: 3, name: "BJ", age: 32}, { id: 6, name: "JM", age: 32}]
+  log( map(users, bmatch1('age', 32)) );
+  // [true, false, true, false, false, true, false]
+</script>
+
+`bmatch1` 을 더 발전시켜보자.
+
+<script>
+  function object(key, val) {
+    var obj = {};
+    obj[key] = val;
+    return obj;
+  }
+  function match(obj, obj2) {
+    for (var key in obj2) if (obj[key] != obj2[key]) return false;
+    return true;
+  }
+  function bmatch(obj2, val) {
+    if (arguments.length == 2) obj2 = object(obj2, val);
+    return function(obj) {
+      return match(obj, obj2);
+    }
+  }
+
+  log(match(
+      find(users, bmatch('id', 3)),
+      find(users, bmatch('name', 'BJ'))) );
+  // true
+
+  log( find(users, function(u) { return u.age == 32 && u.name == 'JM' }) );
+  // { id: 6, name: "JM", age: 32 }
+  log( find(users, bmatch({ name: 'JM', age: 32 })) );
+  // { id: 6, name: "JM", age: 32 }
+</script>
+
+`bmatch1`을 발전시키면서 유용한 함수인 `match`와 `object`도 만들어졌다. 함수형 자바스크립트는 적은 기능을 하는 함수를 조합하거나 작은 수정을 통해 코드를 발전시켜나간다. `find` 를 조금만 고치면 값 비교만 하는 `Array.prototype.indexOf` 보다 풍성한 `find_index`를 만들 수 있다. `find_index` 역시 고차함수 이므로 다른 함수와 동일하게 조합 가능하다.
+
+<script>
+  function find_index(list, predicate) {
+    for (var i = 0, len = list.length; i < len; i++)
+      if (predicate(list[i])) return i;
+    return -1;
+  }
+
+  log( find_index(users, bmatch({ name: 'JM', age: 32 })) );
+  // 5
+  log( find_index(users, bmatch({ age: 36 })) );
+  // -1
+</script>
+
+## 고차함수
+
+앞서 구현했던 `map, filter, find, find_index, bvalue, bmatch` 같은 함수들은 고차함수다. 고차 함수란 함수를 값으로 다루거나 함수를 인자로 받아 사용하는 함수를 말한다. `map, filter, find, find_index` 모두 Underscorejs에 있는 함수다. 이름은 다르지만 `match, bmatch`도 있다. Underscorejs는 GitHub 별이 19,235개나 되는 유명한 함수형 자바스크립트 라이브러리다. `map, filter, find, find_index` 함수를 Underscorejs의 `_.map, _.filter, _.find, _.findIndex`에 좀더 가깝게 고쳐보면 다음과 같다.
+
+<script>
+  var _ = {};
+  _.map = function(list, iteratee) {
+    var new_list = [];
+    for (var i = 0, len = list.length; i < len; i++) {
+      new_list.push(iteratee(list[i], i, list));
+    }
+    return new_list;
+  };
+  _.filter = function(list, predicate) {
+    var new_list = [];
+    for (var i = 0, len = list.length; i < len; i++) {
+      if (predicate(list[i], i, list)) new_list.push(list[i]);
+    }
+    return new_list;
+  };
+  _.find = function(list, predicate) {
+    for (var i = 0, len = list.length; i < len; i++)
+      if (predicate(list[i], i, list)) return list[i];
+  };
+  _.findIndex = function(list, predicate) {
+    for (var i = 0, len = list.length; i < len; i++)
+      if (predicate(list[i], i, list)) return i;
+    return -1;
+  };
+</script>
+
+`iteratee`와 `predicate`함수에게 넘기는 인자가 더 많아졌다. `iteratee`나 `predicate`가 더 다양한 일을 할수 있게 하기 위해서다. 이제 `_.filter` 함수의 `predicate`에게 두번째 인자로 i가 넘어오므로 다음과 같은 함수조합이 가능해졌다.
+
+<script>
+  log(_.filter([1, 2, 3, 4], function(val, idx) {
+    return idx > 1;
+  }));
+  // [3, 4]
+
+  log(_.filter([1, 2, 3, 4], function(val, idx) {
+    return idx % 2;
+  }));
+  // [2, 4]
+</script>
+
+## _.identity = function(v) { return v; } 이건 어디다 쓰는거지?
+
+이상한 함수 하나를 소개한다. Underscorejs에 있는 함수이기도 하다.
+
+<script>
+  _.identity = function(v) { return v; };
+  var a = 10;
+  log(_.identity(a)); // 10
+</script>
+
+함수를 정의하고 실행해보았다. 받은 인자를 그냥 그대로 뱉는 함수다. 나는 이미 `a`가 10인줄 알고 있는데 _.identity 같은 아무런 기능이 없는 함수는 대체 언제 사용해야하는걸까? 다음을 보자.
+
+<script>
+  log(_.filter([true, 0, 10, 'a', false, null], _.identity));
+  // [true, 10, 'a']
+</script>
+
+`_.filter`를 `_.identity` 사용했더니 긍정적인 값만 남았다. 이렇게 놓고보니 생각보다 굉장히 실용적이다. `_.identity`를 다른 고차 함수와 조합하면 이런 함수들도 만들 수 있다.
+
+<script>
+  _.some = function(list) {
+    return !!_.find(list, _.identity);
+  };
+  _.every = function(list) {
+    return _.filter(list, _.identity).length == list.length;
+  };
+  log(_.some([0, null, 2])); // true
+  log(_.some([0, null, false])); // false
+
+  log(_.every([0, null, 2])); // false
+  log(_.every([{}, true, 2])); // true
+</script>
+
+`_.some` 은 배열에 들어 있는 값 중에 하나라도 긍정적인 값이 있으면 `true`를, 하나도 없다면 `false`를 리턴한다. `_.every` 는 모두 긍정적인 값이어야 true를 뱉는다. 그런데 사실 `_.every`는 뭔가 아쉽다. 정말 쓸모 없어 보이는 함수를 두개만 더 만들어서 로직을 개선해보자.
+
+<script>
+  function not(v) { return !v; }
+  function beq(a) {
+    return function(b) {
+      return a === b;
+    }
+  }
+</script>
+
+!를 써도 되는데 not이 왜 필요할까 싶다. === 로 비교하면 되는데 beq 역시 왜 필요할까 싶다. 굳이 함수로 만들었어야 할까. 다음을 보자.
+
+<script>
+  _.some = function(list) {
+    return !!_.find(list, _.identity);
+  };
+  _.every = function(list) {
+    return beq(-1)(_.findIndex(list, not));
+  };
+
+  log(_.some([0, null, 2])); // true
+  log(_.some([0, null, false])); // false
+  log(_.every([0, null, 2])); // false
+  log(_.every([{}, true, 2])); // true
+</script>
+
+우선 `_.every`는 `not`이 있어 `_.filter` 를 사용했을때보다 로직이 개선되었다. 좀더 함수를 쪼개보자. 최대한 한가지일만 하겠금 말이다.
+
+<script>
+  function find_by_idtt(list) {
+    return _.find(list, _.identity);
+  }
+  function find_i_by_not(list) {
+    return _.findIndex(list, not);
+  }
+  _.some = function(list) {
+    return not(not(find_by_idtt(list)));
+  };
+  _.every = function(list) {
+    return beq(-1)(find_i_by_not(list));
+  };
+
+  log(_.some([0, null, 2])); // true
+  log(_.some([0, null, false])); // false
+  log(_.every([0, null, 2])); // false
+  log(_.every([{}, true, 2])); // true
+</script>
+
+Underscorejs의 _.compose와 함께 사용해보자.
+_.compose는 맨 오른쪽의 함수를 실행한 결과를 바로 왼쪽의 함수에게 전달하고 그 함수의 실행결과는 또 왼쪽의 함수에게 전달되도록 하는 고차함수다.
+
+<script>
+  _.compose = function () {
+    var args = arguments;
+    var start = args.length - 1;
+    return function () {
+      var i = start;
+      var result = args[start].apply(this, arguments);
+      while (i--) result = args[i].call(this, result);
+      return result;
+    };
+  };
+  var greet = function(name){ return "hi: " + name; };
+  var exclaim = function(statement){ return statement.toUpperCase() + "!"; };
+  var welcome = _.compose(greet, exclaim);
+  welcome('moe');
+  // 'hi: MOE!'
+</script>
+
+<script>
+  function find_by_idtt(list) {
+    return _.find(list, _.identity);
+  }
+  function find_i_by_not(list) {
+    return _.findIndex(list, not);
+  }
+  _.some = _.compose(not, not, find_by_idtt);
+  _.every = _.compose(beq(-1), find_i_by_not);
+
+  log(_.some([0, null, 2])); // true
+  log(_.some([0, null, false])); // false
+  log(_.every([0, null, 2])); // false
+  log(_.every([{}, true, 2])); // true
+</script>
+
+_.compose와 같은 함수합성기법을 자주 사용하면서 코딩을 하면 코드를 짧게 할 수 있고, 인자와 변수가 보이지 않게 하여 함수들의 순수성을 높일 수 있다. 부수효과를 최소화하게 된다. 순수함수들만 사용한다면 더더욱 그렇다. 나중에 읽기 쉽다. 오른쪽에서 왼쪽 방향으로 하나씩 무슨일을 하는지 인자와 결과만을 생각하면서 보면 되기 때문이다.
+
+--------------
+
+[함수형 자바스크립트의 실용성 1] (https://github.com/marpple/abc-functional-javascript/tree/master/docs)
+
+[다른 글 모두 보기] (https://github.com/marpple/abc-functional-javascript/tree/master/docs)
+
+
+
+</body>
+</html>

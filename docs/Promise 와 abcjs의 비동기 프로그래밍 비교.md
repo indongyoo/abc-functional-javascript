@@ -246,7 +246,6 @@ abcjs는 실행될 모든 함수를 미리 받아 재귀만으로 함수들을 �
 
 Promise와 abcjs의 대표적인 부분들을 비교해보았다. abcjs는 Promise를 대체하기 위해 만들어진 라이브러리가 아니다. abcjs는 앞서 설명한 것처럼 Promise를 파이프라인 내부에서도 지원하고 결과 값으로 약식 then을, 정식 Promise가 있다면 정식 then을 리턴한다. 나는 abcjs가 Browser, NodeJS 등 안에서 때로는 즉시, 때로는 Promise, 때로는 Deferred Object, callback, iteratee, predicate, Event, Notification 등의 각기 다른 API를 가진 수많은 기술(gm, AWS, jQuery, React, Angular, Backbone, underscore, pg, async, await)들을 연결하고 제어하는데 효과적일 것이라 생각한다. 필요하다면 사용을 검토해보길 추천한다.
 
-
 참고 링크
 - [자바스크립트의 약속(Promise): 1부 의문점] (https://gamecodingschool.org/2015/05/23/%EC%9E%90%EB%B0%94%EC%8A%A4%ED%81%AC%EB%A6%BD%ED%8A%B8%EC%9D%98-%EC%95%BD%EC%86%8Dpromise-1%EB%B6%80-%EC%9D%98%EB%AC%B8%EC%A0%90/)
 - [자바스크립트의 약속(Promise): 2부 비교] (https://gamecodingschool.org/2015/05/28/%EC%9E%90%EB%B0%94%EC%8A%A4%ED%81%AC%EB%A6%BD%ED%8A%B8%EC%9D%98-%EC%95%BD%EC%86%8Dpromise-2%EB%B6%80-%EB%B9%84%EA%B5%90/)
@@ -254,7 +253,6 @@ Promise와 abcjs의 대표적인 부분들을 비교해보았다. abcjs는 Promi
 - [abcjs 콜백] (https://github.com/marpple/abc-functional-javascript/blob/master/example/05.%20Async%20(callback).html)
 - [abcjs Promise] (https://github.com/marpple/abc-functional-javascript/blob/master/example/06.%20Async-2%20(Promise).html)
 - [bluebirdjs] (http://bluebirdjs.com/docs/getting-started.html)
-
 
 --------------
 

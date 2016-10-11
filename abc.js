@@ -36,9 +36,54 @@
       ex_par[0].replace(/(?:\b[A-Z]|\.[a-zA-Z_$])[a-zA-Z_$\d]*|[a-zA-Z_$][a-zA-Z_$\d]*\s*:|this|arguments|'(?:[^'\\]|\\.)*'|"(?:[^"\\]|\\.)*"/g, '').match(/([a-z_$][a-z_$\d]*)/gi) || [],
       'return (' + ex_par[1] + ')');
   };
+
+  C.is_string = C.isString = _.isString;
+  C.is_array = C.isArray = Array.isArray || function(obj) { return toString.call(obj) === '[object Array]'; };
+  C.is_object = C.isObject = _.isObject;
+  var MAX_ARRAY_INDEX = Math.pow(2, 53) - 1;
+  C.is_array_like = C.isArrayLike = function(collection) {
+    var length = collection && collection.length;
+    return typeof length == 'number' && length >= 0 && length <= MAX_ARRAY_INDEX;
+  };
+  C.wrapArray = C.wrap_arr = function(v) { return C.isArray(v) ? v : [v]; };
+  var slice = Array.prototype.slice;
+  C.rest = function(array, n, guard) { return slice.call(array, n == null || guard ? 1 : n); };
+  C.values = function(obj) {
+    var keys = _.keys(obj), length = keys.length, values = Array(length);
+    for (var i = 0; i < length; i++) values[i] = obj[keys[i]];
+    return values;
+  };
+  C.toArray = C.to_array = C.toArray = function(obj) {
+    if (!obj) return [];
+    if (C.isArray(obj)) return slice.call(obj);
+    return C.values(obj);
+  };
+  C.object = function(list, values) {
+    for (var result = {}, i = 0, length = list.length; i < length; i++) {
+      if (values) result[list[i]] = values[i];
+      else result[list[i][0]] = list[i][1];
+    }
+    return result;
+  };
+
+  function base_ex_de(is_de, obj1/* objs... */) {
+    if (obj1) return function ex_de_recursive(result, args, i) {
+      var shift = args[i];
+      if (!shift) return result;
+      if (!is_de) for (var key in shift) result[key] = shift[key];
+      else for (var key in shift) if (!result.hasOwnProperty(key)) result[key] = shift[key];
+      return ex_de_recursive(result, args, i+1);
+    }(obj1, arguments, 2);
+  }
+  C.extend = function() { return base_ex_de.apply(null, [false].concat(C.toArray(arguments))); };
+  C.defaults = function() { return base_ex_de.apply(null, [true].concat(C.toArray(arguments))); };
+  C.clone = function(obj) {
+    return !C.isObject(obj) ? obj : C.isArray(obj) ? obj.slice() : C.extend({}, obj);
+  };
+
   C.method = C.m = method; // for method
   C.args = function() { return arguments; };
-  C.arr_or_args_to_arr = IF(_.isArray, I).ELSE([C.args, _.toArray]);
+  C.arr_or_args_to_arr = IF(C.isArray, I).ELSE([C.args, C.toArray]);
   C.val = C.v = getValue; // get value with string
   C.args.trim = function(args) { return args.length == 1 && args[0] === undefined ? [] : args; };
   B.args = function(idx) {
@@ -53,8 +98,6 @@
   };
   C.unset = function(obj, key) { var val = obj[key]; delete obj[key]; return MR(val, key, obj); };
   C.remove = function(arr, remove) { return MR(remove, removeByIndex(arr, arr.indexOf(remove)), arr); };
-  C.extend = _.extend;
-  C.defaults = _.defaults;
   C.pop = function(arr) { return MR(arr.pop(), arr.length, arr); };
   C.shift = function(arr) { return MR(arr.shift(), 0, arr); };
   C.push = function(arr, itemOrFunc) {
@@ -69,7 +112,7 @@
     return C.reduce(selector.split(/\s*->\s*/), start, function (mem, key) {
       return !key.match(/^\((.+)\)/) ? !key.match(/\[(.*)\]/) ? mem[key] : function(mem, numbers) {
         if (numbers.length > 2 || numbers.length < 1 || C.filter(numbers, [I, isNaN]).length) return ERR('[] selector in [num] or [num ~ num]');
-        var s = numbers[0], e = numbers[1]; return !e ? mem[s<0 ? mem.length+s : s] : Array.prototype.slice.call(mem, s<0 ? mem.length+s : s, e<0 ? mem.length+e : e + 1);
+        var s = numbers[0], e = numbers[1]; return !e ? mem[s<0 ? mem.length+s : s] : slice.call(mem, s<0 ? mem.length+s : s, e<0 ? mem.length+e : e + 1);
       }(mem, C.map(RegExp.$1.replace(/\s/g, '').split('~'), [I, parseInt])) : C.find(mem, C.lambda(RegExp.$1));
     });
   }, {
@@ -87,27 +130,27 @@
       return toMR([start].concat(C.remove(C.sel(start, _arr.slice(0, _arr.length - 1).join('->')), C.sel(start, selector))));
     },
     extend: function(start, selector/*, objs*/) {
-      return toMR([start].concat(C.extend.apply(null, [C.sel(start, selector)].concat(_.toArray(arguments).slice(2, arguments.length)))));
+      return toMR([start].concat(C.extend.apply(null, [C.sel(start, selector)].concat(C.toArray(arguments).slice(2, arguments.length)))));
     },
     defaults: function(start, selector/*, objs*/) {
-      return toMR([start].concat(C.defaults.apply(null, [C.sel(start, selector)].concat(_.toArray(arguments).slice(2, arguments.length)))));
+      return toMR([start].concat(C.defaults.apply(null, [C.sel(start, selector)].concat(C.toArray(arguments).slice(2, arguments.length)))));
     },
     pop: function(start, selector) { return toMR([start].concat(C.pop(C.sel(start, selector)))); },
     shift: function(start, selector) { return toMR([start].concat(C.shift(C.sel(start, selector)))); },
     push: function (start, selector, item) { return toMR([start].concat(C.push(C.sel(start, selector), item))); },
     unshift: function (start, selector, item) { return toMR([start].concat(C.unshift(C.sel(start, selector), item))); },
     im: C.extend(function (start, selector) {
-      var im_start = _.clone(start);
+      var im_start = C.clone(start);
       return {
         start: im_start,
         selected: C.reduce(selector.split(/\s*->\s*/), im_start, function(clone, key) {
-          return !key.match(/^\((.+)\)/) ? /*start*/(!key.match(/\[(.*)\]/) ? clone[key] = _.clone(clone[key]) : function(clone, numbers) {
+          return !key.match(/^\((.+)\)/) ? /*start*/(!key.match(/\[(.*)\]/) ? clone[key] = C.clone(clone[key]) : function(clone, numbers) {
             if (numbers.length > 2 || numbers.length < 1 || C.filter(numbers, [I, isNaN]).length) return ERR('[] selector in [num] or [num ~ num]');
-            var s = numbers[0], e = numbers[1]; return !e ? clone[s] = _.clone(clone[s<0 ? clone.length+s : s]) : function(clone, oris) {
-              return _.each(oris, function(ori) { clone[clone.indexOf(ori)] = _.clone(ori); });
-            }(clone, Array.prototype.slice.call(clone, s<0 ? clone.length+s : s, e<0 ? clone.length+e : e + 1));
+            var s = numbers[0], e = numbers[1]; return !e ? clone[s] = C.clone(clone[s<0 ? clone.length+s : s]) : function(clone, oris) {
+              return _.each(oris, function(ori) { clone[clone.indexOf(ori)] = C.clone(ori); });
+            }(clone, slice.call(clone, s<0 ? clone.length+s : s, e<0 ? clone.length+e : e + 1));
           }(clone, C.map(RegExp.$1.replace(/\s/g, '').split('~'), [I, parseInt])))/*end*/ :
-            function(clone, ori) { return clone[clone.indexOf(ori)] = _.clone(ori); } (clone, C.find(clone, C.lambda(RegExp.$1)))
+            function(clone, ori) { return clone[clone.indexOf(ori)] = C.clone(ori); } (clone, C.find(clone, C.lambda(RegExp.$1)))
         })
       };
     }, {
@@ -126,11 +169,11 @@
       },
       extend: function(start, selector/*, objs*/) {
         var im = C.sel.im(start, selector);
-        return toMR([im.start].concat(C.extend.apply(null, [im.selected].concat(_.toArray(arguments).slice(2, arguments.length)))));
+        return toMR([im.start].concat(C.extend.apply(null, [im.selected].concat(C.toArray(arguments).slice(2, arguments.length)))));
       },
       defaults: function(start, selector/*, objs*/) {
         var im = C.sel.im(start, selector);
-        return toMR([im.start].concat(C.defaults.apply(null, [im.selected].concat(_.toArray(arguments).slice(2, arguments.length)))));
+        return toMR([im.start].concat(C.defaults.apply(null, [im.selected].concat(C.toArray(arguments).slice(2, arguments.length)))));
       },
       pop: function(start, selector) {
         var im = C.sel.im(start, selector);
@@ -154,8 +197,8 @@
   B.remove = function(remove) { return B(X, remove, C.remove); };
   B.unset = function(key) { return B(X, key, C.unset); };
   B.set = function(key, value) { return B(X, key, value, C.set); };
-  B.extend = function() { var args = _.toArray(arguments); return B.apply(null, [X].concat(args).concat(C.extend)); };
-  B.defaults = function() { var args = _.toArray(arguments); return B.apply(null, [X].concat(args).concat(C.defaults)); };
+  B.extend = function() { var args = C.toArray(arguments); return B.apply(null, [X].concat(args).concat(C.extend)); };
+  B.defaults = function() { var args = C.toArray(arguments); return B.apply(null, [X].concat(args).concat(C.defaults)); };
 
   B.sel = B.select = function(selector) { return B(X, selector, C.sel) };
   B.sel.set = B('set', B_sel_func);
@@ -171,29 +214,24 @@
   B.sel.im.extend = B('im.extend', B_sel_func);
   B.sel.im.defaults = B('im.defaults', B_sel_func);
 
-  function B_sel_func(what, selector) { var args = _.rest(arguments); return B.apply(null, [X].concat(args).concat(C.val(C.sel, what))); }
+  function B_sel_func(what, selector) { var args = C.rest(arguments); return B.apply(null, [X].concat(args).concat(C.val(C.sel, what))); }
 
-  function A(args, func) { return C.apply(arguments[2] || this, _.toArray(args).concat([func])); }
+  function A(args, func) { return C.apply(arguments[2] || this, C.toArray(args).concat([func])); }
 
   function each(list, iter) {
     for (var i = 0, length = list.length; i < length ;i++) iter(list[i], i, list);
     return list;
   }
-
   function map(list, iter) {
-    var list2 = [];
-    for (var i = 0, length = list.length; i < length ;i++) list2.push(iter(list[i], i, list));
-    return list2;
+    for (var l2 = [], i = 0, length = list.length; i < length ;i++) l2.push(iter(list[i], i, list));
+    return l2;
   }
 
-  function wrap_arr(v) { return _.isArray(v) ? v : [v]; }
-  C.wrapArray = C.wrap_arr = wrap_arr;
-
   function base_B(args, is_bp2) {
-    args = _.toArray(args);
-    var fns = C.lambda == I ? args.pop() : map(I2(wrap_arr(args.pop())), C.lambda);
+    args = C.toArray(args);
+    var fns = C.lambda == I ? args.pop() : map(C.wrap_arr(args.pop()), C.lambda);
     return function() {
-      var args3 = _.clone(args);
+      var args3 = C.clone(args);
       for (var i = 0, length = arguments.length; i < length; i++) {
         var arg2 = arguments[i];
         var idx = args3.indexOf(X);
@@ -205,13 +243,13 @@
 
   function B() { return base_B(arguments); }
 
-  function B2() { return base_B([_.toArray(arguments)]); }
+  function B2() { return base_B([C.toArray(arguments)]); }
 
   B.indent = function() { return base_B(arguments, true); };
-  B2.indent = function() { return base_B([_.toArray(arguments)], true); };
+  B2.indent = function() { return base_B([C.toArray(arguments)], true); };
   B.args_pass = function(fn) { return B2(C.args, B.all(I, [toMR].concat(fn)), C.args, B.v('0'), toMR); };
   B.val = B.v = B.V = function(key) { return B(X, key, getValue); };
-  B.method = B.m = B.M = function() { return B.apply(void 0, [X].concat(_.toArray(arguments)).concat(method)); };
+  B.method = B.m = B.M = function() { return B.apply(void 0, [X].concat(C.toArray(arguments)).concat(method)); };
   B.map = function(iter) {
     return B(
       function(result, list, keys, i, res) {  // body
@@ -229,21 +267,21 @@
   var all_map = B.map(function(val_fn, k, l, args) { return A(args, val_fn, this); });
   var spread_map = B.map(function(v, k, l, fns) { return A([v], fns[k] || I, this); });
   B.all = function() {
-    var fns = _.toArray(arguments);
+    var fns = C.toArray(arguments);
     return function() {
-      return A([fns, _.toArray(arguments)], [all_map, arg_add_arr, spread_args, toMR], this);
+      return A([fns, C.toArray(arguments)], [all_map, arg_add_arr, spread_args, toMR], this);
     };
   };
   B.spread = function() {
-    var fns = _.toArray(arguments);
+    var fns = C.toArray(arguments);
     return function() {
-      var args = _.toArray(arguments);
+      var args = C.toArray(arguments);
       while (args.length < fns.length) args.push(void 0);
       return A([args, fns], [spread_map, arg_add_arr, spread_args, toMR], this);
     };
   };
-  var c_if = IF(function() { return arguments.length > 2; }, MR).ELSE(B.all([I, _.rest], B.v('0'), C.args1));
-  var b_if = IF(function() { return arguments.length > 1; }, MR).ELSE(B.all([I, _.rest], B.v('0')));
+  var c_if = IF(function() { return arguments.length > 2; }, MR).ELSE(B.all([I, C.rest], B.v('0'), C.args1));
+  var b_if = IF(function() { return arguments.length > 1; }, MR).ELSE(B.all([I, C.rest], B.v('0')));
   B.reduce = function(iter) {
     return B([iter == null ? c_if : b_if,
       B(function(result, list, keys, i, res, tmp, args) {
@@ -255,7 +293,7 @@
         C.lambda(iter),   // iter_or_predi
         function(list, keys, i, res, args) { // params
           var key = keys ? keys[i] : i;
-          return [res, list[key], key, list].concat(_.rest(args));
+          return [res, list[key], key, list].concat(C.rest(args));
         },
         base_loop_fn)]);
   };
@@ -375,7 +413,7 @@
       base_loop_fn);
   };
   B.tap = function() {
-    var fns = _.toArray(arguments);
+    var fns = C.toArray(arguments);
     return function() { return A(arguments, fns.concat([J(arguments), toMR]), this); };
   };
   B.boomerang = function() { // fork
@@ -400,9 +438,9 @@
   }
   function base_loop_fn(body, end_q, end, complete, iter_or_predi, params) {
     var context = this;
-    var args = _.rest(arguments, 6);
+    var args = C.rest(arguments, 6);
     var list = args.shift();
-    var keys = _.isArray(list) ? null : _.keys(list);
+    var keys = C.isArrayLike(list) ? null : _.keys(list);
     iter_or_predi = iter_or_predi || C.lambda(args.pop());
     var length = (keys || list).length;
     var result = [], tmp = [];
@@ -418,10 +456,10 @@
     })(0);
   }
 
-  F.CB = window.CB = B2(C.arr_or_args_to_arr, B.map([I, B(X, {_ABC_is_cb: true}, _.extend)]), B);
-  F.JCB = window.JCB = B(X, {_ABC_just_cb: true}, _.extend);
+  F.CB = window.CB = B2(C.arr_or_args_to_arr, B.map([I, B(X, {_ABC_is_cb: true}, C.extend)]), B);
+  F.JCB = window.JCB = B(X, {_ABC_just_cb: true}, C.extend);
 
-  function isMR(arg) { return _.isArray(arg) && arg._ABC_is_returns; }
+  function isMR(arg) { return C.isArray(arg) && arg._ABC_is_returns; }
   function isERR(err) {
     err = isMR(err) ? err[0] : err;
     return err && err.constructor == Error && err._ABC_is_err;
@@ -446,9 +484,9 @@
 
   function C() {
     var context = this;
-    var args = _.toArray(arguments);
-    if (!_.isArray(args[args.length - 1])) args[args.length - 1] = [args[args.length - 1]];
-    var fns = I2(args.pop());
+    var args = C.toArray(arguments);
+    if (!C.isArray(args[args.length - 1])) args[args.length - 1] = [args[args.length - 1]];
+    var fns = args.pop();
     if (args.length == 1 && isMR(args[0])) args = args[0];
 
     var i = 0, promise = null, resolve = null, fns_len = fns.length;
@@ -470,24 +508,21 @@
       return promise;
     })(toMR(args));
   }
-  function C2() { return C(_.toArray(arguments)); }
+  function C2() { return C(C.toArray(arguments)); }
 
   function MRI(res) { return isMR(res) ? res : [res]; }
   function ERR(err, data) {
     setTimeout(function() { err._ABC_caught || C.error(err); }, 500);
-    return err = _.extend(err.constructor == Error ? err : new Error(err), data, {_ABC_is_err: true});
+    return err = C.extend(err.constructor == Error ? err : new Error(err), data, {_ABC_is_err: true});
   }
-
   F.ERR = window.ERR = ERR;
-
   F.CATCH = window.CATCH = function(f) {
-    return _.extend(function(err) { return (err._ABC_caught = true) && f.apply(this, arguments); },
+    return C.extend(function(err) { return (err._ABC_caught = true) && f.apply(this, arguments); },
       {_ABC_is_catch: true, _ABC_is_cb: f._ABC_is_cb, _ABC_just_cb: f._ABC_just_cb});
   };
 
   C.each = B.each(null);
   C.map = B.map(null);
-  var _reduce = B.reduce(null);
   C.reduce = B.reduce(null);
   C.filter = B.filter(null);
   C.reject = B.reject(null);
@@ -497,7 +532,6 @@
   C.some = B.some(null);
   C.every = B.every(null);
   C.uniq = B.uniq(null);
-  C.toArray = C.to_array = _.toArray;
 
   C.add = B2(C.arr_or_args_to_arr, B.reduce('(a, b) => a + b'));
   C.sub = B2(C.arr_or_args_to_arr, B.reduce('(a, b) => a - b'));
@@ -521,14 +555,9 @@
   C.neq = B2(C.eq, C.not);
   C.sneq = B2(C.seq, C.not);
 
-  C.log = window.console && window.console.log ? console.log.bind(console) : I;
-  C.error = window.console && window.console.error ? console.error.bind(console) : I;
+  C.log = window.console && window.console.log ? console.log.bind ? console.log.bind(console) : function() { console.log.apply(console, arguments); } : I;
+  C.error = window.console && window.console.error ? console.error.bind ? console.error.bind(console) : function() { console.error.apply(console, arguments); } : I;
   C.hi = B.args_pass(C.log);
-
-  C.isString = _.isString;
-  C.isArray = _.isArray;
-  C.isObject = _.isObject;
-  C.isArrayLike = _.isArrayLike;
 
   !function(B, C, notices) {
     C.noti = C.Noti = C.notice =  {
@@ -542,20 +571,20 @@
     B.noti = B.Noti = B.notice = {
       on: function() {
         var args = arguments;
-        return function(func) { return A(args.length === 3 ? args :  _.isFunction(func) ? _.toArray(args).concat(func) : args, on); };
+        return function(func) { return A(args.length === 3 ? args :  _.isFunction(func) ? C.toArray(args).concat(func) : args, on); };
       },
       once: function(func) {
         var args = arguments;
-        return function(func) { return A(_.toArray(args.length === 3 ? args :  _.isFunction(func) ? _.toArray(args).concat(func) : args).concat([true]), on) };
+        return function(func) { return A(C.toArray(args.length === 3 ? args :  _.isFunction(func) ? C.toArray(args).concat(func) : args).concat([true]), on) };
       },
-      off: function() { return B.apply(null, _.toArray(arguments).concat(off)); },
+      off: function() { return B.apply(null, C.toArray(arguments).concat(off)); },
       emit: function() {
         var args = arguments;
-        return function(args2) { return A(args.length == 3 ? args : _.isArray(args2) ? _.toArray(args).concat([args2]) : args, emit) };
+        return function(args2) { return A(args.length == 3 ? args : C.isArray(args2) ? C.toArray(args).concat([args2]) : args, emit) };
       },
       emitAll: function() {
         var args = arguments;
-        return function(args2) { return A(args.length == 2 ? args : _.isArray(args2) ? _.toArray(args).concat([args2]) : args, emitAll) };
+        return function(args2) { return A(args.length == 2 ? args : C.isArray(args2) ? C.toArray(args).concat([args2]) : args, emitAll) };
       }
     }; B.noti.emit_all = emitAll;
 
@@ -617,7 +646,7 @@
   function F(nodes) {
     var f = getValue(G, nodes);
     var err = Error('warning: ' + nodes + ' is not defined');
-    return f || setTimeout(function() { (f = f || getValue(G, nodes)) || C.error(err) }, 0)
+    return f || setTimeout(function() { (f = f || getValue(G, nodes)) || C.error(err) }, 500)
       && function() { return A(arguments, f || (f = getValue(G, nodes)), this); }
   }
 
@@ -632,18 +661,14 @@
     return space_length / H.TAB_SIZE + tab_length;
   }
 
-  function H(var_names/*, source...*/) {
-    return s.apply(null, [H, 'H', convert_to_html].concat(_.toArray(arguments)));
-  }
-
-  H.each = function(var_names/*, source...*/) { return s_each.apply(null, [H].concat(_.toArray(arguments))); };
-
+  function H() { return s.apply(null, [H, 'H', convert_to_html].concat(C.toArray(arguments))); }
+  H.each = function() { return s_each.apply(null, [H].concat(C.toArray(arguments))); };
   H._ABC_func_storage = {};
 
   function s(func, obj_name, option, var_names/*, source...*/) {      // used by H and S
-    var args = _.toArray(arguments);
+    var args = C.toArray(arguments);
     if (args.length == 4) (args[4] = args[3]) && (var_names = args[3] = '$');
-    var source = C.map(_.rest(args, 4), function(str_or_func) {
+    var source = C.map(C.rest(args, 4), function(str_or_func) {
       if (_.isString(str_or_func)) return str_or_func;
 
       var key = _.uniqueId("_ABC_func_storage");
@@ -652,15 +677,15 @@
     }).join("");
 
     return function() {
-      var data = var_names ? _.object(var_names.match(/[\w\$]+/g), _.toArray(arguments)) : void 0;
+      var data = var_names ? C.object(var_names.match(/[\w\$]+/g), C.toArray(arguments)) : void 0;
       return C(source, data, [remove_comment, unescaped_exec, option, insert_datas1, insert_datas2, I]);
     };
   }
 
   function s_each(func, var_names/*, source...*/) {     // used by H.each and S.each
-    var map = B.map(func.apply(null, _.rest(arguments)));
+    var map = B.map(func.apply(null, C.rest(arguments)));
     return function(ary /*, args...*/) {
-      return A([ary].concat(_.rest(arguments)), [map, function(res) { return res.join(""); }]);
+      return A([ary].concat(C.rest(arguments)), [map, function(res) { return res.join(""); }]);
     };
   }
 
@@ -756,22 +781,17 @@
 
   function end_tag(tag) { return '</' + tag + '>'; }
 
-  function return_check(val) {
-    return (val == null || val == void 0) ? '' : val;
-  }
-
+  function return_check(val) { return (val == null || val == void 0) ? '' : val; }
   /* H end */
 
   function I(v) { return v; }
-  function I2(v) { return v; }
 
   function IF(predicate, fn) {
     var store = [fn ? [predicate, fn] : [I, predicate]];
-    return _.extend(IF, {
+    return C.extend(IF, {
       ELSEIF: function(predicate, fn) { return store.push(fn ? [predicate, fn] : [I, predicate]) && IF; },
       ELSE: function(fn) { return store.push([J(true), fn]) && IF; }
     });
-
     function IF() {
       var context = this, args = arguments;
       return C(store, args, [
@@ -780,39 +800,29 @@
       ]);
     }
   }
-
   F.IF = window.IF = IF;
 
   function J(v) { return function() { return v; }; }
-
   J.t = J.true = J(true);
   J.f = J.false = J(false);
   function JU() {}
   J.u = J.noop = JU;
 
-  function method(obj, method) { return obj[method].apply(obj, _.rest(arguments, 2)); }
+  function method(obj, method) { return obj[method].apply(obj, C.rest(arguments, 2)); }
 
   function MR(arg) {
     if (arguments.length <= 1) return arg;
-    if (_.isArray(arg) && arg._ABC_is_returns) return arg;
-    return _.extend(_.toArray(arguments), {_ABC_is_returns: true});
+    if (C.isArray(arg) && arg._ABC_is_returns) return arg;
+    return C.extend(C.toArray(arguments), {_ABC_is_returns: true});
   }
-
   function toMR(arg) {
-    if (_.isArray(arg) && arg._ABC_is_returns) return arg;
-    return _.extend(_.values(arg), {_ABC_is_returns: true});
+    if (C.isArray(arg) && arg._ABC_is_returns) return arg;
+    return C.extend(C.values(arg), {_ABC_is_returns: true});
   }
-
   C.toMR = window.toMR = toMR;
 
-  function S(var_names/*, source...*/) {
-    return s.apply(null, [S, 'S', function(s, d) { return MR(s, d); }].concat(_.toArray(arguments)));
-  }
-
-  S.each = function(var_names/*, source...*/) {
-    return s_each.apply(null, [S].concat(_.toArray(arguments)));
-  };
-
+  function S() { return s.apply(null, [S, 'S', function(s, d) { return MR(s, d); }].concat(C.toArray(arguments))); }
+  S.each = function() { return s_each.apply(null, [S].concat(C.toArray(arguments))); };
   S._ABC_func_storage = {};
 
   function getValue(obj, key, keys) {
@@ -826,102 +836,11 @@
   function hasPromise() { return hasPromise.__cache || (hasPromise.__cache = !!getValue(window, 'Promise.prototype.then')); }
 }(typeof global == 'object' && global.global == global && (global.G = global) || window);
 
-
-// Underscore.js 1.8.
-// http://underscorejs.org
+// Underscore.js 1.8. http://underscorejs.org
 // (c) 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
 // Underscore may be freely distributed under the MIT license.
 function respect_underscore(_) {
-  var ArrayProto = Array.prototype, ObjProto = Object.prototype;
-  var slice = ArrayProto.slice, toString = ObjProto.toString, hasOwnProperty = ObjProto.hasOwnProperty;
-  var nativeIsArray = Array.isArray, nativeKeys = Object.keys;
-
-  var optimizeCb = function(func, context, argCount) {
-    if (context === void 0) return func;
-    switch (argCount == null ? 3 : argCount) {
-      case 1: return function(value) {
-        return func.call(context, value);
-      };
-      case 2: return function(value, other) {
-        return func.call(context, value, other);
-      };
-      case 3: return function(value, index, collection) {
-        return func.call(context, value, index, collection);
-      };
-      case 4: return function(accumulator, value, index, collection) {
-        return func.call(context, accumulator, value, index, collection);
-      };
-    }
-    return function() {
-      return func.apply(context, arguments);
-    };
-  };
-
-  var cb = function(value, context, argCount) {
-    if (value == null) return I;
-    if (_.isFunction(value)) return optimizeCb(value, context, argCount);
-    if (_.isObject(value)) return _.matcher(value);
-    return B.v(value);
-  };
-
-  _.property = function(key) { return function(obj) { return obj == null ? void 0 : obj[key]; }; };
-
-  var MAX_ARRAY_INDEX = Math.pow(2, 53) - 1;
-  var getLength = function(obj) { return obj.length; };
-  _.isArrayLike = function(collection) {
-    var length = getLength(collection);
-    return typeof length == 'number' && length >= 0 && length <= MAX_ARRAY_INDEX;
-  };
-
-  _.contains = function(obj, item, fromIndex, guard) {
-    if (!_.isArrayLike(obj)) obj = _.values(obj);
-    if (typeof fromIndex != 'number' || guard) fromIndex = 0;
-    return _.indexOf(obj, item, fromIndex) >= 0;
-  };
-
-  _.toArray = function(obj) {
-    if (!obj) return [];
-    if (_.isArray(obj)) return slice.call(obj);
-    return _.values(obj);
-  };
-
-  _.rest = function(array, n, guard) {
-    return slice.call(array, n == null || guard ? 1 : n);
-  };
-
-  _.object = function(list, values) {
-    var result = {};
-    for (var i = 0, length = getLength(list); i < length; i++) {
-      if (values) result[list[i]] = values[i];
-      else result[list[i][0]] = list[i][1];
-    }
-    return result;
-  };
-
-  _.findIndex = function(array, predicate, context) {
-    for (var i = 0, predicate = cb(predicate, context), length = getLength(array); i >= 0 && i < length; i += 1)
-      if (predicate(array[i], i, array)) return i;
-    return -1;
-  };
-
-  _.indexOf = (function(dir, predicateFind, sortedIndex) {
-    return function(array, item, idx) {
-      var i = 0, length = getLength(array);
-      if (typeof idx == 'number') {
-        if (dir > 0) i = idx >= 0 ? idx : Math.max(idx + length, i);
-        else length = idx >= 0 ? Math.min(idx + 1, length) : idx + length + 1;
-      } else if (sortedIndex && idx && length) {
-        idx = sortedIndex(array, item);
-        return array[idx] === item ? idx : -1;
-      }
-      if (item !== item) {
-        idx = predicateFind(slice.call(array, i, length), _.isNaN);
-        return idx >= 0 ? idx + i : -1;
-      }
-      for (idx = dir > 0 ? i : length - 1; idx >= 0 && idx < length; idx += dir) if (array[idx] === item) return idx;
-      return -1;
-    };
-  })(1, _.findIndex, _.sortedIndex);
+  var nativeKeys = Object.keys, toString = Object.prototype.toString, hasOwnProperty = Object.prototype.hasOwnProperty;
 
   _.keys = function(obj) {
     if (!_.isObject(obj)) return [];
@@ -930,38 +849,6 @@ function respect_underscore(_) {
     for (var key in obj) if (_.has(obj, key)) keys.push(key);
     return keys;
   };
-
-  _.values = function(obj) {
-    var keys = _.keys(obj), length = keys.length, values = Array(length);
-    for (var i = 0; i < length; i++) values[i] = obj[keys[i]];
-    return values;
-  };
-
-  function base_ex_de(is_de, obj1/* objs... */) {
-    if (obj1) return function ex_de_recursive(result, args, i) {
-      var shift = args[i];
-      if (!shift) return result;
-      if (!is_de) for (var key in shift) result[key] = shift[key];
-      else for (var key in shift) if (!result.hasOwnProperty(key)) result[key] = shift[key];
-      return ex_de_recursive(result, args, i+1);
-    }(obj1, arguments, 2);
-  }
-
-  _.extend = function(obj) {
-    return base_ex_de.apply(null, [false].concat(_.toArray(arguments)));
-  };
-
-  _.defaults = function(obj) {
-    return base_ex_de.apply(null, [true].concat(_.toArray(arguments)));
-  };
-
-  _.clone = function(obj) {
-    if (!_.isObject(obj)) return obj;
-    return _.isArray(obj) ? obj.slice() : _.extend({}, obj);
-  };
-
-  _.isArray = nativeIsArray || function(obj) { return toString.call(obj) === '[object Array]'; };
-
   _.isObject = function(obj) {
     var type = typeof obj;
     return type === 'function' || type === 'object' && !!obj;
@@ -970,20 +857,14 @@ function respect_underscore(_) {
   var fn_names = ['Arguments', 'Function', 'String', 'Number', 'Date', 'RegExp', 'Error'];
   for (var i = 0; i < fn_names.length; i++)
     (function(name) { _['is' + name] = function(obj) { return toString.call(obj) === '[object ' + name + ']'; }; })(fn_names[i]);
-
   if (!_.isArguments(arguments)) _.isArguments = function(obj) { return _.has(obj, 'callee'); };
-
-  if (typeof /./ != 'function' && typeof Int8Array != 'object')
-    _.isFunction = function(obj) { return typeof obj == 'function' || false; };
+  if (typeof /./ != 'function' && typeof Int8Array != 'object') _.isFunction = function(obj) { return typeof obj == 'function' || false; };
 
   _.has = function(obj, key) { return obj != null && hasOwnProperty.call(obj, key); };
-  _.isNaN = function (obj) { return _.isNumber(obj) && obj !== +obj; };
-
   _.escape = (function(map) {
     var escaper = function(match) { return map[match]; };
     var source = '(?:' + _.keys(map).join('|') + ')';
-    var testRegexp = RegExp(source);
-    var replaceRegexp = RegExp(source, 'g');
+    var testRegexp = RegExp(source), replaceRegexp = RegExp(source, 'g');
     return function(string) {
       string = string == null ? '' : '' + string;
       return testRegexp.test(string) ? string.replace(replaceRegexp, escaper) : string;

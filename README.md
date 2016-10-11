@@ -11,6 +11,9 @@ _abcjs는 함수형 자바스크립트(functional javascript) 라이브러리입
   - 다른 자바스크립트 라이브러리에 대한 의존성이 없는 작은 라이브러리입니다.
   - _Respect Underscorejs!_
 
+## 링크
+  - [함수형 프로그래밍 관련] (https://github.com/marpple/abc-functional-javascript/blob/master/docs)
+  - [Promise와 abcjs의 비동기 프로그래밍 비교] (https://github.com/marpple/abc-functional-javascript/blob/master/docs/Promise%20%EC%99%80%20abcjs%EC%9D%98%20%EB%B9%84%EB%8F%99%EA%B8%B0%20%ED%94%84%EB%A1%9C%EA%B7%B8%EB%9E%98%EB%B0%8D%20%EB%B9%84%EA%B5%90.md)
 
 ## 시작하기
 __abcjs와 함께 함수형 프로그래밍을 즐겨보세요.__
