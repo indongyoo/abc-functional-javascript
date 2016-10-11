@@ -479,7 +479,7 @@
     })(0);
   }
 
-  F.CB = window.CB = B2(C.arr_or_args_to_arr, B.map([B(X, {_ABC_is_cb: true}, C.extend)]), B);
+  F.CB = window.CB = B2(C.arr_or_args_to_arr, B.map([I, B(X, {_ABC_is_cb: true}, C.extend)]), B);
   F.JCB = window.JCB = B(X, {_ABC_just_cb: true}, C.extend);
 
   function isMR(arg) { return C.isArray(arg) && arg._ABC_is_returns; }
