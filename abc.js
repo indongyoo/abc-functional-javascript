@@ -669,16 +669,20 @@
       new RegExp("\/\/" + TABS() + ".*?(?=((\/\/)?" + TABS() + "))|\/\/" + TABS() + ".*", "g"), ""), data);
   }
 
-  var unescaped_exec = B(/!\{(.*?)\}!/, I, s_exec); //!{}!
-  var insert_datas1 = B(/\{\{\{(.*?)\}\}\}/, I, s_exec); // {{{}}}
-  var insert_datas2 = B(/\{\{(.*?)\}\}/, _.escape, s_exec); // {{}}
+  var unescaped_exec = B('(!\\{(.*?)\\}!)', I, s_exec); //!{}!
+  var insert_datas1 = B('(\\{\\{\\{(.*?)\\}\\}\\})', I, s_exec); // {{{}}}
+  var insert_datas2 = B('(\\{\\{(.*?)\\}\\})', _.escape, s_exec); // {{}}
+  function s_exec(re_str, wrap, source, data, memo) {
+    var re = new RegExp('([\\s\\S]*?'+re_str+')'+'([\\s\\S]*)');
+    memo = memo || '';
+    if (!source.match(re)) return MR(memo + source, data);
 
-  function s_exec(re, wrap, source, data) {
-    return !source.match(re) ? MR(source, data) :
-      C(data, [new Function("data", "with(data||{}) { return " + RegExp.$1 + "; }"),
+    var $1 = RegExp.$1, $2 = RegExp.$2, $3 = RegExp.$3, $4 = RegExp.$4;
+
+    return C(data, [new Function("data", "with(data||{}) { return " + $3 + "; }"),
         wrap, return_check,
         function(res) {
-          return s_exec(re, wrap, source.replace(re, res), data);
+          return s_exec(re_str, wrap, $4, data, memo + ($1.replace($2, res)));
         }]);
   }
 
