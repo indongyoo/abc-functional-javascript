@@ -694,9 +694,9 @@
       new RegExp("\/\/" + TABS() + ".*?(?=((\/\/)?" + TABS() + "))|\/\/" + TABS() + ".*", "g"), ""), data);
   }
 
-  var unescaped_exec = B(/!\{(.*?)\}!/, I, s_exec); //!{}!
-  var insert_datas1 = B(/\{\{\{(.*?)\}\}\}/, I, s_exec); // {{{}}}
-  var insert_datas2 = B(/\{\{(.*?)\}\}/, _.escape, s_exec); // {{}}
+  var unescaped_exec = B('(!\\{(.*?)\\}!)', I, s_exec); //!{}!
+  var insert_datas1 = B('(\\{\\{\\{(.*?)\\}\\}\\})', I, s_exec); // {{{}}}
+  var insert_datas2 = B('(\\{\\{(.*?)\\}\\})', _.escape, s_exec); // {{}}
 
   function s_exec(re_str, wrap, source, data, memo) {
     var re = new RegExp('([\\s\\S]*?'+re_str+')'+'([\\s\\S]*)');
