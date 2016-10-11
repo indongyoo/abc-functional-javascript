@@ -96,12 +96,8 @@
   };
 
   function bexdf(setter, obj1/* objs... */) {
-    if (obj1) return function exdf(result, args, i) {
-      var shift = args[i];
-      if (!shift) return result;
-      setter(result, shift);
-      return exdf(result, args, i+1);
-    }(obj1, arguments, 2);
+    for (var i = 2, len = arguments.length; i < len; i++) setter(obj1, arguments[i]);
+    return obj1;
   }
   function setter(r, s) { for (var key in s) r[key] = s[key]; }
   function dsetter(r, s) { for (var key in s) if (!C.has(r, key)) r[key] = s[key]; }
@@ -483,7 +479,7 @@
     })(0);
   }
 
-  F.CB = window.CB = B2(C.arr_or_args_to_arr, B.map([I, B(X, {_ABC_is_cb: true}, C.extend)]), B);
+  F.CB = window.CB = B2(C.arr_or_args_to_arr, B.map([B(X, {_ABC_is_cb: true}, C.extend)]), B);
   F.JCB = window.JCB = B(X, {_ABC_just_cb: true}, C.extend);
 
   function isMR(arg) { return C.isArray(arg) && arg._ABC_is_returns; }
@@ -528,7 +524,6 @@
           else if (!fns[i]._ABC_is_cb) C.lambda(fns[i++]).apply(context, C.args.trim(MRI(res)).concat(function() { res = toMR(arguments); }));
         } catch (e) { res = ERR(e); }
       } while (i == fns_len || i < fns_len && !fns[i]._ABC_is_cb);
-
       if ((promise || (promise = cp())) && unpack_promise(res, c)) return promise;
       try { C.lambda(fns[i++]).apply(context, C.args.trim(MRI(res)).concat(function() { arguments.length <= 1 ? c.apply(null, arguments) : c(toMR(arguments)); })); }
       catch (e) { c(ERR(e)); }
