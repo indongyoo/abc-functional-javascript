@@ -10,7 +10,7 @@
 
 //-------------------- abc.js ------------------------
 !function(G) {
-  var _ = respect_underscore({}), window = typeof window != 'object' ? G : window;
+  var window = typeof window != 'object' ? G : window;
 
   F.A = window.A = A; // similar to apply
   F.B = window.B = B; // thisless bind, similar to _.partial
@@ -26,30 +26,31 @@
   F.S = window.S = S; // String Template Engine
   F.X = window.X = new Object();
 
-  try { var has_lambda = true; eval('a=>a'); } catch (err) { var has_lambda = false; }
-  C.lambda = function (str) {
-    if (typeof str !== 'string') return str;
-    if (!str.match(/=>/)) return new Function('$', 'return (' + str + ')');
-    if (has_lambda) return eval(str); // es6 lambda
-    var ex_par = str.split(/\s*=>\s*/);
-    return new Function(
-      ex_par[0].replace(/(?:\b[A-Z]|\.[a-zA-Z_$])[a-zA-Z_$\d]*|[a-zA-Z_$][a-zA-Z_$\d]*\s*:|this|arguments|'(?:[^'\\]|\\.)*'|"(?:[^"\\]|\\.)*"/g, '').match(/([a-z_$][a-z_$\d]*)/gi) || [],
-      'return (' + ex_par[1] + ')');
+  // <respect _>
+  each(['Arguments', 'Function', 'String', 'Number', 'Date', 'RegExp', 'Error'], function(name) {
+    C['is' + name] = function(obj) { return Object.prototype.toString.call(obj) === '[object ' + name + ']'; }
+  });
+  if (typeof /./ != 'function' && typeof Int8Array != 'object')
+    C.isFunction = function(obj) { return typeof obj == 'function' || false; };
+  C.is_object = C.isObject = function(obj) {
+    var type = typeof obj;
+    return type === 'function' || type === 'object' && !!obj;
   };
-
-  C.is_string = C.isString = _.isString;
-  C.is_array = C.isArray = Array.isArray || function(obj) { return toString.call(obj) === '[object Array]'; };
-  C.is_object = C.isObject = _.isObject;
+  C.is_string = C.isString;
+  C.has = function(obj, key) { return obj != null && obj.hasOwnProperty(key); };
+  C.keys = function(obj) {
+    if (!C.isObject(obj)) return [];
+    return Object.keys(obj);
+  };
   var MAX_ARRAY_INDEX = Math.pow(2, 53) - 1;
   C.is_array_like = C.isArrayLike = function(collection) {
     var length = collection && collection.length;
     return typeof length == 'number' && length >= 0 && length <= MAX_ARRAY_INDEX;
   };
-  C.wrapArray = C.wrap_arr = function(v) { return C.isArray(v) ? v : [v]; };
   var slice = Array.prototype.slice;
   C.rest = function(array, n, guard) { return slice.call(array, n == null || guard ? 1 : n); };
   C.values = function(obj) {
-    var keys = _.keys(obj), length = keys.length, values = Array(length);
+    var keys = C.keys(obj), length = keys.length, values = Array(length);
     for (var i = 0; i < length; i++) values[i] = obj[keys[i]];
     return values;
   };
@@ -65,22 +66,44 @@
     }
     return result;
   };
+  C.escape = (function(map) {
+    var escaper = function(match) { return map[match]; };
+    var source = '(?:' + Object.keys(map).join('|') + ')';
+    var testRegexp = RegExp(source), replaceRegexp = RegExp(source, 'g');
+    return function(string) {
+      string = string == null ? '' : '' + string;
+      return testRegexp.test(string) ? string.replace(replaceRegexp, escaper) : string;
+    };
+  })({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#x27;', '`': '&#x60;'});
+  var idCounter = 0;
+  C.unique_id = C.uniqueId = function(prefix) {
+    var id = ++idCounter + '';
+    return prefix ? prefix + id : id;
+  };
+  // </respect _>
+  C.is_array = C.isArray = Array.isArray;
+  C.wrapArray = C.wrap_arr = function(v) { return C.isArray(v) ? v : [v]; };
 
-  function base_ex_de(is_de, obj1/* objs... */) {
-    if (obj1) return function ex_de_recursive(result, args, i) {
-      var shift = args[i];
-      if (!shift) return result;
-      if (!is_de) for (var key in shift) result[key] = shift[key];
-      else for (var key in shift) if (!result.hasOwnProperty(key)) result[key] = shift[key];
-      return ex_de_recursive(result, args, i+1);
-    }(obj1, arguments, 2);
-  }
-  C.extend = function() { return base_ex_de.apply(null, [false].concat(C.toArray(arguments))); };
-  C.defaults = function() { return base_ex_de.apply(null, [true].concat(C.toArray(arguments))); };
-  C.clone = function(obj) {
-    return !C.isObject(obj) ? obj : C.isArray(obj) ? obj.slice() : C.extend({}, obj);
+  try { var has_lambda = true; eval('a=>a'); } catch (err) { var has_lambda = false; }
+  C.lambda = function (str) {
+    if (typeof str !== 'string') return str;
+    if (!str.match(/=>/)) return new Function('$', 'return (' + str + ')');
+    if (has_lambda) return eval(str); // es6 lambda
+    var ex_par = str.split(/\s*=>\s*/);
+    return new Function(
+      ex_par[0].replace(/(?:\b[A-Z]|\.[a-zA-Z_$])[a-zA-Z_$\d]*|[a-zA-Z_$][a-zA-Z_$\d]*\s*:|this|arguments|'(?:[^'\\]|\\.)*'|"(?:[^"\\]|\\.)*"/g, '').match(/([a-z_$][a-z_$\d]*)/gi) || [],
+      'return (' + ex_par[1] + ')');
   };
 
+  function bexdf(setter, obj1/* objs... */) {
+    for (var i = 2, len = arguments.length; i < len; i++) setter(obj1, arguments[i]);
+    return obj1;
+  }
+  function setter(r, s) { for (var key in s) r[key] = s[key]; }
+  function dsetter(r, s) { for (var key in s) if (!C.has(r, key)) r[key] = s[key]; }
+  C.extend = function() { return bexdf.apply(null, [setter].concat(C.toArray(arguments))); };
+  C.defaults = function() { return bexdf.apply(null, [dsetter].concat(C.toArray(arguments))); };
+  C.clone = function(obj) { return !C.isObject(obj) ? obj : C.isArray(obj) ? obj.slice() : C.extend({}, obj); };
   C.method = C.m = method; // for method
   C.args = function() { return arguments; };
   C.arr_or_args_to_arr = IF(C.isArray, I).ELSE([C.args, C.toArray]);
@@ -93,7 +116,7 @@
   };
   C.args0 = I, C.args1 = B.args(1), C.args2 = B.args(2), C.args3 = B.args(3), C.args4 = B.args(4);
   C.set = function(obj, key, valueOrFunc) {
-    if (!_.isFunction(valueOrFunc)) return MR(obj[key] = valueOrFunc, key, obj);
+    if (!C.isFunction(valueOrFunc)) return MR(obj[key] = valueOrFunc, key, obj);
     return C(obj, key, [ valueOrFunc, function(_value) { return MR(obj[key] = _value, key, obj) }]);
   };
   C.unset = function(obj, key) { var val = obj[key]; delete obj[key]; return MR(val, key, obj); };
@@ -101,11 +124,11 @@
   C.pop = function(arr) { return MR(arr.pop(), arr.length, arr); };
   C.shift = function(arr) { return MR(arr.shift(), 0, arr); };
   C.push = function(arr, itemOrFunc) {
-    if (!_.isFunction(itemOrFunc)) return MR(itemOrFunc, arr.push(itemOrFunc), arr);
+    if (!C.isFunction(itemOrFunc)) return MR(itemOrFunc, arr.push(itemOrFunc), arr);
     return C(arr, [itemOrFunc, function(_item) { return MR(_item, arr.push(_item), arr); }]);
   };
   C.unshift = function(arr, itemOrFunc) {
-    if (!_.isFunction(itemOrFunc)) return MR(itemOrFunc, arr.unshift(itemOrFunc), arr);
+    if (!C.isFunction(itemOrFunc)) return MR(itemOrFunc, arr.unshift(itemOrFunc), arr);
     return C(arr, [itemOrFunc, function(_item) { return MR(_item, arr.unshift(_item), arr); }]);
   };
   C.sel = C.select = C.extend(function(start, selector) {
@@ -147,7 +170,7 @@
           return !key.match(/^\((.+)\)/) ? /*start*/(!key.match(/\[(.*)\]/) ? clone[key] = C.clone(clone[key]) : function(clone, numbers) {
             if (numbers.length > 2 || numbers.length < 1 || C.filter(numbers, [I, isNaN]).length) return ERR('[] selector in [num] or [num ~ num]');
             var s = numbers[0], e = numbers[1]; return !e ? clone[s] = C.clone(clone[s<0 ? clone.length+s : s]) : function(clone, oris) {
-              return _.each(oris, function(ori) { clone[clone.indexOf(ori)] = C.clone(ori); });
+              return each(oris, function(ori) { clone[clone.indexOf(ori)] = C.clone(ori); });
             }(clone, slice.call(clone, s<0 ? clone.length+s : s, e<0 ? clone.length+e : e + 1));
           }(clone, C.map(RegExp.$1.replace(/\s/g, '').split('~'), [I, parseInt])))/*end*/ :
             function(clone, ori) { return clone[clone.indexOf(ori)] = C.clone(ori); } (clone, C.find(clone, C.lambda(RegExp.$1)))
@@ -440,7 +463,7 @@
     var context = this;
     var args = C.rest(arguments, 6);
     var list = args.shift();
-    var keys = C.isArrayLike(list) ? null : _.keys(list);
+    var keys = C.isArrayLike(list) ? null : C.keys(list);
     iter_or_predi = iter_or_predi || C.lambda(args.pop());
     var length = (keys || list).length;
     var result = [], tmp = [];
@@ -456,7 +479,9 @@
     })(0);
   }
 
-  F.CB = window.CB = B2(C.arr_or_args_to_arr, B.map([I, B(X, {_ABC_is_cb: true}, C.extend)]), B);
+
+  function unpack_arr(arr) { return arr.length == 1 ? arr[0] : arr }
+  F.CB = window.CB = B2(C.arr_or_args_to_arr, B.map([I, B(X, {_ABC_is_cb: true}, C.extend)]), unpack_arr);
   F.JCB = window.JCB = B(X, {_ABC_just_cb: true}, C.extend);
 
   function isMR(arg) { return C.isArray(arg) && arg._ABC_is_returns; }
@@ -464,7 +489,7 @@
     err = isMR(err) ? err[0] : err;
     return err && err.constructor == Error && err._ABC_is_err;
   }
-  function maybe_promise(res) { return _.isObject(res) && res.then && _.isFunction(res.then); }
+  function maybe_promise(res) { return C.isObject(res) && res.then && C.isFunction(res.then); }
   function unpack_promise(res, callback) {
     var is_r = isMR(res);
     return (function u(i, res, length, has_promise) {
@@ -482,11 +507,26 @@
     })(0, (res = is_r ? res : [res]), res.length, false);
   }
 
+  C.flatten = function(arr, noDeep) {
+    var new_arr = [], cur_arr = arr, cur_dep = { i: 0, len: arr.length, arr: cur_arr }, depth = [cur_dep];
+    while (cur_dep && cur_dep.i <= cur_dep.len) {
+      if (cur_dep.i == cur_dep.len) {
+        depth.pop();
+        cur_dep = depth[depth.length-1], cur_arr = cur_dep && cur_dep.arr;
+        continue;
+      }
+      var item = cur_arr[cur_dep.i++];
+      if (!C.isArray(item) || (noDeep && depth.length != 1)) new_arr.push(item);
+      else depth.push(cur_dep = { i: 0, len: item.length, arr: cur_arr = item });
+    }
+    return new_arr;
+  };
+
   function C() {
     var context = this;
     var args = C.toArray(arguments);
     if (!C.isArray(args[args.length - 1])) args[args.length - 1] = [args[args.length - 1]];
-    var fns = args.pop();
+    var fns = C.flatten(args.pop());
     if (args.length == 1 && isMR(args[0])) args = args[0];
 
     var i = 0, promise = null, resolve = null, fns_len = fns.length;
@@ -501,7 +541,6 @@
           else if (!fns[i]._ABC_is_cb) C.lambda(fns[i++]).apply(context, C.args.trim(MRI(res)).concat(function() { res = toMR(arguments); }));
         } catch (e) { res = ERR(e); }
       } while (i == fns_len || i < fns_len && !fns[i]._ABC_is_cb);
-
       if ((promise || (promise = cp())) && unpack_promise(res, c)) return promise;
       try { C.lambda(fns[i++]).apply(context, C.args.trim(MRI(res)).concat(function() { arguments.length <= 1 ? c.apply(null, arguments) : c(toMR(arguments)); })); }
       catch (e) { c(ERR(e)); }
@@ -571,11 +610,11 @@
     B.noti = B.Noti = B.notice = {
       on: function() {
         var args = arguments;
-        return function(func) { return A(args.length === 3 ? args :  _.isFunction(func) ? C.toArray(args).concat(func) : args, on); };
+        return function(func) { return A(args.length === 3 ? args :  C.isFunction(func) ? C.toArray(args).concat(func) : args, on); };
       },
       once: function(func) {
         var args = arguments;
-        return function(func) { return A(C.toArray(args.length === 3 ? args :  _.isFunction(func) ? C.toArray(args).concat(func) : args).concat([true]), on) };
+        return function(func) { return A(C.toArray(args.length === 3 ? args :  C.isFunction(func) ? C.toArray(args).concat(func) : args).concat([true]), on) };
       },
       off: function() { return B.apply(null, C.toArray(arguments).concat(off)); },
       emit: function() {
@@ -599,7 +638,7 @@
     function off(name1, n2_or_n2s) {
       var _notice = notices[name1];
       if (arguments.length == 1) C.unset(notices, name1);
-      else if (_notice && arguments.length == 2) each(_.isString(n2_or_n2s) ? [n2_or_n2s] : n2_or_n2s, B(_notice, C.unset));
+      else if (_notice && arguments.length == 2) each(C.isString(n2_or_n2s) ? [n2_or_n2s] : n2_or_n2s, B(_notice, C.unset));
     }
 
     function emitAll(name1, emit_args) {
@@ -610,7 +649,7 @@
     function emit(name1, name2, emit_args) {
       var _notice = notices[name1];
       if (_notice) C(name2, [
-        IF(_.isFunction, [J(void 0), name2, function(name2) { return _.isString(name2) ? [name2] : name2; }]).ELSEIF(_.isString, J([name2])).ELSE(I),
+        IF(C.isFunction, [J(void 0), name2, function(name2) { return C.isString(name2) ? [name2] : name2; }]).ELSEIF(C.isString, J([name2])).ELSE(I),
         B(X, B([B.all(J(_notice), I), IF([C.val, function(arr) { return arr && arr.length }], emit_loop(emit_args))]), each)
       ]);
     }
@@ -619,7 +658,6 @@
   }(B, C, {});
 
   C.remove_by_index = C.removeByIndex = removeByIndex;
-
   function removeByIndex(arr, from) {
     if (from !== -1) {
       var rest = arr.slice(from + 1 || arr.length);
@@ -652,6 +690,9 @@
 
   /* H start */
   H.TAB_SIZE = 2;
+  var unescaped_exec = B('(!\\{(.*?)\\}!)', I, s_exec); //!{}!
+  var insert_datas1 = B('(\\{\\{\\{(.*?)\\}\\}\\})', I, s_exec); // {{{}}}
+  var insert_datas2 = B('(\\{\\{(.*?)\\}\\})', C.escape, s_exec); // {{}}
   function TAB() { return "( {" + H.TAB_SIZE + "}|\\t)"; }; // "( {4}|\\t)"
   function TABS() { return TAB() + "+"; };
   function number_of_tab(a) {
@@ -660,18 +701,16 @@
     var space_length = snt.replace(/\t/g, "").length;
     return space_length / H.TAB_SIZE + tab_length;
   }
-
   function H() { return s.apply(null, [H, 'H', convert_to_html].concat(C.toArray(arguments))); }
   H.each = function() { return s_each.apply(null, [H].concat(C.toArray(arguments))); };
   H._ABC_func_storage = {};
-
   function s(func, obj_name, option, var_names/*, source...*/) {      // used by H and S
     var args = C.toArray(arguments);
     if (args.length == 4) (args[4] = args[3]) && (var_names = args[3] = '$');
     var source = C.map(C.rest(args, 4), function(str_or_func) {
-      if (_.isString(str_or_func)) return str_or_func;
+      if (C.isString(str_or_func)) return str_or_func;
 
-      var key = _.uniqueId("_ABC_func_storage");
+      var key = C.uniqueId("_ABC_func_storage");
       func._ABC_func_storage[key] = str_or_func;
       return obj_name + "._ABC_func_storage." + key;
     }).join("");
@@ -681,23 +720,16 @@
       return C(source, data, [remove_comment, unescaped_exec, option, insert_datas1, insert_datas2, I]);
     };
   }
-
   function s_each(func, var_names/*, source...*/) {     // used by H.each and S.each
     var map = B.map(func.apply(null, C.rest(arguments)));
     return function(ary /*, args...*/) {
       return A([ary].concat(C.rest(arguments)), [map, function(res) { return res.join(""); }]);
     };
   }
-
   function remove_comment(source, data) {
     return MR(source.replace(/\/\*(.*?)\*\//g, "").replace(
       new RegExp("\/\/" + TABS() + ".*?(?=((\/\/)?" + TABS() + "))|\/\/" + TABS() + ".*", "g"), ""), data);
   }
-
-  var unescaped_exec = B('(!\\{(.*?)\\}!)', I, s_exec); //!{}!
-  var insert_datas1 = B('(\\{\\{\\{(.*?)\\}\\}\\})', I, s_exec); // {{{}}}
-  var insert_datas2 = B('(\\{\\{(.*?)\\}\\})', _.escape, s_exec); // {{}}
-
   function s_exec(re_str, wrap, source, data, memo) {
     var re = new RegExp('([\\s\\S]*?'+re_str+')'+'([\\s\\S]*)');
     memo = memo || '';
@@ -707,11 +739,8 @@
 
     return C(data, [new Function("data", "with(data||{}) { return " + $3 + "; }"),
       wrap, return_check,
-      function(res) {
-        return s_exec(re_str, wrap, $4, data, memo + ($1.replace($2, res)));
-      }]);
+      function(res) { return s_exec(re_str, wrap, $4, data, memo + ($1.replace($2, res))); }]);
   }
-
   function convert_to_html(source, data) {
     var tag_stack = [];
     var ary = source.match(new RegExp(TABS() + "\\S.*?(?=" + TABS() + "\\S)|" + TABS() + "\\S.*", "g"));
@@ -742,20 +771,17 @@
 
     return MR(ary.join(""), data);
   }
-
   function line(source, tag_stack) {
     source = source.replace(new RegExp("^" + TABS() + "\\|"), "\n").replace(/^ */, "");
     return source.match(/^[\[.#\w\-]/) ? source.replace(/^(\[.*\]|\{.*?\}|\S)+ ?/, function(str) {
       return start_tag(str, tag_stack);
     }) : source;
   }
-
   function push_in(ary, index, data) {
     var rest_ary = ary.splice(index);
     ary.push(data);
     return ary.concat(rest_ary);
   }
-
   function start_tag(str, tag_stack, attrs, name, cls) {
     attrs = '';
     name = str.match(/^\w+/);
@@ -779,13 +805,9 @@
 
     return '<' + name + attrs + ' >'; // 띄어쓰기 <a href=www.marpple.com/> 를 위해
   }
-
   function end_tag(tag) { return '</' + tag + '>'; }
-
   function return_check(val) { return (val == null || val == void 0) ? '' : val; }
   /* H end */
-
-  function I(v) { return v; }
 
   function IF(predicate, fn) {
     var store = [fn ? [predicate, fn] : [I, predicate]];
@@ -800,9 +822,9 @@
         function(fnset) { return fnset ? A(args, fnset[1], context) : void 0; }
       ]);
     }
-  }
-  F.IF = window.IF = IF;
+  } F.IF = window.IF = IF;
 
+  function I(v) { return v; }
   function J(v) { return function() { return v; }; }
   J.t = J.true = J(true);
   J.f = J.false = J(false);
@@ -819,8 +841,7 @@
   function toMR(arg) {
     if (C.isArray(arg) && arg._ABC_is_returns) return arg;
     return C.extend(C.values(arg), {_ABC_is_returns: true});
-  }
-  C.toMR = window.toMR = toMR;
+  } C.toMR = window.toMR = toMR;
 
   function S() { return s.apply(null, [S, 'S', function(s, d) { return MR(s, d); }].concat(C.toArray(arguments))); }
   S.each = function() { return s_each.apply(null, [S].concat(C.toArray(arguments))); };
@@ -833,53 +854,8 @@
   }
 
   X.context = X.this = function() { return this; };
-
   function hasPromise() { return hasPromise.__cache || (hasPromise.__cache = !!getValue(window, 'Promise.prototype.then')); }
 }(typeof global == 'object' && global.global == global && (global.G = global) || window);
-
-// Underscore.js 1.8. http://underscorejs.org
-// (c) 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
-// Underscore may be freely distributed under the MIT license.
-function respect_underscore(_) {
-  var nativeKeys = Object.keys, toString = Object.prototype.toString, hasOwnProperty = Object.prototype.hasOwnProperty;
-
-  _.keys = function(obj) {
-    if (!_.isObject(obj)) return [];
-    if (nativeKeys) return nativeKeys(obj);
-    var keys = [];
-    for (var key in obj) if (_.has(obj, key)) keys.push(key);
-    return keys;
-  };
-  _.isObject = function(obj) {
-    var type = typeof obj;
-    return type === 'function' || type === 'object' && !!obj;
-  };
-
-  var fn_names = ['Arguments', 'Function', 'String', 'Number', 'Date', 'RegExp', 'Error'];
-  for (var i = 0; i < fn_names.length; i++)
-    (function(name) { _['is' + name] = function(obj) { return toString.call(obj) === '[object ' + name + ']'; }; })(fn_names[i]);
-  if (!_.isArguments(arguments)) _.isArguments = function(obj) { return _.has(obj, 'callee'); };
-  if (typeof /./ != 'function' && typeof Int8Array != 'object') _.isFunction = function(obj) { return typeof obj == 'function' || false; };
-
-  _.has = function(obj, key) { return obj != null && hasOwnProperty.call(obj, key); };
-  _.escape = (function(map) {
-    var escaper = function(match) { return map[match]; };
-    var source = '(?:' + _.keys(map).join('|') + ')';
-    var testRegexp = RegExp(source), replaceRegexp = RegExp(source, 'g');
-    return function(string) {
-      string = string == null ? '' : '' + string;
-      return testRegexp.test(string) ? string.replace(replaceRegexp, escaper) : string;
-    };
-  })({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#x27;', '`': '&#x60;'});
-
-  var idCounter = 0;
-  _.uniqueId = function(prefix) {
-    var id = ++idCounter + '';
-    return prefix ? prefix + id : id;
-  };
-
-  return _;
-}
 //-------------------- abc.box.js -----------------------
 !function (root, makeConstructorBox) {
   root.createBox = root.create_box = makeConstructorBox(root);
