@@ -11,9 +11,11 @@ _abcjs는 함수형 자바스크립트(functional javascript) 라이브러리입
   - 다른 자바스크립트 라이브러리에 대한 의존성이 없는 작은 라이브러리입니다.
   - _Respect Underscorejs!_
 
-## 링크
-  - [함수형 프로그래밍 관련] (https://github.com/marpple/abc-functional-javascript/blob/master/docs)
-  - [Promise와 abcjs의 비동기 프로그래밍 비교] (https://github.com/marpple/abc-functional-javascript/blob/master/docs/Promise%20%EC%99%80%20abcjs%EC%9D%98%20%EB%B9%84%EB%8F%99%EA%B8%B0%20%ED%94%84%EB%A1%9C%EA%B7%B8%EB%9E%98%EB%B0%8D%20%EB%B9%84%EA%B5%90.md)
+## 함수형 자바스크립트 관련글
+  1. [함수형 자바스크립트의 실용성 1](https://github.com/marpple/abc-functional-javascript/wiki/%ED%95%A8%EC%88%98%ED%98%95-%EC%9E%90%EB%B0%94%EC%8A%A4%ED%81%AC%EB%A6%BD%ED%8A%B8%EC%9D%98-%EC%8B%A4%EC%9A%A9%EC%84%B1-1)
+  2. [함수형 자바스크립트의 실용성 2](https://github.com/marpple/abc-functional-javascript/wiki/%ED%95%A8%EC%88%98%ED%98%95-%EC%9E%90%EB%B0%94%EC%8A%A4%ED%81%AC%EB%A6%BD%ED%8A%B8%EC%9D%98-%EC%8B%A4%EC%9A%A9%EC%84%B1-2)
+  3. [Underscorejs 만들기 1](https://github.com/marpple/abc-functional-javascript/wiki/Underscorejs-%EB%A7%8C%EB%93%A4%EA%B8%B0-1-(_.map,-_.each))
+  4. [Promise와 abcjs의 비동기 프로그래밍 비교](https://github.com/marpple/abc-functional-javascript/wiki/Promise%EC%99%80-abcjs%EC%9D%98-%EB%B9%84%EB%8F%99%EA%B8%B0-%ED%94%84%EB%A1%9C%EA%B7%B8%EB%9E%98%EB%B0%8D-%EB%B9%84%EA%B5%90)
 
 ## 시작하기
 __abcjs와 함께 함수형 프로그래밍을 즐겨보세요.__
