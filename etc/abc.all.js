@@ -241,8 +241,8 @@
 
   function A(args, func) { return C.apply(arguments[2] || this, C.toArray(args).concat([func])); }
 
-  function each(list, iter) {
-    for (var i = 0, length = list.length; i < length ;i++) iter(list[i], i, list);
+  function each(list, iter, start) {
+    for (var i = start || 0, length = list.length; i < length ;i++) iter(list[i], i, list);
     return list;
   }
   function map(list, iter) {
@@ -507,20 +507,13 @@
     })(0, (res = is_r ? res : [res]), res.length, false);
   }
 
-  C.flatten = function(arr, noDeep) {
-    var new_arr = [], cur_arr = arr, cur_dep = { i: 0, len: arr.length, arr: cur_arr }, depth = [cur_dep];
-    while (cur_dep && cur_dep.i <= cur_dep.len) {
-      if (cur_dep.i == cur_dep.len) {
-        depth.pop();
-        cur_dep = depth[depth.length-1], cur_arr = cur_dep && cur_dep.arr;
-        continue;
-      }
-      var item = cur_arr[cur_dep.i++];
-      if (!C.isArray(item) || (noDeep && depth.length != 1)) new_arr.push(item);
-      else depth.push(cur_dep = { i: 0, len: item.length, arr: cur_arr = item });
-    }
+  function flat(new_arr, arr, noDeep, start) {
+    each(arr, function(v) {
+      !noDeep && C.isArrayLike(v) && (C.isArray(v) || C.isArguments(v)) ? flat(new_arr, v, noDeep) : new_arr.push(v);
+    }, start);
     return new_arr;
-  };
+  }
+  C.flatten = function (arr, noDeep, start) { return flat([], arr, noDeep, start); };
 
   function C() {
     var context = this;
