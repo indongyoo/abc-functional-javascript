@@ -20,10 +20,12 @@
   F.F = window.F = F; // find function
   F.G = window.G = G; // window or global
   F.H = window.H = H; // HTML Template Engine
+  F.H$ = window.H$ = H$; // HTML Template Engine
   F.I = window.I = I; // _.identity
   F.J = window.J = J; // _.always
   F.MR = window.MR = MR; // like multiple return in Go Lang. return x, y; => return R(x, y)
   F.S = window.S = S; // String Template Engine
+  F.S$ = window.S$ = S$; // String Template Engine
   F.X = window.X = new Object();
 
   // <respect _>
@@ -695,11 +697,11 @@
     return space_length / H.TAB_SIZE + tab_length;
   }
   function H() { return s.apply(null, [H, 'H', convert_to_html].concat(C.toArray(arguments))); }
+  function H$() { return s.apply(null, [H$, 'H$', convert_to_html].concat('$').concat(C.toArray(arguments))); }
   H.each = function() { return s_each.apply(null, [H].concat(C.toArray(arguments))); };
   H._ABC_func_storage = {};
   function s(func, obj_name, option, var_names/*, source...*/) {      // used by H and S
     var args = C.toArray(arguments);
-    if (args.length == 4) (args[4] = args[3]) && (var_names = args[3] = '$');
     var source = C.map(C.rest(args, 4), function(str_or_func) {
       if (C.isString(str_or_func)) return str_or_func;
 
@@ -837,6 +839,7 @@
   } C.toMR = window.toMR = toMR;
 
   function S() { return s.apply(null, [S, 'S', function(s, d) { return MR(s, d); }].concat(C.toArray(arguments))); }
+  function S$() { return s.apply(null, [S$, 'S$', function(s, d) { return MR(s, d); }].concat('$').concat(C.toArray(arguments))); }
   S.each = function() { return s_each.apply(null, [S].concat(C.toArray(arguments))); };
   S._ABC_func_storage = {};
 
