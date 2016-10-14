@@ -262,7 +262,7 @@
         var idx = args3.indexOf(X);
         args3[idx == -1 ? args3.length : idx] = arg2;
       }
-      return A(args3, fns, is_bp2 ? {args: args3, parent: this} : this);
+      return A(each(args3, function(a, i) { if (a == X) args3[i] = undefined }), fns, is_bp2 ? {args: args3, parent: this} : this);
     };
   }
 
