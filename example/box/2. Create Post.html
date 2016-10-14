@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>abcjs - TEST</title>
+</head>
+<body>
+<script src="js/underscore.js"></script>
+<script src="js/jquery.js"></script>
+<script src="js/abc.js"></script>
+<script src="../abc.box.js"></script>
+
+<script>
+  var current_data = function() { console.log(JSON.stringify(box.sel('posts'))); };
+  var id = 2;
+
+  // 서버에서 아래 html을 생성하기 위해 꺼냈던 data를 javascript 영역에 프린트 해두기
+  window.box = create_box('posts', [
+    { id: 2, body: '포스트2', comment_count: 2 },
+    { id: 1, body: '포스트1', comment_count: 5 }
+  ]);
+
+  G.$post_$prepend = B2(C.wrap_arr,
+    G.$t_$post_items = H.each('post', '\
+      .post_item[box_selector="posts->($.id==!{post.id}!)"]\
+        .body {{post.body}}\
+        .options\
+          button[type=button].remove 삭제'),
+    $,
+    B.method('prependTo', '.post_list'));
+
+  // B.method === B.m
+  $(B2(J('.post_editor'), $, B.m('on', 'click', 'button', B2(
+    B.v('delegateTarget'), $, B.m('find', 'input'),
+    B.all(B.m('val'), B.m('val', '')),
+    '{ id: ++id, body: $, comment_count: 0 }',
+    B('posts', box.unshift),
+    C.args1,
+    G.$post_$prepend,
+    current_data))));
+
+  /*
+  $(function() {
+    $('.post_editor').on('click', 'button', function (e) {
+      var input = $(e.delegateTarget).find('input');
+      var body = input.val();
+      input.val('');
+      var post = {
+        id: ++id, body: body, comment_count: 0
+      };
+      box.unshift('posts', post);
+      G.$post_$prepend(post);
+      current_data();
+    });
+  });
+  */
+
+  $(B2(J('.post_list'), $, B.m('on', 'click', '.post_item .remove', B2(
+    B.v('currentTarget'), $, B.m('closest', '.post_item'),
+    B.all(box.remove, B.m('remove')),
+    current_data))));
+
+  /*
+  $(function() {
+    $('.post_list').on('click', '.post_item .remove', function(e) {
+      var jq_post_item = $(e.currentTarget).closest('.post_item');
+      box.remove(jq_post_item)[0];
+      jq_post_item.remove();
+      current_data();
+    });
+  });
+  */
+
+</script>
+
+<div class="post_editor">
+  <input type="text">
+  <button type="button">확인</button>
+</div>
+
+<!-- 서버에서 생성한 html -->
+<div class="post_list">
+  <div class="post_item" box_selector="posts->($.id==2)">
+    <div class="body">포스트2</div>
+    <div class="options">
+      <button type="button" class="remove">삭제</button>
+    </div>
+  </div>
+  <div class="post_item" box_selector="posts->($.id==1)">
+    <div class="body">포스트1</div>
+    <div class="options">
+      <button type="button" class="remove">삭제</button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
