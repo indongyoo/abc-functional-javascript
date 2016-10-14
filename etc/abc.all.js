@@ -20,6 +20,7 @@
   F.F = window.F = F; // find function
   F.G = window.G = G; // window or global
   F.H = window.H = H; // HTML Template Engine
+  F.H$ = window.H$ = H$; // HTML Template Engine
   F.I = window.I = I; // _.identity
   F.J = window.J = J; // _.always
   F.MR = window.MR = MR; // like multiple return in Go Lang. return x, y; => return R(x, y)
