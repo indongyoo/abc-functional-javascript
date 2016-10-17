@@ -1,10 +1,11 @@
 // ABC project
 //  - https://github.com/marpple/abc-functional-javascript
+//  - https://github.com/marpple/abc-box
 // Project Lead - Indong Yoo
 // Maintainers - Piljung Park, Hanah Choi
 // Contributors - Byeongjin Kim, Joeun Ha, Hoonil Kim
 
-// abc.js
+// abc.js, abc.box.js
 // (c) 2015-2016 Marpple. MIT Licensed.
 
 //-------------------- abc.js ------------------------
@@ -871,7 +872,7 @@
       return (is_init_cache || !_cache_val) ? (_box_cache[selector] = _data) : _cache_val;
     }
 
-    return {
+    return C.extend(function() { return _box_data; }, {
       _: function () { return _box_data; },
       select: select,
       sel: select,
@@ -924,6 +925,6 @@
         shift: function(el) { return root.create_box(root.C.sel.im.shift(_box_data, make_selector(el))[0]); },
         unshift: function(el, item) { return root.create_box(root.C.sel.im.unshift(_box_data, make_selector(el), item)[0]); }
       }
-    };
+    });
   };
 });
