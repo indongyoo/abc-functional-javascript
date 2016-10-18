@@ -684,18 +684,34 @@
       && function() { return A(arguments, f || (f = getValue(G, nodes)), this); }
   }
 
+  //function times(len, func) { for (var i = 0; i < len; i++) func(i); }
+  function times2(len, func) { for (var i = 1; i <= len; i++) func(i); }
+
   /* H start */
-  H.TAB_SIZE = 2;
-  var unescaped_exec = B('(!\\{(.*?)\\}!)', I, s_exec); //!{}!
-  var insert_datas1 = B('(\\{\\{\\{(.*?)\\}\\}\\})', I, s_exec); // {{{}}}
-  var insert_datas2 = B('(\\{\\{(.*?)\\}\\})', C.escape, s_exec); // {{}}
-  function TAB() { return "( {" + H.TAB_SIZE + "}|\\t)"; }; // "( {4}|\\t)"
-  function TABS() { return TAB() + "+"; };
+  var TAB_SIZE;
+  var REG1, REG2, REG3, REG4 = {}, REG5, REG6, REG7, REG8;
+  var unescaped_exec = B(/([\s\S]*?(!\{(.*?)\}!))([\s\S]*)/, I, s_exec); //!{}!
+  var insert_datas1 = B(/([\s\S]*?(\{\{\{(.*?)\}\}\}))([\s\S]*)/, I, s_exec); // {{{}}}
+  var insert_datas2 = B(/([\s\S]*?(\{\{(.*?)\}\}))([\s\S]*)/, C.escape, s_exec); // {{}}
+  H.TAB_SIZE = function(size) {
+    TAB_SIZE = size;
+    var TAB = "( {" + size + "}|\\t)";
+    var TABS = TAB + "+";
+    REG1 = new RegExp("^" + TABS);
+    REG2 = new RegExp("\/\/" + TABS + ".*?(?=((\/\/)?" + TABS + "))|\/\/" + TABS + ".*", "g");
+    REG3 = new RegExp(TABS + "\\S.*?(?=" + TABS + "\\S)|" + TABS + "\\S.*", "g");
+    REG4 = {}; times2(20, function(i) { REG4[i] = new RegExp(TAB + "{" + i + "}$") });
+    REG5 = new RegExp("^(" + TABS + ")(\\[.*?\\]|\\{.*?\\}|\\S)+\\.(?!\\S)");
+    REG6 = {}; times2(20, function(i) { REG6[i] = new RegExp("(" + TAB + "{" + i + "})", "g"); });
+    REG7 = new RegExp("\\n(" + TABS + "[\\s\\S]*)");
+    REG8 = new RegExp("^" + TABS + "\\|");
+  };
+  H.TAB_SIZE(2);
   function number_of_tab(a) {
-    var snt = a.match(new RegExp("^" + TABS()))[0];
+    var snt = a.match(REG1)[0];
     var tab_length = (snt.match(/\t/g) || []).length;
     var space_length = snt.replace(/\t/g, "").length;
-    return space_length / H.TAB_SIZE + tab_length;
+    return space_length / TAB_SIZE + tab_length;
   }
   function H() { return s.apply(null, [H, 'H', convert_to_html].concat(C.toArray(arguments))); }
   function H$() { return s.apply(null, [H$, 'H$', convert_to_html].concat('$').concat(C.toArray(arguments))); }
@@ -723,25 +739,23 @@
     };
   }
   function remove_comment(source, data) {
-    return MR(source.replace(/\/\*(.*?)\*\//g, "").replace(
-      new RegExp("\/\/" + TABS() + ".*?(?=((\/\/)?" + TABS() + "))|\/\/" + TABS() + ".*", "g"), ""), data);
+    return MR(source.replace(/\/\*(.*?)\*\//g, "").replace(REG2, ""), data);
   }
-  function s_exec(re_str, wrap, source, data, memo) {
-    var re = new RegExp('([\\s\\S]*?'+re_str+')'+'([\\s\\S]*)');
+  function s_exec(re, wrap, source, data, memo) {
     memo = memo || '';
     if (!source.match(re)) return MR(memo + source, data);
-
     var $1 = RegExp.$1, $2 = RegExp.$2, $3 = RegExp.$3, $4 = RegExp.$4;
 
     return C(data, [new Function("data", "with(data||{}) { return " + $3 + "; }"),
       wrap, return_check,
-      function(res) { return s_exec(re_str, wrap, $4, data, memo + ($1.replace($2, res))); }]);
+      function(res) { return s_exec(re, wrap, $4, data, memo + ($1.replace($2, res))); }]);
   }
+
   function convert_to_html(source, data) {
     var tag_stack = [];
-    var ary = source.match(new RegExp(TABS() + "\\S.*?(?=" + TABS() + "\\S)|" + TABS() + "\\S.*", "g"));
+    var ary = source.match(REG3);
     var base_tab = number_of_tab(ary[0]);
-    ary[ary.length - 1] = ary[ary.length - 1].replace(new RegExp(TAB() + "{" + base_tab + "}$"), "");
+    ary[ary.length - 1] = ary[ary.length - 1].replace(REG4[base_tab] || (REG4[base_tab] = new RegExp(TAB + "{" + base_tab + "}$")), "");
 
     var is_paragraph = 0;
     for (var i = 0; i < ary.length; i++) {
@@ -755,12 +769,12 @@
 
       if (!is_paragraph) {
         ary[i] = line(ary[i], tag_stack);
-        if (tmp.match(new RegExp("^(" + TABS() + ")(\\[.*?\\]|\\{.*?\\}|\\S)+\\.(?!\\S)"))) is_paragraph = number_of_tab(RegExp.$1) + 1;
+        if (tmp.match(REG5)) is_paragraph = number_of_tab(RegExp.$1) + 1;
         continue;
       }
 
-      ary[i] = ary[i].replace(new RegExp("(" + TAB() + "{" + is_paragraph + "})", "g"), "\n");
-      if (ary[i] !== (ary[i] = ary[i].replace(new RegExp("\\n(" + TABS() + "[\\s\\S]*)"), "\n"))) ary = push_in(ary, i + 1, RegExp.$1);
+      ary[i] = ary[i].replace(REG6[is_paragraph] || (REG6[is_paragraph] = new RegExp("(" + TAB + "{" + is_paragraph + "})", "g")), "\n");
+      if (ary[i] !== (ary[i] = ary[i].replace(REG7, "\n"))) ary = push_in(ary, i + 1, RegExp.$1);
     }
 
     while (tag_stack.length) ary[ary.length - 1] += end_tag(tag_stack.pop()); // 마지막 태그
@@ -768,7 +782,7 @@
     return MR(ary.join(""), data);
   }
   function line(source, tag_stack) {
-    source = source.replace(new RegExp("^" + TABS() + "\\|"), "\n").replace(/^ */, "");
+    source = source.replace(REG8, "\n").replace(/^ */, "");
     return source.match(/^[\[.#\w\-]/) ? source.replace(/^(\[.*\]|\{.*?\}|\S)+ ?/, function(str) {
       return start_tag(str, tag_stack);
     }) : source;
