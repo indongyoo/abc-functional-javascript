@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>abcjs - TEST</title>
+</head>
+<body>
+<script src="js/underscore.js"></script>
+<script src="js/jquery.js"></script>
+<script src="js/abc.js"></script>
+<script src="../abc.box.js"></script>
+<script>
+  // 서버에서 아래 html을 생성하기 위해 꺼냈던 data를 javascript 영역에 프린트 해두기
+  window.box = create_box('posts', [
+    { id: 2, body: '포스트2', comment_count: 2 },
+    { id: 1, body: '포스트1', comment_count: 5 }
+  ]);
+
+  $(function() {
+    $('.post_list').on('click', '.post_item', function(e) {
+      var jq_post_item = $(e.currentTarget);
+      var post = box.sel(jq_post_item);
+      // or
+      // var post = box.find(jq_post_item.attr('box_selector'));
+      console.log(post.comment_count);
+    });
+  });
+</script>
+
+<!-- 서버에서 생성한 html -->
+<div class="post_list">
+  <div class="post_item" box_selector="posts->($.id==1)">포스트1</div>
+  <div class="post_item" box_selector="posts->($.id==2)">포스트2</div>
+</div>
+
+</body>
+</html>
