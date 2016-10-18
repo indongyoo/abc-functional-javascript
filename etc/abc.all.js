@@ -511,7 +511,8 @@
 
   function flat(new_arr, arr, noDeep, start) {
     each(arr, function(v) {
-      !noDeep && C.isArrayLike(v) && (C.isArray(v) || C.isArguments(v)) ? flat(new_arr, v, noDeep) : new_arr.push(v);
+      if (!C.isArrayLike(v) || (!C.isArray(v) && !C.isArguments(v))) return new_arr.push(v);
+      noDeep ? each(v, function(v) { new_arr.push(v); }) : flat(new_arr, v, noDeep);
     }, start);
     return new_arr;
   }
