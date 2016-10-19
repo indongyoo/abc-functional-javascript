@@ -741,8 +741,8 @@
       return obj_name + "._ABC_func_storage." + key;
     }).join("");
 
+    var self = {};
     return function() {
-      var self = {};
       var data = var_names ? C.object(var_names.match(/[\w\$]+/g), C.toArray(arguments)) : void 0;
       return C(source, data, self, [remove_comment, unescaped_exec, option, insert_datas1, insert_datas2, I]);
     };
