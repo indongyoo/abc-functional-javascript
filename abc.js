@@ -24,6 +24,7 @@
   F.I = window.I = I; // _.identity
   F.J = window.J = J; // _.always
   F.MR = window.MR = MR; // like multiple return in Go Lang. return x, y; => return R(x, y)
+  F.P = window.P = P; // Simple _.partial
   F.S = window.S = S; // String Template Engine
   F.S$ = window.S$ = S$; // String Template Engine
   F.X = window.X = new Object();
@@ -254,17 +255,22 @@
     return l2;
   }
 
+  function merge_args(args, args2) {
+    var args3 = C.clone(args);
+    for (var i = 0, length = args2.length; i < length; i++) {
+      var arg2 = args2[i];
+      var idx = args3.indexOf(X);
+      args3[idx == -1 ? args3.length : idx] = arg2;
+    }
+    return each(args3, function(a, i) { if (a == X) args3[i] = undefined });
+  }
+
   function base_B(args, is_bp2) {
     args = C.toArray(args);
-    var fns = C.lambda == I ? args.pop() : map(C.wrap_arr(args.pop()), C.lambda);
+    var fns = map(C.wrap_arr(args.pop()), C.lambda);
     return function() {
-      var args3 = C.clone(args);
-      for (var i = 0, length = arguments.length; i < length; i++) {
-        var arg2 = arguments[i];
-        var idx = args3.indexOf(X);
-        args3[idx == -1 ? args3.length : idx] = arg2;
-      }
-      return A(each(args3, function(a, i) { if (a == X) args3[i] = undefined }), fns, is_bp2 ? {args: args3, parent: this} : this);
+      var args3 = merge_args(args, arguments);
+      return A(args3, fns, is_bp2 ? {args: args3, parent: this} : this);
     };
   }
 
@@ -857,6 +863,11 @@
     return C.extend(C.values(arg), {_ABC_is_returns: true});
   } C.toMR = window.toMR = toMR;
 
+  function P(fn) {
+    fn = C.lambda(fn);
+    var args = C.rest(arguments);
+    return function() { return fn.apply(this, merge_args(args, arguments)); };
+  }
   function S() { return s.apply(null, [S, 'S', MR].concat(C.toArray(arguments))); }
   function S$() { return s.apply(null, [S$, 'S$', MR].concat('$').concat(C.toArray(arguments))); }
   S.each = function() { return s_each.apply(null, [S].concat(C.toArray(arguments))); };
