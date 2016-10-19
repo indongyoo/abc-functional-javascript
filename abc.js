@@ -244,10 +244,12 @@
   function A(args, func) { return C.apply(arguments[2] || this, C.toArray(args).concat([func])); }
 
   function each(list, iter, start) {
+    if (!list) return list;
     for (var i = start || 0, length = list.length; i < length ;i++) iter(list[i], i, list);
     return list;
   }
   function map(list, iter) {
+    if (!list) return [];
     for (var l2 = [], i = 0, length = list.length; i < length ;i++) l2.push(iter(list[i], i, list));
     return l2;
   }
@@ -690,9 +692,21 @@
   /* H start */
   var TAB_SIZE;
   var REG1, REG2, REG3, REG4 = {}, REG5, REG6, REG7, REG8;
-  var unescaped_exec = B(/([\s\S]*?(!\{(.*?)\}!))([\s\S]*)/, I, s_exec); //!{}!
-  var insert_datas1 = B(/([\s\S]*?(\{\{\{(.*?)\}\}\}))([\s\S]*)/, I, s_exec); // {{{}}}
-  var insert_datas2 = B(/([\s\S]*?(\{\{(.*?)\}\}))([\s\S]*)/, C.escape, s_exec); // {{}}
+  var unescaped_exec = B(/!\{.*?\}!/g, I, function(re, source, self) {
+    return self["unescaped_exec"] || (self["unescaped_exec"] = map(source.match(re), function(matched) {
+        return matched.substring(2, matched.length-2);
+      }));
+  }, s_exec); //!{}!
+  var insert_datas1 = B(/\{\{\{.*?\}\}\}/g, I, function(re, source, self) {
+    return self["insert_datas1"] || (self["insert_datas1"] = map(source.match(re), function(matched) {
+        return matched.substring(3, matched.length-3);
+      }));
+  }, s_exec); // {{{}}}
+  var insert_datas2 = B(/\{\{.*?\}\}/g, C.escape, function(re, source, self) {
+    return self["insert_datas2"] || (self["insert_datas2"] = map(source.match(re), function(matched) {
+        return matched.substring(2, matched.length-2);
+      }));
+  }, s_exec); // {{}}
   H.TAB_SIZE = function(size) {
     TAB_SIZE = size;
     var TAB = "( {" + size + "}|\\t)";
@@ -728,8 +742,9 @@
     }).join("");
 
     return function() {
+      var self = {};
       var data = var_names ? C.object(var_names.match(/[\w\$]+/g), C.toArray(arguments)) : void 0;
-      return C(source, data, [remove_comment, unescaped_exec, option, insert_datas1, insert_datas2, I]);
+      return C(source, data, self, [remove_comment, unescaped_exec, option, insert_datas1, insert_datas2, I]);
     };
   }
   function s_each(func, var_names/*, source...*/) {     // used by H.each and S.each
@@ -738,20 +753,17 @@
       return A([ary].concat(C.rest(arguments)), [map, function(res) { return res.join(""); }]);
     };
   }
-  function remove_comment(source, data) {
-    return MR(source.replace(/\/\*(.*?)\*\//g, "").replace(REG2, ""), data);
+  function remove_comment(source, data, self) {
+    return MR(source.replace(/\/\*(.*?)\*\//g, "").replace(REG2, ""), data, self);
   }
-  function s_exec(re, wrap, source, data, memo) {
-    memo = memo || '';
-    if (!source.match(re)) return MR(memo + source, data);
-    var $1 = RegExp.$1, $2 = RegExp.$2, $3 = RegExp.$3, $4 = RegExp.$4;
-
-    return C(data, [new Function("data", "with(data||{}) { return " + $3 + "; }"),
-      wrap, return_check,
-      function(res) { return s_exec(re, wrap, $4, data, memo + ($1.replace($2, res))); }]);
+  function s_exec(re, wrap, matcher, source, data, self) {
+    return C(source.split(re), C.map(matcher(re, source, self), function(expr) {
+        return C(data, [new Function("data", "with(data||{}) { return " + expr + "; }"), wrap, return_check]);
+      }),
+      function(s, vs) { return MR(map(vs, function(v, i) { return s[i] + v; }).join("") + s[s.length-1], data, self); }
+    );
   }
-
-  function convert_to_html(source, data) {
+  function convert_to_html(source, data, self) {
     var tag_stack = [];
     var ary = source.match(REG3);
     var base_tab = number_of_tab(ary[0]);
@@ -779,7 +791,7 @@
 
     while (tag_stack.length) ary[ary.length - 1] += end_tag(tag_stack.pop()); // 마지막 태그
 
-    return MR(ary.join(""), data);
+    return MR(ary.join(""), data, self);
   }
   function line(source, tag_stack) {
     source = source.replace(REG8, "\n").replace(/^ */, "");
@@ -853,8 +865,8 @@
     return C.extend(C.values(arg), {_ABC_is_returns: true});
   } C.toMR = window.toMR = toMR;
 
-  function S() { return s.apply(null, [S, 'S', function(s, d) { return MR(s, d); }].concat(C.toArray(arguments))); }
-  function S$() { return s.apply(null, [S$, 'S$', function(s, d) { return MR(s, d); }].concat('$').concat(C.toArray(arguments))); }
+  function S() { return s.apply(null, [S, 'S', MR].concat(C.toArray(arguments))); }
+  function S$() { return s.apply(null, [S$, 'S$', MR].concat('$').concat(C.toArray(arguments))); }
   S.each = function() { return s_each.apply(null, [S].concat(C.toArray(arguments))); };
   S._ABC_func_storage = {};
 
