@@ -788,9 +788,8 @@
 
     while (tag_stack.length) ary[ary.length - 1] += end_tag(tag_stack.pop()); // 마지막 태그
 
-    var result = ary.join("");
-    if (!self.unescaped_exec.length) self.convert_to_html = result;
-    return MR(result, var_names, args, self);
+    if (self.unescaped_exec.length) return MR(ary.join(""), var_names, args, self);
+    return MR(self.convert_to_html = ary.join(""), var_names, args, self);
   }
   function line(source, tag_stack) {
     source = source.replace(REG8, "\n").replace(/^ */, "");
