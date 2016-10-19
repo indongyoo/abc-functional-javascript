@@ -692,21 +692,16 @@
   /* H start */
   var TAB_SIZE;
   var REG1, REG2, REG3, REG4 = {}, REG5, REG6, REG7, REG8;
-  var unescaped_exec = B(/!\{.*?\}!/g, I, function(re, source, self) {
-    return self["unescaped_exec"] || (self["unescaped_exec"] = map(source.match(re), function(matched) {
-        return matched.substring(2, matched.length-2);
-      }));
-  }, s_exec); //!{}!
-  var insert_datas1 = B(/\{\{\{.*?\}\}\}/g, I, function(re, source, self) {
-    return self["insert_datas1"] || (self["insert_datas1"] = map(source.match(re), function(matched) {
-        return matched.substring(3, matched.length-3);
-      }));
-  }, s_exec); // {{{}}}
-  var insert_datas2 = B(/\{\{.*?\}\}/g, C.escape, function(re, source, self) {
-    return self["insert_datas2"] || (self["insert_datas2"] = map(source.match(re), function(matched) {
-        return matched.substring(2, matched.length-2);
-      }));
-  }, s_exec); // {{}}
+  function s_matcher(length, re, source) {
+    return map(source.match(re), function(matched) {
+      return matched.substring(length, matched.length-length);
+    });
+  }
+  var s_matcher1 = s_matcher.bind(null, 2);
+  var s_matcher2 = s_matcher.bind(null, 3);
+  var unescaped_exec = B(/!\{.*?\}!/g, I, s_matcher1, s_exec); //!{}!
+  var insert_datas1 = B(/\{\{\{.*?\}\}\}/g, I, s_matcher2, s_exec); // {{{}}}
+  var insert_datas2 = B(/\{\{.*?\}\}/g, C.escape, s_matcher1, s_exec); // {{}}
   H.TAB_SIZE = function(size) {
     TAB_SIZE = size;
     var TAB = "( {" + size + "}|\\t)";
@@ -741,9 +736,8 @@
       return obj_name + "._ABC_func_storage." + key;
     }).join("");
 
-    var self = {};
     return function() {
-      return C(source, var_names, arguments, self, [remove_comment, unescaped_exec, option, insert_datas1, insert_datas2, I]);
+      return C(source, var_names, arguments, [remove_comment, unescaped_exec, option, insert_datas1, insert_datas2, I]);
     }
   }
   function s_each(func, var_names/*, source...*/) {     // used by H.each and S.each
@@ -752,17 +746,17 @@
       return A([ary].concat(C.rest(arguments)), [map, function(res) { return res.join(""); }]);
     };
   }
-  function remove_comment(source, var_names, args, self) {
-    return MR(source.replace(/\/\*(.*?)\*\//g, "").replace(REG2, ""), var_names, args, self);
+  function remove_comment(source, var_names, args) {
+    return MR(source.replace(/\/\*(.*?)\*\//g, "").replace(REG2, ""), var_names, args);
   }
-  function s_exec(re, wrap, matcher, source, var_names, args, self) {
-    return C(source.split(re), C.map(matcher(re, source, self), function(expr) {
+  function s_exec(re, wrap, matcher, source, var_names, args) {
+    return C(source.split(re), C.map(matcher(re, source), function(expr) {
         return C(new Function(var_names, "return " + expr + ";").apply(null, args), [wrap, return_check]);
       }),
-      function(s, vs) { return MR(map(vs, function(v, i) { return s[i] + v; }).join("") + s[s.length-1], var_names, args, self); }
+      function(s, vs) { return MR(map(vs, function(v, i) { return s[i] + v; }).join("") + s[s.length-1], var_names, args); }
     );
   }
-  function convert_to_html(source, var_names, args, self) {
+  function convert_to_html(source, var_names, args) {
     var tag_stack = [];
     var ary = source.match(REG3);
     var base_tab = number_of_tab(ary[0]);
@@ -777,7 +771,6 @@
       }
 
       var tmp = ary[i];
-
       if (!is_paragraph) {
         ary[i] = line(ary[i], tag_stack);
         if (tmp.match(REG5)) is_paragraph = number_of_tab(RegExp.$1) + 1;
@@ -790,7 +783,7 @@
 
     while (tag_stack.length) ary[ary.length - 1] += end_tag(tag_stack.pop()); // 마지막 태그
 
-    return MR(ary.join(""), var_names, args, self);
+    return MR(ary.join(""), var_names, args);
   }
   function line(source, tag_stack) {
     source = source.replace(REG8, "\n").replace(/^ */, "");
