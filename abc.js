@@ -743,9 +743,8 @@
 
     var self = {};
     return function() {
-      var data = var_names ? C.object(var_names.match(/[\w\$]+/g), C.toArray(arguments)) : void 0;
-      return C(source, data, self, [remove_comment, unescaped_exec, option, insert_datas1, insert_datas2, I]);
-    };
+      return C(source, var_names, arguments, self, [remove_comment, unescaped_exec, option, insert_datas1, insert_datas2, I]);
+    }
   }
   function s_each(func, var_names/*, source...*/) {     // used by H.each and S.each
     var map = B.map(func.apply(null, C.rest(arguments)));
@@ -753,17 +752,17 @@
       return A([ary].concat(C.rest(arguments)), [map, function(res) { return res.join(""); }]);
     };
   }
-  function remove_comment(source, data, self) {
-    return MR(source.replace(/\/\*(.*?)\*\//g, "").replace(REG2, ""), data, self);
+  function remove_comment(source, var_names, args, self) {
+    return MR(source.replace(/\/\*(.*?)\*\//g, "").replace(REG2, ""), var_names, args, self);
   }
-  function s_exec(re, wrap, matcher, source, data, self) {
+  function s_exec(re, wrap, matcher, source, var_names, args, self) {
     return C(source.split(re), C.map(matcher(re, source, self), function(expr) {
-        return C(data, [new Function("data", "with(data||{}) { return " + expr + "; }"), wrap, return_check]);
+        return C(new Function(var_names, "return " + expr + ";").apply(null, args), [wrap, return_check]);
       }),
-      function(s, vs) { return MR(map(vs, function(v, i) { return s[i] + v; }).join("") + s[s.length-1], data, self); }
+      function(s, vs) { return MR(map(vs, function(v, i) { return s[i] + v; }).join("") + s[s.length-1], var_names, args, self); }
     );
   }
-  function convert_to_html(source, data, self) {
+  function convert_to_html(source, var_names, args, self) {
     var tag_stack = [];
     var ary = source.match(REG3);
     var base_tab = number_of_tab(ary[0]);
@@ -791,7 +790,7 @@
 
     while (tag_stack.length) ary[ary.length - 1] += end_tag(tag_stack.pop()); // 마지막 태그
 
-    return MR(ary.join(""), data, self);
+    return MR(ary.join(""), var_names, args, self);
   }
   function line(source, tag_stack) {
     source = source.replace(REG8, "\n").replace(/^ */, "");
