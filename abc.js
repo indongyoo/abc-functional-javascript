@@ -242,7 +242,10 @@
 
   function B_sel_func(what, selector) { var args = C.rest(arguments); return B.apply(null, [X].concat(args).concat(C.val(C.sel, what))); }
 
-  function A(args, func) { return C.apply(arguments[2] || this, C.toArray(args).concat([func])); }
+  function A(args, func) {
+    if (C.isFunction(func)) return func.apply(arguments[2] || this, args);
+    return C.apply(arguments[2] || this, C.toArray(args).concat([func]));
+  }
 
   function each(list, iter, start) {
     if (!list) return list;
@@ -467,7 +470,7 @@
   };
   function base_loop_fn_base_args(list, keys, i, res, args) {
     var key = keys ? keys[i] : i;
-    return [list[key], key, list].concat(args);
+    return args.length ? [list[key], key, list].concat(args) : [list[key], key, list];
   }
   function base_loop_fn(body, end_q, end, complete, iter_or_predi, params) {
     var context = this;
@@ -475,20 +478,27 @@
     var list = args.shift();
     var keys = C.isArrayLike(list) ? null : C.keys(list);
     iter_or_predi = iter_or_predi || C.lambda(args.pop());
+    var fast = !args.length && C.isFunction(iter_or_predi);
+    if (fast && this != C && this != G) iter_or_predi = iter_or_predi.bind(this);
     var length = (keys || list).length;
     var result = [], tmp = [];
     var resolve = I, async = false;
+    var go = fast ? function(list, keys, i, res, args, iter_or_predi) {
+      var key = keys ? keys[i] : i;
+      return iter_or_predi(list[key], key, list);
+    } : function(list, keys, i, res, args, iter_or_predi, context) {
+      return A(params(list, keys, i, res, args), iter_or_predi, context);
+    };
     return (function f(i, res) {
       do {
         if (end_q(res = body(result, list, keys, i, res, tmp, args))) return resolve(end(list, keys, i));
         if (i == length) return resolve(complete(result, list, res));
-        res = A(params(list, keys, i++, res, args), iter_or_predi, context);
+        res = go(list, keys, i++, res, args, iter_or_predi, context);
       } while (!maybe_promise(res));
       res.then(function(res) { f(i, res); });
       return async || C(CB(function(cb) { resolve = cb, async = true; }));
     })(0);
   }
-
 
   function unpack_arr(arr) { return arr.length == 1 ? arr[0] : arr }
   F.CB = window.CB = B2(C.arr_or_args_to_arr, B.map([I, B(X, {_ABC_is_cb: true}, C.extend)]), unpack_arr);
@@ -531,6 +541,7 @@
     var args = C.toArray(arguments);
     if (!C.isArray(args[args.length - 1])) args[args.length - 1] = [args[args.length - 1]];
     var fns = C.flatten(args.pop());
+
     if (args.length == 1 && isMR(args[0])) args = args[0];
 
     var i = 0, promise = null, resolve = null, fns_len = fns.length;
@@ -754,12 +765,15 @@
   function remove_comment(source, var_names, args, self) {
     return MR(source.replace(/\/\*(.*?)\*\//g, "").replace(REG2, ""), var_names, args, self);
   }
+  function safety_c(result, next) {
+    return maybe_promise(result) ? C(result, next) : next(result);
+  }
   function s_exec(re, wrap, matcher, source, var_names, args, self) {
-    return C(source.split(re), C.map(matcher(re, source, var_names, self), function(func) {
-        return C(func.apply(null, args), [wrap, return_check]);
-      }),
-      function(s, vs) { return MR(map(vs, function(v, i) { return s[i] + v; }).join("") + s[s.length-1], var_names, args, self); }
-    );
+    var s = source.split(re);
+    return safety_c(C.map(matcher(re, source, var_names, self), function(func, i) {
+      var result = func.apply(null, args);
+      return maybe_promise(result) ? C(result, [wrap, return_check, function(v) { return s[i] + v; }]) : s[i] + return_check(wrap(result));
+    }), function(map_r) { return MR(map_r.join("") + s[s.length-1], var_names, args, self); });
   }
   function convert_to_html(source, var_names, args, self) {
     if (self.convert_to_html) return MR(self.convert_to_html, var_names, args, self);
