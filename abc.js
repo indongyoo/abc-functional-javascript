@@ -243,7 +243,7 @@
   function B_sel_func(what, selector) { var args = C.rest(arguments); return B.apply(null, [X].concat(args).concat(C.val(C.sel, what))); }
 
   function A(args, func) {
-    if (C.isFunction(func)) return func.apply(arguments[2] || this, args);
+    if (C.isFunction(func) && !func._ABC_is_cb && !func._ABC_just_cb) return func.apply(arguments[2] || this, args);
     return C.apply(arguments[2] || this, C.toArray(args).concat([func]));
   }
 
