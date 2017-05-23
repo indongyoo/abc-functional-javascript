@@ -1,3 +1,9 @@
+# 프로젝트 이전
+abcjs는 Partial.js로 변경되었습니다.
+
+https://github.com/marpple/partial.js
+
+
 # abcjs
 _abcjs는 함수형 자바스크립트(functional javascript) 라이브러리입니다._
 
